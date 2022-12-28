@@ -1,8 +1,16 @@
 /* Global Styles
 -------------------------------------------------------- */
 body{
-    /* background-color : rgb(14, 13, 13) */
-    background-image : linear-gradient(to bottom right,rgba(0, 0, 0, 0.927),rgba(98, 3, 145, 0.655));
+    background-color: rgb(15, 8, 21);
+    color : rgb(144, 149, 149);
+}
+
+a:link{
+    color : blueviolet;
+}
+
+a:visited{
+    color: rgb(134, 35, 183);
 }
 
 img{
@@ -14,8 +22,9 @@ img{
 
 /* index Styles
 -------------------------------------------------------- */
-
-
+.index{
+    color: rgb(144, 149, 149);
+}
 
 
 /* aboutme Styles
