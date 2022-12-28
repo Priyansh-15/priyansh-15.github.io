@@ -8,6 +8,9 @@ body{
 a:link{
     color : rgb(255, 255, 255);
     text-decoration: none;
+    background: rgb(66, 20, 94);
+    padding: 5px;
+    border-radius: 4px;
 }
 
 a:visited{
@@ -19,7 +22,7 @@ a:focus{
 }
 
 a:hover{
-    color:grey;
+    color:rgba(128, 128, 128, 0.814);
 }
 
 img{
@@ -27,14 +30,19 @@ img{
     height: 300px;
 }
 
-
-
-/* index Styles
--------------------------------------------------------- */
-.index{
+.header{
     color: rgb(144, 149, 149);
+    width: 300px;
+    height: 200px;
 }
 
+.footer{
+    color: rgb(144, 149, 149);
+    width: 300px;
+    height: 200px;
+}
+/* index Styles
+-------------------------------------------------------- */
 .ps{
     color:rgb(100, 11, 168);
 }
