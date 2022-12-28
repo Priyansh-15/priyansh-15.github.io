@@ -6,11 +6,20 @@ body{
 }
 
 a:link{
-    color : blueviolet;
+    color : rgb(255, 255, 255);
+    text-decoration: none;
 }
 
 a:visited{
-    color: rgb(134, 35, 183);
+    color: rgb(255, 255, 255);
+}
+
+a:focus{
+    outline: 1px solid white;
+}
+
+a:hover{
+    color:grey;
 }
 
 img{
@@ -26,6 +35,9 @@ img{
     color: rgb(144, 149, 149);
 }
 
+.ps{
+    color:rgb(100, 11, 168);
+}
 
 /* aboutme Styles
 -------------------------------------------------------- */
