@@ -148,11 +148,21 @@ img{
 
 .psin{
     /* border-radius: 25%; */
-    width: 300px;
-    height:300px;
+    width: 400px;
+    height:400px;
     /* border: 3px; */
     border-style:dashed;
+    table-layout: fixed;
+    border-collapse: collapse;
+    /* border: 1px dashed white; */
     border-color:rgb(255, 255, 255);
+    table-layout: inherit;
+}
+
+.c1{
+    border-style: dashed;
+    border-color:rgb(255, 255, 255);
+    text-align: center;
 }
 
 /* aboutme Styles
