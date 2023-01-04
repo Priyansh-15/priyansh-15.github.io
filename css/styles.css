@@ -170,6 +170,15 @@ img{
     text-align: center;
 }
 
+.test{
+    border: 1px dashed cyan;
+    border-radius: 25%;
+    width: 600px;
+    height: 100px;
+    text-align: center;
+    padding: 10px;
+}
+
 /* aboutme Styles
 -------------------------------------------------------- */
 
