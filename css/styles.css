@@ -166,17 +166,8 @@ img{
 
 .c1{
     border-style: dashed;
-    border-color:rgb(66, 20, 94);
+    border-color:rgb(86, 8, 114);
     text-align: center;
-}
-
-.test{
-    border: 1px dashed cyan;
-    border-radius: 25%;
-    width: 600px;
-    height: 100px;
-    text-align: center;
-    padding: 10px;
 }
 
 /* aboutme Styles
