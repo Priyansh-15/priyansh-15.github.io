@@ -201,7 +201,28 @@ img{
     margin: 8px;
 }
 
+.abt2{
+    display: block; 
+    text-align: center; 
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size:large;
+    font-size: 20px; 
+    font-style:oblique;
+    color: lavenderblush;
+    margin-top: 18px;
+    margin-bottom: 8px;
+}
 
+.abt3{
+    display: block; 
+    text-align: center; 
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size:large;
+    font-size: 15px; 
+    font-style:oblique;
+    color: lavenderblush;
+    margin: 2px;
+}
 /* achievements Styles
 -------------------------------------------------------- */
 
