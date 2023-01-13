@@ -399,10 +399,11 @@ img{
     border-radius: 3%;
     border-color: rebeccapurple;
     border-style: dashed;
-    border-width: 1px;
+    border-width: 1.6px;
     /* justify-content: center; */
     align-items: center;
     text-align: center;
+    word-wrap: break-word;
     /* padding-top: 20px; */
 }
 
