@@ -187,10 +187,12 @@ img{
     width: 200px;
     margin: 0px;
     padding:15px;
-    border-radius: 7%;
+    border-radius: 5%;
     border-color: rebeccapurple;
     border-style: dashed;
     border-width: 1px;
+    -webkit-box-shadow: 2px 4px 10px 1px rgb(15, 8, 21);
+    box-shadow: 2px 4px 10px 1px rgba(134, 132, 132, 0.47);
     /* justify-content: center; */
     align-items: center;
     text-align: center;
