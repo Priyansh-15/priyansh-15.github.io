@@ -351,6 +351,7 @@ img{
     /* border: 3px solid rgb(83, 1, 1); */
     display: flex;
     justify-content:center;
+    
 }
 
 .cpt2{
@@ -358,7 +359,7 @@ img{
     margin: 0px;
     /* padding:2px; */
     padding-bottom: 20px;
-    border-radius: 7%;
+    border-radius: 5%;
     border-color: rebeccapurple;
     border-style: dashed;
     border-width: 1px;
@@ -366,6 +367,8 @@ img{
     align-items: center;
     text-align: center;
     /* padding-top: 20px; */
+    -webkit-box-shadow: 2px 4px 10px 1px rgb(15, 8, 21);
+    box-shadow: 2px 4px 10px 1px rgba(134, 132, 132, 0.47);
 }
 
 .cpt3{
@@ -373,14 +376,15 @@ img{
     margin: 0px;
     /* padding-top: 4.1%; */
     /* padding-bottom: 20px; */
-    border-radius: 7%;
+    border-radius: 5%;
     border-color: rebeccapurple;
     border-style: dashed;
     border-width: 1px;
     /* justify-content: center; */
     align-items: center;
     text-align: center;
-    
+    -webkit-box-shadow: 2px 4px 10px 1px rgb(15, 8, 21);
+    box-shadow: 2px 4px 10px 1px rgba(134, 132, 132, 0.47);
     /* padding-top: 20px; */
 }
 
