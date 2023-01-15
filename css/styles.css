@@ -421,10 +421,13 @@ img{
     box-shadow: 2px 4px 10px 1px rgba(134, 132, 132, 0.47);
     padding: 10px;
     margin: 10px;
+    justify-content: center;
+    /* display: flex; */
 }
 
 .we2{
     display: flex;
+    /* justify-content: center; */
 }
 
 .weicon{
