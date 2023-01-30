@@ -1,5 +1,6 @@
-A Personal Portfolio Website by Priyansh Sharma
-##Includes Multiple Pages Like : 
+## A Personal Portfolio Website by Priyansh Sharma
+
+## Includes Multiple Pages Like : 
 - Home Page
 - About Me Page
 - My Projects Page
