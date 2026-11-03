@@ -1,0 +1,153 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Header from '../../../components/Header.astro';
+const title = 'Designing a Distributed Billing Pipeline — Priyansh Sharma';
+const description = 'An engineering case study about processing stages, durable ownership, recovery, and verification in a distributed billing and reporting pipeline.';
+const scenarios = [
+  {num:'01',name:'Worker loses ownership',event:'A worker stalls long enough for its lease to expire.',risk:'An old worker could publish after another worker has reclaimed the task.',design:'Treat the lease as permission to attempt work, not permission to commit forever. Recheck ownership and make output publication safe against stale attempts.',check:'Pause a worker beyond expiry, reclaim the task, then release both workers and assert a single valid published result.'},
+  {num:'02',name:'Write succeeds; acknowledgement fails',event:'The output is durable, but the completion update is interrupted.',risk:'A retry might apply the same contribution twice.',design:'Give work and outputs stable identities; distinguish computing a value from committing it. Replayed work must not change the logical result.',check:'Inject a failure between persistence and acknowledgement, retry, and compare results to a single-run baseline.'},
+  {num:'03',name:'A stage partially completes',event:'Some mapping partitions finish while others fail.',risk:'A downstream reducer could read an incomplete set of contributions.',design:'Use an explicit stage boundary. Validate the expected contributions before advancing rather than inferring completion from the existence of some output.',check:'Withhold one partition and assert the next stage cannot finalize prematurely.'},
+  {num:'04',name:'Retries compete with useful work',event:'A shared dependency becomes slow and several jobs retry.',risk:'Backlog and database pressure compound the original failure.',design:'Bound retries and concurrency; separate recoverable failures from persistent ones. Measure coordination overhead as well as processing time.',check:'Introduce dependency latency and observe in-flight work, retry rate, backlog, and eventual recovery.'},
+];
+const decisions = [
+  {name:'Parallelize mapping',why:'Independent event partitions offer natural concurrency.',cost:'More partitions increase coordination writes, scheduling overhead, and result fan-in.'},
+  {name:'Make phase boundaries durable',why:'A restart should not have to guess which processing phase is complete.',cost:'Durable checkpoints add state transitions and storage activity.'},
+  {name:'Recover abandoned work',why:'One interrupted worker should not permanently block a reporting run.',cost:'Lease expiry must account for slow but live workers; reclamation introduces stale-owner races.'},
+  {name:'Gate report finalization',why:'A report must represent a complete, consistent set of contributions.',cost:'Stragglers can delay completion; partial progress must remain visible without appearing final.'},
+];
+---
+<BaseLayout title={title} description={description}>
+  <Header />
+  <main id="main" class="case-page case-v23">
+    <div class="shell case-hero">
+      <a href="/#work" class="case-back">← Back to selected work</a>
+      <div class="case-meta"><span>ENGINEERING STORY / 01</span><span>BACKEND · CONCURRENT PROCESSING · RELIABILITY</span></div>
+      <h1>Making distributed billing <em>finish correctly.</em></h1>
+      <p class="case-standfirst">Getting a large workload to run in parallel is only half the job. The harder half is knowing which work actually finished, which work must be retried, and when a report is safe to publish.</p>
+      <div class="case-byline"><span>By Priyansh Sharma</span><span>Backend engineering · Thales</span><span>Public-safe architectural walkthrough</span></div>
+    </div>
+
+    <div class="shell case-layout">
+      <aside class="case-sidebar" aria-label="On this page">
+        <p>IN THIS STORY</p>
+        <a href="#overview">01 / The problem</a>
+        <a href="#architecture">02 / System model</a>
+        <a href="#ownership">03 / Ownership</a>
+        <a href="#failures">04 / Failure walkthroughs</a>
+        <a href="#decisions">05 / Tradeoffs</a>
+        <a href="#validation">06 / Verification</a>
+        <a href="#reflection">07 / What I took away</a>
+      </aside>
+      <article class="case-prose">
+        <div class="case-disclosure"><strong>Scope and attribution.</strong> This story draws on my experience building a multi-stage billing and reporting framework. The diagrams, failure examples, and validation scenarios below are educational abstractions, <em>not</em> documentation of Thales' production architecture or claims that every described test was performed. No internal code, operational configuration, or confidential measurements are reproduced.</div>
+
+        <section id="overview" class="case-section">
+          <p class="case-label">01 / THE PROBLEM</p>
+          <h2>The last 1% of a report is a systems problem.</h2>
+          <p>A reporting pipeline sounds straightforward: read the events, compute the charges, aggregate the results, write the report. That story works until the input grows, the calculation is split into concurrent tasks, and some of those tasks stop halfway through.</p>
+          <p>I worked on a distributed billing and reporting framework involving mapping, reduction, and finalization. My focus was on getting those stages to cooperate as a reliable execution flow—not just on making individual computations faster.</p>
+          <div class="case-highlight"><span>THE CENTRAL QUESTION</span><strong>How can a coordinator distinguish “some work produced output” from “every required contribution is safely complete”?</strong></div>
+          <p>It changes the way you design the pipeline. Instead of treating completion as a boolean set by whichever worker finishes last, you need an explicit contract for ownership, durable results, stage transitions, and recovery.</p>
+        </section>
+
+        <section id="architecture" class="case-section">
+          <p class="case-label">02 / A SYSTEM MODEL</p>
+          <h2>Separate the data being processed from the decisions about progress.</h2>
+          <p>My mental model separates the <em>data plane</em>—where events are transformed and aggregated—from the <em>control plane</em>—where task ownership, retries, and progression between phases are decided. This distinction makes failure behavior easier to reason about.</p>
+          <figure class="v23-architecture">
+            <div class="v23-figure-heading"><span>FIG. 01 / SIMPLIFIED EXECUTION MODEL</span><span>CONCEPTUAL, NOT PRODUCTION TOPOLOGY</span></div>
+            <div class="v23-arch-inner">
+              <div class="v23-plane-label">DATA PLANE <span>· process contributions</span></div>
+              <div class="v23-flow">
+                <div class="v23-stage"><small>INPUT</small><strong>Events</strong><span>Source records</span></div>
+                <span class="v23-arrow" aria-hidden="true">→</span>
+                <div class="v23-stage v23-stage-featured"><small>FAN OUT</small><strong>Map</strong><span>Independent partitions</span><span class="v23-subnodes" aria-hidden="true">P1 · P2 · P3</span></div>
+                <span class="v23-arrow" aria-hidden="true">→</span>
+                <div class="v23-stage"><small>FAN IN</small><strong>Reduce</strong><span>Combine contributions</span></div>
+                <span class="v23-arrow" aria-hidden="true">→</span>
+                <div class="v23-stage"><small>PUBLISH</small><strong>Finalize</strong><span>Complete report</span></div>
+              </div>
+              <div class="v23-plane-link" aria-hidden="true"><span>↓</span><span>state &amp; progress</span><span>↑</span></div>
+              <div class="v23-control">
+                <div><small>CONTROL PLANE</small><strong>Coordinator</strong><span>Task claims · expiry · stage barrier · retry decisions</span></div>
+                <div><small>DURABLE STATE</small><strong>Persistent coordination records</strong><span>Ownership and completion survive worker interruption</span></div>
+              </div>
+            </div>
+            <figcaption>This diagram illustrates responsibilities and correctness boundaries. It omits internal service names, storage schemas, and deployment details.</figcaption>
+          </figure>
+          <p>There's a subtle but important rule here: <strong>the existence of intermediate output cannot be the sole proof of stage completion.</strong> A reducer needs to know which contributions were expected and which were committed. A finalizer needs a valid aggregate, not merely the most recent aggregate.</p>
+        </section>
+
+        <section id="ownership" class="case-section">
+          <p class="case-label">03 / OWNERSHIP AND COMPLETION</p>
+          <h2>A lease is not a guarantee that work ran only once.</h2>
+          <p>Coordination through persistent state is useful when multiple workers may compete for the same job. In this class of design, leases help identify an active owner and permit recovery when ownership expires. My reporting work also involved Cassandra-backed coordination.</p>
+          <p>But expiry creates a race: an apparently stalled worker may resume after the task has been reclaimed. If both executions can publish blindly, the system can produce inconsistent results even though the scheduler behaved as intended.</p>
+          <div class="v23-timeline" aria-label="Illustrative lease expiry race">
+            <div class="v23-timeline-head"><span>ILLUSTRATIVE TIMELINE</span><span>NOT AN INCIDENT REPORT</span></div>
+            <div class="v23-timeline-row"><span>T0</span><strong>Worker A claims task</strong><p>A begins processing while its ownership is valid.</p></div>
+            <div class="v23-timeline-row"><span>T1</span><strong>Worker A pauses</strong><p>Progress stops long enough for the claim to expire.</p></div>
+            <div class="v23-timeline-row"><span>T2</span><strong>Worker B reclaims task</strong><p>Recovery restarts the work under a newer claim.</p></div>
+            <div class="v23-timeline-row"><span>T3</span><strong>Worker A resumes</strong><p>Both attempts may now try to persist a result.</p></div>
+          </div>
+          <div class="case-callout"><span>DESIGN INVARIANT</span><p>Only an authorized, logically valid result should become visible to downstream stages—even when attempts overlap or messages are repeated.</p></div>
+          <p>The implementation choices vary: guarded state transitions, version or fencing checks, deterministic result identities, idempotent writes, or a combination. The important thing is to specify the invariant <em>before</em> adding parallelism. I am not claiming that a particular mechanism here matches confidential production code.</p>
+        </section>
+
+        <section id="failures" class="case-section">
+          <p class="case-label">04 / FAILURE WALKTHROUGHS</p>
+          <h2>Four scenarios worth designing before the happy path is done.</h2>
+          <p>These are concrete design-review scenarios I would use for a distributed reporting pipeline. Expand each one for the failure, the risk, the mitigation, and a reproducible verification idea.</p>
+          <div class="v23-scenarios">
+            {scenarios.map((scenario) => (
+              <details class="v23-scenario">
+                <summary><span class="v23-number">{scenario.num}</span><span>{scenario.name}</span><span class="v23-plus" aria-hidden="true">+</span></summary>
+                <div class="v23-scenario-body">
+                  <div><small>TRIGGER</small><p>{scenario.event}</p></div>
+                  <div><small>WHAT CAN GO WRONG</small><p>{scenario.risk}</p></div>
+                  <div><small>DESIGN RESPONSE</small><p>{scenario.design}</p></div>
+                  <div><small>HOW TO TEST THE IDEA</small><p>{scenario.check}</p></div>
+                </div>
+              </details>
+            ))}
+          </div>
+          <p class="v23-caption-text">These examples illustrate possible failure modes; they are not claims about specific bugs or incidents at Thales.</p>
+        </section>
+
+        <section id="decisions" class="case-section">
+          <p class="case-label">05 / TRADEOFFS</p>
+          <h2>Each reliability decision has a cost.</h2>
+          <p>One thing I've learned from working on processing frameworks is that “more parallel” and “more reliable” aren't free settings. Every additional partition and checkpoint has an operational price.</p>
+          <div class="v23-decision-table" role="region" aria-label="Architecture decision tradeoffs" tabindex="0">
+            <table><thead><tr><th>Decision</th><th>Why it helps</th><th>What it costs</th></tr></thead><tbody>{decisions.map((d) => (<tr><th scope="row">{d.name}</th><td>{d.why}</td><td>{d.cost}</td></tr>))}</tbody></table>
+          </div>
+          <p>I'd rather explain these costs honestly than present a larger worker count as an achievement on its own. Concurrency is valuable when the end-to-end result improves <em>without weakening correctness.</em></p>
+        </section>
+
+        <section id="validation" class="case-section">
+          <p class="case-label">06 / VALIDATION</p>
+          <h2>The measurement is only useful if you can explain it.</h2>
+          <p>On the billing project, I worked with large event volumes and reporting performance tests. I don't want to put a number on a public website unless it is verified, approved to disclose, and accompanied by its measurement conditions.</p>
+          <div class="v23-validation-grid">
+            <div><span>01 / CORRECTNESS</span><strong>Consistent report output</strong><p>Compare generated results against a baseline; test duplicate attempts and missing contributions.</p></div>
+            <div><span>02 / RECOVERY</span><strong>Converges after interruption</strong><p>Introduce worker loss, delayed acknowledgements, and retry overlap; verify eventual valid completion.</p></div>
+            <div><span>03 / PERFORMANCE</span><strong>Explain the workload</strong><p>Record event count, distribution, run scope, concurrency, environment, elapsed time, and what is excluded.</p></div>
+            <div><span>04 / BOTTLENECKS</span><strong>See the entire pipeline</strong><p>Measure stage duration, coordination pressure, stragglers, aggregation, and finalization separately.</p></div>
+          </div>
+          <div class="case-callout"><span>BENCHMARK DISCLOSURE</span><p>Public figures are intentionally withheld here until confirmed against test evidence and approved for publication. This avoids turning an internal lab result into an unsupported production-scale claim.</p></div>
+        </section>
+
+        <section id="reflection" class="case-section case-final-section">
+          <p class="case-label">07 / WHAT I TOOK AWAY</p>
+          <h2>I think about completion differently now.</h2>
+          <p>The useful shift for me was from asking <em>“How fast can we process these events?”</em> to asking <em>“What would convince us that the full result is correct, durable, and safe to publish?”</em></p>
+          <p>That question changes your approach to worker ownership, stage boundaries, recovery, testing, and observability. It also makes performance numbers more meaningful: you can say what finished, not just what ran.</p>
+          <p>Some implementation details have to remain private, but the engineering lessons are worth sharing. They're also the questions I keep bringing to new distributed-systems work.</p>
+          <div class="v23-story-end"><div><span>THANKS FOR READING</span><strong>Have an interesting systems problem?</strong></div><a href="/#contact">Let's talk <span aria-hidden="true">↗</span></a></div>
+        </section>
+        <div class="case-next"><span>MORE TO EXPLORE</span><a href="/#work">Back to selected engineering work <span aria-hidden="true">↗</span></a></div>
+      </article>
+    </div>
+  </main>
+  <footer class="site-footer"><div class="shell footer-layout"><a class="footer-brand" href="/">PS<span>.</span></a><span>© {new Date().getFullYear()} Priyansh Sharma · Built with care.</span><a href="#main">BACK TO TOP ↑</a></div></footer>
+</BaseLayout>
