@@ -1,0 +1,51 @@
+---
+import '../styles/global.css';
+import { site } from '../data/site';
+const { title = site.title, description = site.description } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1013" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    <link rel="canonical" href={Astro.url.href} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script is:inline>
+      (() => { try { const stored = localStorage.getItem('portfolio-theme'); const theme = stored === 'light' || stored === 'dark' ? stored : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); document.documentElement.dataset.theme = theme; } catch { document.documentElement.dataset.theme = 'dark'; } })();
+    </script>
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <slot />
+    <script>
+      const themeButton = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+      const syncTheme = () => { if (themeButton) themeButton.setAttribute('aria-label', `Switch to ${document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'} mode`); };
+      syncTheme();
+      themeButton?.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('portfolio-theme', next); } catch {}
+        syncTheme();
+      });
+      const nav = document.querySelector<HTMLElement>('[data-mobile-nav]');
+      const navButton = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+      navButton?.addEventListener('click', () => {
+        const next = navButton.getAttribute('aria-expanded') !== 'true';
+        navButton.setAttribute('aria-expanded', String(next));
+        nav?.classList.toggle('is-open', next);
+      });
+      nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => { nav?.classList.remove('is-open'); navButton?.setAttribute('aria-expanded','false'); }));
+      document.addEventListener('keydown', (event) => { if (event.key === 'Escape') { nav?.classList.remove('is-open'); navButton?.setAttribute('aria-expanded','false'); } });
+    </script>
+  </body>
+</html>
