@@ -1,0 +1,118 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Header from '../../../components/Header.astro';
+
+const title = 'Separating Decisions from Execution — Priyansh Sharma';
+const description = 'A public-safe engineering case study about evolving an order scheduling system: planning, execution, provider boundaries, failure recovery, and explicit behavior.';
+const cases = [
+  { id: '01', title: 'An order is not eligible yet', question: 'Should a worker attempt it anyway?', answer: 'Eligibility belongs to planning. Execution should receive a defined, actionable decision rather than re-deriving business rules.', cost: 'A planner must keep its view of relevant state current.' },
+  { id: '02', title: 'A provider call times out', question: 'Was the operation executed remotely?', answer: 'A timeout is not proof of failure. Recovery needs operation identity, an explicit retry policy, and a way to distinguish safe retry from uncertain remote outcome.', cost: 'Some uncertainties require reconciliation rather than another immediate call.' },
+  { id: '03', title: 'Several order types are available', question: 'Who decides which one takes precedence?', answer: 'Ordering and precedence rules should be explicit at the decision boundary, not an accidental consequence of executor branching.', cost: 'More explicit policy means more documented cases and regression tests.' },
+  { id: '04', title: 'A result arrives after a retry', question: 'What happens when results arrive twice or out of order?', answer: 'Completion should be matched to a stable operation identity and its expected state transition. Results are observations, not unconditional commands.', cost: 'Correlation and state checks add complexity but make failures understandable.' },
+];
+const matrix = [
+  ['Rule produces an eligible order', 'Planner selects the applicable action', 'Executor applies the selected action', 'Order selection is not silently recalculated'],
+  ['No rule matches', 'Planner follows documented fallback behavior', 'Executor handles only the resulting action', 'No accidental duplicate retrieval'],
+  ['Provider reports a transient error', 'Policy identifies retryable outcome', 'Adapter reports structured failure', 'Retry is bounded and observable'],
+  ['An execution result is duplicated', 'State transition is checked', 'Result handler correlates operation', 'No duplicate final outcome'],
+];
+---
+<BaseLayout title={title} description={description}>
+  <Header />
+  <main id="main" class="case-page case-v23 scheduler-study">
+    <div class="shell case-hero">
+      <a class="case-back" href="/#work">← Back to selected work</a>
+      <div class="case-meta"><span>ENGINEERING STORY / 02</span><span>ORCHESTRATION · BACKEND ARCHITECTURE · RELIABILITY</span></div>
+      <h1>Separating decisions from <em>execution.</em></h1>
+      <p class="case-standfirst">Scheduling becomes difficult when one component must decide what should happen, know every provider's quirks, perform the work, and recover when the outside world doesn't respond as expected.</p>
+      <div class="case-byline"><span>By Priyansh Sharma</span><span>Professional engineering experience · Thales</span><span>Public-safe conceptual walkthrough</span></div>
+    </div>
+    <div class="shell case-layout">
+      <aside class="case-sidebar" aria-label="On this page">
+        <p>IN THIS STORY</p>
+        <a href="#problem">01 / Where coupling starts</a>
+        <a href="#boundary">02 / The architectural boundary</a>
+        <a href="#rules">03 / Making behavior explicit</a>
+        <a href="#failures">04 / Failure paths</a>
+        <a href="#testing">05 / How to test it</a>
+        <a href="#tradeoffs">06 / What the design costs</a>
+        <a href="#reflection">07 / What I learned</a>
+      </aside>
+      <article class="case-prose">
+        <div class="case-disclosure"><strong>About this write-up.</strong> I worked on an order-scheduler framework redesign involving a separation of planning and execution responsibilities, provider interactions, and clearer order-handling behavior. This article is my public-safe explanation of the architectural reasoning. Diagrams, illustrative interfaces, and failure scenarios are simplified teaching models—not internal system documentation, production traces, or a claim that every example below occurred in production.</div>
+        <section id="problem" class="case-section">
+          <p class="case-label">01 / WHERE COUPLING STARTS</p>
+          <h2>A scheduler can quietly become the whole system.</h2>
+          <p>At first, the flow looks small: find pending work, decide what is eligible, send a request, record the result. Over time, each new order type and provider behavior adds another condition. Eventually, making a change in one path risks changing an unrelated one.</p>
+          <p>My work on an order scheduler pushed me to separate two questions that had become too easy to mix together: <em>what should happen next?</em> and <em>how should that action actually happen?</em></p>
+          <div class="case-highlight"><span>THE DESIGN QUESTION</span><strong>Can a scheduling decision be understood and tested without running the external operation it chooses?</strong></div>
+          <p>That boundary matters because decision rules change for different reasons than provider integrations do. Keeping them together makes both harder to reason about.</p>
+        </section>
+        <section id="boundary" class="case-section">
+          <p class="case-label">02 / THE ARCHITECTURAL BOUNDARY</p>
+          <h2>Decide first. Execute second. Make the handoff obvious.</h2>
+          <p>I think of this kind of system as a set of responsibilities rather than one giant loop. The planner reads relevant state and rules and produces a decision. The executor carries out that decision through a provider-specific boundary. The outcome then informs future scheduling.</p>
+          <figure class="scheduler-figure">
+            <div class="scheduler-figure-top"><span>FIG. 01 / RESPONSIBILITY BOUNDARIES</span><span>CONCEPTUAL MODEL</span></div>
+            <div class="scheduler-flow" role="img" aria-label="Relevant state and rules feed a planner. The planner emits an action description to an executor. The executor uses a provider adapter and reports a result back to durable progress state.">
+              <div class="scheduler-input"><span>CONTEXT</span><strong>State + rules</strong><small>Eligibility · precedence · fallback</small></div>
+              <div class="scheduler-flow-arrow" aria-hidden="true">→</div>
+              <div class="scheduler-node scheduler-key"><span>DECIDE</span><strong>Planner</strong><small>Choose an action</small></div>
+              <div class="scheduler-flow-arrow" aria-hidden="true">→</div>
+              <div class="scheduler-node"><span>DO</span><strong>Executor</strong><small>Run the chosen action</small></div>
+              <div class="scheduler-flow-arrow" aria-hidden="true">→</div>
+              <div class="scheduler-node"><span>INTEGRATE</span><strong>Provider adapter</strong><small>Translate the external contract</small></div>
+            </div>
+            <div class="scheduler-output"><span>OUTCOME LOOP</span><strong>Result + progress</strong><p>Correlate the result, update durable state, and inform the next planning decision.</p></div>
+            <figcaption>An educational decomposition of responsibilities; it does not describe internal services, deployment topology, or proprietary protocols.</figcaption>
+          </figure>
+          <p>The important artifact of this split is the <strong>decision contract</strong>. It should identify an intended action and the context needed to execute it, without forcing the executor to rediscover all the reasons it was selected.</p>
+          <div class="scheduler-contract" aria-label="Illustrative planning contract"><div><span>ILLUSTRATIVE CONTRACT</span><span>NOT PRODUCTION CODE</span></div><pre><code>{`Decision {
+  operationId
+  actionType
+  targetReference
+  policyContext
+}`}</code></pre></div>
+          <p>This isn't an API copied from a private repository. It's the minimum shape of a useful idea: clear intent, stable identity, and enough information to preserve the reasoning boundary.</p>
+        </section>
+        <section id="rules" class="case-section">
+          <p class="case-label">03 / EXPLICIT BEHAVIOR</p>
+          <h2>Rules are part of the architecture, not an afterthought.</h2>
+          <p>Order handling becomes especially easy to misunderstand when rule-based work, individual requests, and fleet-oriented actions coexist. The absence of a match is itself a case worth specifying. So is whether an event, a result, or a notification should be emitted.</p>
+          <p>One useful habit from this work was to write down the expected behavior before changing the framework. It turns “what happens here?” from an argument spread across conditionals into something reviewers and testers can inspect.</p>
+          <div class="scheduler-rule-grid"><div><span>01 / PRIORITY</span><strong>What takes precedence?</strong><p>Define how competing eligible actions are selected.</p></div><div><span>02 / FALLBACK</span><strong>What happens on no match?</strong><p>Make the default path an explicit behavior.</p></div><div><span>03 / RESULTS</span><strong>Where does the outcome go?</strong><p>Specify correlation and result publication.</p></div><div><span>04 / FLAGS</span><strong>What varies by configuration?</strong><p>Keep policy switches distinct from execution plumbing.</p></div></div>
+        </section>
+        <section id="failures" class="case-section">
+          <p class="case-label">04 / FAILURE PATHS</p>
+          <h2>The interesting part happens when the happy path stops.</h2>
+          <p>A cleaner decomposition doesn't eliminate distributed-systems uncertainty. It gives that uncertainty a place to live. These illustrative scenarios show the questions a design and test review should answer.</p>
+          <div class="v23-scenarios">{cases.map((item) => <details class="v23-scenario"><summary><span class="v23-number">{item.id}</span><span>{item.title}</span><span class="v23-plus" aria-hidden="true">+</span></summary><div class="scheduler-failure-detail"><div><small>THE QUESTION</small><strong>{item.question}</strong></div><div><small>DESIGN RESPONSE</small><p>{item.answer}</p></div><div><small>TRADEOFF</small><p>{item.cost}</p></div></div></details>)}</div>
+          <p class="scheduler-fineprint">These are general failure-analysis exercises. They are not a list of incidents or an assertion that every mitigation was implemented exactly as described.</p>
+        </section>
+        <section id="testing" class="case-section">
+          <p class="case-label">05 / VALIDATION</p>
+          <h2>Test the behavior, not just the method.</h2>
+          <p>A refactor that compiles is only a starting point. The important regression risk is a behavior change hidden behind a new abstraction. I'd rather be able to trace a scenario from its inputs and policy through an action and an observable outcome.</p>
+          <div class="scheduler-matrix-scroll"><table class="scheduler-matrix"><caption>Illustrative behavioral test matrix — examples to verify, not a claim of completed tests.</caption><thead><tr><th>Situation</th><th>Planning expectation</th><th>Execution expectation</th><th>Correctness property</th></tr></thead><tbody>{matrix.map(row => <tr>{row.map(cell => <td>{cell}</td>)}</tr>)}</tbody></table></div>
+          <p>The useful separation in testing mirrors the design itself: policy tests can validate decisions deterministically; adapter contract tests validate provider boundaries; end-to-end cases verify that both fit together.</p>
+        </section>
+        <section id="tradeoffs" class="case-section">
+          <p class="case-label">06 / TRADEOFFS</p>
+          <h2>Modularity doesn't make complexity disappear.</h2>
+          <p>Separating planning and execution introduces a contract to maintain, more explicit state transitions, and the need to decide which layer owns retries and result handling. If those responsibilities are vague, the split can simply move the coupling somewhere else.</p>
+          <div class="scheduler-tradeoffs"><div><span>WHAT IMPROVES</span><strong>Decisions can be reasoned about independently.</strong><p>Policy can change without rewriting every provider call, and provider integrations can evolve without reimplementing scheduling decisions.</p></div><div><span>WHAT IT COSTS</span><strong>Boundaries need discipline.</strong><p>Operation identity, error classification, progress semantics, and contracts become first-class design concerns that require documentation and testing.</p></div></div>
+        </section>
+        <section id="reflection" class="case-section case-final-section">
+          <p class="case-label">07 / WHAT I TOOK AWAY</p>
+          <h2>A good framework makes decisions easier to explain.</h2>
+          <p>The part I value most from this kind of refactor isn't a new pattern or a cleaner class diagram. It's being able to ask why a particular action was selected, trace which component owns it, and describe what happens when execution doesn't go as planned.</p>
+          <p>There's still no architecture that removes every exception. But a clearer boundary lets the exceptions live where they belong—and makes the next change less frightening.</p>
+          <div class="case-highlight"><span>THE TAKEAWAY</span><strong>The best abstraction is the one that makes behavior more predictable for the next engineer reading the code.</strong></div>
+          <p class="scheduler-fineprint">This case study is intended for architectural discussion only. All examples require personal accuracy and employer-confidentiality review before public publication.</p>
+        </section>
+        <div class="v23-story-end"><div><span>PREVIOUS ENGINEERING STORY</span><strong>Distributed billing and reporting</strong></div><a href="/work/distributed-billing/">Read the case study ↗</a></div>
+      </article>
+    </div>
+  </main>
+  <footer class="site-footer"><div class="shell footer-layout"><a class="footer-brand" href="/" aria-label="Back to homepage">PS<span>.</span></a><span>© {new Date().getFullYear()} Priyansh Sharma · Designed and built with care.</span><a href="#main">BACK TO TOP ↑</a></div></footer>
+</BaseLayout>

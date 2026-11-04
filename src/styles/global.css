@@ -26,3 +26,37 @@
 .v23-validation-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:30px 0}.v23-validation-grid>div{border:1px solid var(--line);padding:23px;background:var(--surface)}.v23-validation-grid strong{display:block;font-size:18px;line-height:1.35;letter-spacing:-.035em;margin:15px 0 8px}.case-v23 .v23-validation-grid p{font-size:13px!important;line-height:1.7!important;margin:0!important}.v23-story-end{margin-top:46px;padding:27px;display:flex;align-items:center;justify-content:space-between;gap:20px;background:var(--surface);border:1px solid var(--line)}.v23-story-end div{display:flex;flex-direction:column;gap:9px}.v23-story-end strong{font-size:21px;letter-spacing:-.04em}.v23-story-end a{background:var(--accent);color:var(--ink);font-size:13px;font-weight:700;padding:13px 17px;white-space:nowrap}.case-final-section{margin-bottom:40px}
 @media(max-width:700px){.v23-arch-inner{padding:17px}.v23-flow{grid-template-columns:1fr;gap:5px}.v23-stage{min-height:unset;padding:13px 15px}.v23-arrow{transform:rotate(90deg);line-height:14px}.v23-control{grid-template-columns:1fr}.v23-plane-link{padding:12px 0}.v23-timeline-row{grid-template-columns:30px 1fr;gap:6px 12px}.v23-timeline-row p{grid-column:2}.v23-scenario-body{grid-template-columns:1fr;padding-left:28px;gap:17px}.v23-validation-grid{grid-template-columns:1fr}.v23-story-end{align-items:flex-start;flex-direction:column}.v23-figure-heading,.v23-timeline-head{font-size:8px}.v23-figure-heading span:last-child,.v23-timeline-head span:last-child{max-width:140px;text-align:right}}
 @media(prefers-reduced-motion:reduce){.v23-plus{transition:none}}
+
+
+/* Order scheduler engineering story — V2.4 */
+.scheduler-figure{margin:40px 0;background:var(--surface);border:1px solid var(--line)}
+.scheduler-figure-top{display:flex;justify-content:space-between;gap:12px;padding:17px 20px;border-bottom:1px solid var(--line);font:10px 'DM Mono',monospace;letter-spacing:.045em;color:var(--faint)}
+.scheduler-flow{display:flex;align-items:stretch;gap:10px;padding:30px 18px 18px}
+.scheduler-node,.scheduler-input{flex:1;min-width:0;padding:20px 12px;border:1px solid var(--line);background:var(--bg);display:flex;flex-direction:column;gap:11px}
+.scheduler-key{border-color:var(--accent)}
+.scheduler-node span,.scheduler-input span,.scheduler-output span,.scheduler-contract>div,.scheduler-rule-grid span,.scheduler-tradeoffs span,.scheduler-failure-detail small{font:10px 'DM Mono',monospace;letter-spacing:.045em;color:var(--accent)}
+.scheduler-node strong,.scheduler-input strong{font-size:16px;line-height:1.25;letter-spacing:-.04em}
+.scheduler-node small,.scheduler-input small{color:var(--muted);font-size:11px;line-height:1.5}
+.scheduler-flow-arrow{align-self:center;color:var(--accent)}
+.scheduler-output{margin:0 18px 18px;padding:17px 21px;border:1px dashed var(--line);display:grid;grid-template-columns:130px 1fr;align-items:start;gap:8px 20px}
+.scheduler-output strong{font-size:16px}.case-v23 .scheduler-output p{grid-column:2;font-size:12px!important;line-height:1.55!important;margin:0!important}
+.scheduler-figure figcaption{padding:14px 18px;border-top:1px solid var(--line);font-size:11px;line-height:1.5;color:var(--faint)}
+.scheduler-contract{margin:26px 0;background:var(--surface);border:1px solid var(--line)}
+.scheduler-contract>div{display:flex;justify-content:space-between;gap:15px;padding:15px 20px;border-bottom:1px solid var(--line)}
+.scheduler-contract pre{overflow-x:auto;padding:24px;margin:0;font-size:13px;line-height:1.9;color:var(--fg)}
+.scheduler-rule-grid,.scheduler-tradeoffs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:32px 0}
+.scheduler-rule-grid>div,.scheduler-tradeoffs>div{padding:24px;border:1px solid var(--line);background:var(--surface)}
+.scheduler-rule-grid strong,.scheduler-tradeoffs strong{display:block;font-size:18px;line-height:1.35;letter-spacing:-.035em;margin:16px 0 10px}
+.case-v23 .scheduler-rule-grid p,.case-v23 .scheduler-tradeoffs p{font-size:13px!important;line-height:1.75!important;margin:0!important}
+.scheduler-failure-detail{padding:4px 12px 27px 50px;display:grid;gap:19px}
+.scheduler-failure-detail strong{display:block;font-size:16px;line-height:1.5;margin-top:10px}
+.case-v23 .scheduler-failure-detail p{font-size:14px!important;line-height:1.8!important;margin:9px 0 0!important}
+.case-v23 .scheduler-fineprint{font-size:12px!important;color:var(--faint)!important;line-height:1.7!important}
+.scheduler-matrix-scroll{overflow-x:auto;margin:30px 0;border:1px solid var(--line)}
+.scheduler-matrix{width:100%;min-width:640px;border-collapse:collapse;text-align:left}
+.scheduler-matrix caption{text-align:left;padding:15px 19px;background:var(--surface);font-size:11px;color:var(--muted);line-height:1.6}
+.scheduler-matrix th,.scheduler-matrix td{padding:16px 14px;border-top:1px solid var(--line);vertical-align:top;font-size:12px;line-height:1.65}
+.scheduler-matrix th{font:10px 'DM Mono',monospace;color:var(--accent)}
+.scheduler-matrix td{color:var(--muted)}
+.scheduler-matrix th+th,.scheduler-matrix td+td{border-left:1px solid var(--line)}
+@media(max-width:760px){.scheduler-flow{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}.scheduler-flow-arrow{justify-self:center;transform:rotate(90deg)}.scheduler-node,.scheduler-input{padding:17px}.scheduler-output{grid-template-columns:1fr}.case-v23 .scheduler-output p{grid-column:1}.scheduler-rule-grid,.scheduler-tradeoffs{grid-template-columns:1fr}.scheduler-figure-top,.scheduler-contract>div{font-size:9px}}
