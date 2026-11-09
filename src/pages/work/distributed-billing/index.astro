@@ -1,6 +1,16 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Header from '../../../components/Header.astro';
+import ArticleNavigation from '../../../components/ArticleNavigation.astro';
+const articleNavigation = [
+  { href: '#overview', label: '01 / The problem' },
+  { href: '#architecture', label: '02 / System model' },
+  { href: '#ownership', label: '03 / Ownership' },
+  { href: '#failures', label: '04 / Failure walkthroughs' },
+  { href: '#decisions', label: '05 / Tradeoffs' },
+  { href: '#validation', label: '06 / Verification' },
+  { href: '#reflection', label: '07 / What I took away' },
+] as const;
 const title = 'Designing a Distributed Billing Pipeline — Priyansh Sharma';
 const description = 'An engineering case study about processing stages, durable ownership, recovery, and verification in a distributed billing and reporting pipeline.';
 const scenarios = [
@@ -28,16 +38,7 @@ const decisions = [
     </div>
 
     <div class="shell case-layout">
-      <aside class="case-sidebar" aria-label="On this page">
-        <p>IN THIS STORY</p>
-        <a href="#overview">01 / The problem</a>
-        <a href="#architecture">02 / System model</a>
-        <a href="#ownership">03 / Ownership</a>
-        <a href="#failures">04 / Failure walkthroughs</a>
-        <a href="#decisions">05 / Tradeoffs</a>
-        <a href="#validation">06 / Verification</a>
-        <a href="#reflection">07 / What I took away</a>
-      </aside>
+      <ArticleNavigation items={articleNavigation} />
       <article class="case-prose">
         <div class="case-disclosure"><strong>Scope and attribution.</strong> This story draws on my experience building a multi-stage billing and reporting framework. The diagrams, failure examples, and validation scenarios below are educational abstractions, <em>not</em> documentation of Thales' production architecture or claims that every described test was performed. No internal code, operational configuration, or confidential measurements are reproduced.</div>
 
@@ -116,10 +117,10 @@ const decisions = [
 
         <section id="decisions" class="case-section">
           <p class="case-label">05 / TRADEOFFS</p>
-          <h2>Each reliability decision has a cost.</h2>
+          <h2 id="billing-tradeoffs-title">Each reliability decision has a cost.</h2>
           <p>One thing I've learned from working on processing frameworks is that “more parallel” and “more reliable” aren't free settings. Every additional partition and checkpoint has an operational price.</p>
-          <div class="v23-decision-table" role="region" aria-label="Architecture decision tradeoffs" tabindex="0">
-            <table><thead><tr><th>Decision</th><th>Why it helps</th><th>What it costs</th></tr></thead><tbody>{decisions.map((d) => (<tr><th scope="row">{d.name}</th><td>{d.why}</td><td>{d.cost}</td></tr>))}</tbody></table>
+          <div class="v23-decision-table" role="region" aria-label="Billing architecture tradeoffs — scrollable table" tabindex="0">
+            <table aria-labelledby="billing-tradeoffs-title"><thead><tr><th scope="col">Decision</th><th scope="col">Why it helps</th><th scope="col">What it costs</th></tr></thead><tbody>{decisions.map((d) => (<tr><th scope="row">{d.name}</th><td>{d.why}</td><td>{d.cost}</td></tr>))}</tbody></table>
           </div>
           <p>I'd rather explain these costs honestly than present a larger worker count as an achievement on its own. Concurrency is valuable when the end-to-end result improves <em>without weakening correctness.</em></p>
         </section>

@@ -1,6 +1,17 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Header from '../../../components/Header.astro';
+import ArticleNavigation from '../../../components/ArticleNavigation.astro';
+
+const articleNavigation = [
+  { href: '#problem', label: '01 / Where coupling starts' },
+  { href: '#boundary', label: '02 / The architectural boundary' },
+  { href: '#rules', label: '03 / Making behavior explicit' },
+  { href: '#failures', label: '04 / Failure paths' },
+  { href: '#testing', label: '05 / How to test it' },
+  { href: '#tradeoffs', label: '06 / What the design costs' },
+  { href: '#reflection', label: '07 / What I learned' },
+] as const;
 
 const title = 'Separating Decisions from Execution — Priyansh Sharma';
 const description = 'A public-safe engineering case study about evolving an order scheduling system: planning, execution, provider boundaries, failure recovery, and explicit behavior.';
@@ -28,16 +39,7 @@ const matrix = [
       <div class="case-byline"><span>By Priyansh Sharma</span><span>Professional engineering experience · Thales</span><span>Public-safe conceptual walkthrough</span></div>
     </div>
     <div class="shell case-layout">
-      <aside class="case-sidebar" aria-label="On this page">
-        <p>IN THIS STORY</p>
-        <a href="#problem">01 / Where coupling starts</a>
-        <a href="#boundary">02 / The architectural boundary</a>
-        <a href="#rules">03 / Making behavior explicit</a>
-        <a href="#failures">04 / Failure paths</a>
-        <a href="#testing">05 / How to test it</a>
-        <a href="#tradeoffs">06 / What the design costs</a>
-        <a href="#reflection">07 / What I learned</a>
-      </aside>
+      <ArticleNavigation items={articleNavigation} />
       <article class="case-prose">
         <div class="case-disclosure"><strong>About this write-up.</strong> I worked on an order-scheduler framework redesign involving a separation of planning and execution responsibilities, provider interactions, and clearer order-handling behavior. This article is my public-safe explanation of the architectural reasoning. Diagrams, illustrative interfaces, and failure scenarios are simplified teaching models—not internal system documentation, production traces, or a claim that every example below occurred in production.</div>
         <section id="problem" class="case-section">
@@ -93,7 +95,7 @@ const matrix = [
           <p class="case-label">05 / VALIDATION</p>
           <h2>Test the behavior, not just the method.</h2>
           <p>A refactor that compiles is only a starting point. The important regression risk is a behavior change hidden behind a new abstraction. I'd rather be able to trace a scenario from its inputs and policy through an action and an observable outcome.</p>
-          <div class="scheduler-matrix-scroll"><table class="scheduler-matrix"><caption>Illustrative behavioral test matrix — examples to verify, not a claim of completed tests.</caption><thead><tr><th>Situation</th><th>Planning expectation</th><th>Execution expectation</th><th>Correctness property</th></tr></thead><tbody>{matrix.map(row => <tr>{row.map(cell => <td>{cell}</td>)}</tr>)}</tbody></table></div>
+          <div class="scheduler-matrix-scroll" role="region" aria-label="Order scheduler test matrix — scrollable table" tabindex="0"><table class="scheduler-matrix"><caption>Illustrative behavioral test matrix — examples to verify, not a claim of completed tests.</caption><thead><tr><th scope="col">Situation</th><th scope="col">Planning expectation</th><th scope="col">Execution expectation</th><th scope="col">Correctness property</th></tr></thead><tbody>{matrix.map(row => <tr>{row.map((cell, index) => index === 0 ? <th scope="row">{cell}</th> : <td>{cell}</td>)}</tr>)}</tbody></table></div>
           <p>The useful separation in testing mirrors the design itself: policy tests can validate decisions deterministically; adapter contract tests validate provider boundaries; end-to-end cases verify that both fit together.</p>
         </section>
         <section id="tradeoffs" class="case-section">
