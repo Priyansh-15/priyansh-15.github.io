@@ -72,3 +72,11 @@
 .case-mobile-toc a{display:block;padding:8px 4px;font-size:0.875rem;line-height:1.5;color:var(--muted)}
 .case-mobile-toc a:hover{color:var(--fg)}
 @media(max-width:900px){.case-mobile-toc{display:block}.case-layout{row-gap:24px}}
+
+/* B2: keep navigation available until its disclosure handlers are ready. */
+@media(max-width:800px){
+  .site-header:not([data-nav-ready]){height:auto}
+  .site-header:not([data-nav-ready]) .header-inner{height:auto;min-height:69px}
+  .site-header:not([data-nav-ready]) .mobile-menu-button{display:none}
+  .site-header:not([data-nav-ready]) .mobile-nav{display:flex;position:static}
+}

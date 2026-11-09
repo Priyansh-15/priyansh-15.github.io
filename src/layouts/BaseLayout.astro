@@ -37,15 +37,84 @@ const { title = site.title, description = site.description } = Astro.props;
         try { localStorage.setItem('portfolio-theme', next); } catch {}
         syncTheme();
       });
-      const nav = document.querySelector<HTMLElement>('[data-mobile-nav]');
-      const navButton = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
-      navButton?.addEventListener('click', () => {
-        const next = navButton.getAttribute('aria-expanded') !== 'true';
-        navButton.setAttribute('aria-expanded', String(next));
-        nav?.classList.toggle('is-open', next);
-      });
-      nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => { nav?.classList.remove('is-open'); navButton?.setAttribute('aria-expanded','false'); }));
-      document.addEventListener('keydown', (event) => { if (event.key === 'Escape') { nav?.classList.remove('is-open'); navButton?.setAttribute('aria-expanded','false'); } });
+      const header = document.querySelector<HTMLElement>('[data-site-header]');
+      const nav = header?.querySelector<HTMLElement>('[data-mobile-nav]');
+      const navButton = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+      const desktopNav = header?.querySelector<HTMLElement>('.desktop-nav');
+
+      if (header && nav && navButton && desktopNav) {
+        const mobileViewport = matchMedia('(max-width: 800px)');
+        const availabilityLink = header.querySelector<HTMLAnchorElement>('.availability-link');
+        let isOpen = false;
+        let wasMobile = mobileViewport.matches;
+
+        const setMenuOpen = (open: boolean) => {
+          isOpen = open && mobileViewport.matches;
+          nav.classList.toggle('is-open', isOpen);
+          navButton.setAttribute('aria-expanded', String(isOpen));
+          navButton.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+        };
+
+        const syncViewport = (focused: Element | null = document.activeElement) => {
+          if (mobileViewport.matches === wasMobile) return;
+          wasMobile = mobileViewport.matches;
+          let nextFocus: HTMLElement | null = null;
+          if (!wasMobile && (focused === navButton || nav.contains(focused))) {
+            const links = [...desktopNav.querySelectorAll<HTMLAnchorElement>('a')];
+            nextFocus = links.find(link => focused instanceof HTMLAnchorElement && link.href === focused.href) ?? links[0] ?? null;
+          } else if (wasMobile && (desktopNav.contains(focused) || focused === availabilityLink)) {
+            nextFocus = navButton;
+          }
+          setMenuOpen(false);
+          nextFocus?.focus({ preventScroll: true });
+        };
+
+        navButton.addEventListener('click', () => {
+          const focusWasInNav = nav.contains(document.activeElement);
+          setMenuOpen(!isOpen);
+          if (!isOpen && focusWasInNav) navButton.focus({ preventScroll: true });
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key !== 'Escape' || event.defaultPrevented || !isOpen) return;
+          const focusWasInNav = nav.contains(document.activeElement);
+          setMenuOpen(false);
+          if (focusWasInNav) {
+            event.preventDefault();
+            navButton.focus({ preventScroll: true });
+          }
+        });
+
+        header.addEventListener('focusout', (event) => {
+          const next = event.relatedTarget;
+          // CSS can blur a disappearing control before the media-query event fires.
+          if (next === null && event.target instanceof Element) syncViewport(event.target);
+          if (isOpen && next instanceof Node && next !== navButton && !nav.contains(next)) {
+            setMenuOpen(false);
+          }
+        });
+
+        nav.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => {
+          link.addEventListener('click', (event) => {
+            if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            if (link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+            const destination = new URL(link.href);
+            if (destination.origin !== location.origin || destination.pathname !== location.pathname || destination.search !== location.search) return;
+            const target = document.getElementById(destination.hash.slice(1));
+            if (!target) return;
+
+            setMenuOpen(false);
+            target.focus({ preventScroll: true });
+            // Leave the default link action intact for scrolling and browser history.
+          });
+        });
+
+        mobileViewport.addEventListener('change', () => syncViewport());
+
+        // Keep an already-focused fallback link visible during delayed initialization.
+        setMenuOpen(nav.contains(document.activeElement));
+        header.dataset.navReady = '';
+      }
     </script>
   </body>
 </html>
