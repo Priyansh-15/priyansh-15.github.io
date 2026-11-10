@@ -3,6 +3,7 @@ import '../styles/global.css';
 import { site } from '../data/site';
 const { title = site.title, description = site.description } = Astro.props;
 ---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -18,23 +19,49 @@ const { title = site.title, description = site.description } = Astro.props;
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <script is:inline>
-      (() => { try { const stored = localStorage.getItem('portfolio-theme'); const theme = stored === 'light' || stored === 'dark' ? stored : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); document.documentElement.dataset.theme = theme; } catch { document.documentElement.dataset.theme = 'dark'; } })();
+      (() => {
+        try {
+          const stored = localStorage.getItem('portfolio-theme');
+          const theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : matchMedia('(prefers-color-scheme: light)').matches
+                ? 'light'
+                : 'dark';
+          document.documentElement.dataset.theme = theme;
+        } catch {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
     </script>
     <title>{title}</title>
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main">
+      Skip to content
+    </a>
     <slot />
     <script>
       const themeButton = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
-      const syncTheme = () => { if (themeButton) themeButton.setAttribute('aria-label', `Switch to ${document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'} mode`); };
+      const syncTheme = () => {
+        if (themeButton)
+          themeButton.setAttribute(
+            'aria-label',
+            `Switch to ${document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'} mode`,
+          );
+      };
       syncTheme();
       themeButton?.addEventListener('click', () => {
         const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
         document.documentElement.dataset.theme = next;
-        try { localStorage.setItem('portfolio-theme', next); } catch {}
+        try {
+          localStorage.setItem('portfolio-theme', next);
+        } catch {}
         syncTheme();
       });
       const header = document.querySelector<HTMLElement>('[data-site-header]');
@@ -61,7 +88,12 @@ const { title = site.title, description = site.description } = Astro.props;
           let nextFocus: HTMLElement | null = null;
           if (!wasMobile && (focused === navButton || nav.contains(focused))) {
             const links = [...desktopNav.querySelectorAll<HTMLAnchorElement>('a')];
-            nextFocus = links.find(link => focused instanceof HTMLAnchorElement && link.href === focused.href) ?? links[0] ?? null;
+            nextFocus =
+              links.find(
+                (link) => focused instanceof HTMLAnchorElement && link.href === focused.href,
+              ) ??
+              links[0] ??
+              null;
           } else if (wasMobile && (desktopNav.contains(focused) || focused === availabilityLink)) {
             nextFocus = navButton;
           }
@@ -96,10 +128,23 @@ const { title = site.title, description = site.description } = Astro.props;
 
         nav.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => {
           link.addEventListener('click', (event) => {
-            if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            if (
+              event.defaultPrevented ||
+              event.button !== 0 ||
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey
+            )
+              return;
             if (link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
             const destination = new URL(link.href);
-            if (destination.origin !== location.origin || destination.pathname !== location.pathname || destination.search !== location.search) return;
+            if (
+              destination.origin !== location.origin ||
+              destination.pathname !== location.pathname ||
+              destination.search !== location.search
+            )
+              return;
             const target = document.getElementById(destination.hash.slice(1));
             if (!target) return;
 

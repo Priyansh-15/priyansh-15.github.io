@@ -8,14 +8,20 @@ const { items } = Astro.props;
 
 <nav class="case-sidebar" aria-label="On this page">
   <p>IN THIS STORY</p>
-  {items.map(({ href, label }) => <a href={href}>{label}</a>)}
+  {items.map(({ href, label }) => (
+    <a href={href}>{label}</a>
+  ))}
 </nav>
 
 <details class="case-mobile-toc">
   <summary>In this story</summary>
   <nav aria-label="On this page">
     <ul>
-      {items.map(({ href, label }) => <li><a href={href}>{label}</a></li>)}
+      {items.map(({ href, label }) => (
+        <li>
+          <a href={href}>{label}</a>
+        </li>
+      ))}
     </ul>
   </nav>
 </details>
