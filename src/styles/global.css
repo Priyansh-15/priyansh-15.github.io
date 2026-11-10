@@ -80,3 +80,81 @@
   .site-header:not([data-nav-ready]) .mobile-menu-button{display:none}
   .site-header:not([data-nav-ready]) .mobile-nav{display:flex;position:static}
 }
+
+/* B3: readable technical labels and reflow based on the space a diagram receives. */
+.story>*,.intro-content{min-width:0}
+.story-visual{container:story-visual / inline-size}
+.case-prose{container:article / inline-size}
+.v23-architecture{container:billing-diagram / inline-size}
+.scheduler-figure{container:scheduler-diagram / inline-size}
+
+.eyebrow,.factline,.story-topline,.visual-label,.visual-bottom,.case-meta{font-size:11px}
+.factline{flex-wrap:wrap}
+.eyebrow,.visual-label,.visual-bottom,.v23-timeline-head,.scheduler-figure-top,.scheduler-contract>div{flex-wrap:wrap}
+.story-tags span,.story-note,.case-byline,.case-label{font-size:12px}
+.visual-label,.visual-bottom,.scheduler-figure-top,.scheduler-contract>div{line-height:1.6}
+.visual-bottom span:first-child{flex:1;min-width:0}
+.visual-bottom span+span{flex-shrink:0}
+.pipeline-stage strong,.split-diagram strong{font-size:15px}
+.pipeline-stage small,.split-diagram span,.split-diagram small{font-size:12px;line-height:1.5}
+.pipeline-arrow{font-size:20px}
+.note-stack div{min-width:0}
+.note-stack div span{flex-shrink:0}
+
+.v23-plane-label,.v23-plane-link,.v23-stage small,.v23-control small,
+.v23-stage>span,.v23-control span,.v23-stage .v23-subnodes,
+.v23-scenario-body small,.v23-validation-grid span,
+.case-highlight>span,.case-callout>span,.v23-story-end span,.case-next>span,
+.scheduler-node span,.scheduler-input span,.scheduler-output span,
+.scheduler-node small,.scheduler-input small,.scheduler-contract>div,
+.scheduler-rule-grid span,.scheduler-tradeoffs span,.scheduler-failure-detail small,
+.scheduler-figure figcaption,.scheduler-matrix caption{font-size:12px;line-height:1.5}
+.v23-figure-heading,.v23-timeline-head,.scheduler-figure-top{font-size:11px;line-height:1.6}
+.v23-decision-table thead th,.scheduler-matrix thead th{font-size:12px;line-height:1.5}
+.v23-figure-heading span:last-child,.v23-timeline-head span:last-child{max-width:none;text-align:start}
+.v23-plane-label span{display:inline-block}
+.v23-plane-link{gap:12px;flex-wrap:wrap}
+.v23-stage,.v23-control>div,.scheduler-node,.scheduler-input,.scheduler-output,
+.v23-validation-grid>div,.scheduler-rule-grid>div,.scheduler-tradeoffs>div{overflow-wrap:anywhere}
+.v23-control>div,.v23-scenario-body>div,.v23-story-end>div,.scheduler-output>*{min-width:0}
+.scheduler-contract{min-width:0}
+.scheduler-contract pre{max-width:100%}
+
+/* Wide compositions stay horizontal; narrow cards retain the same reading order. */
+@container story-visual (max-width:440px){
+  .pipeline-layout{flex-direction:column;align-items:stretch;gap:8px;padding:24px 18px}
+  .pipeline-stage{flex:auto;padding:16px}
+  .pipeline-arrow{align-self:center;transform:rotate(90deg);line-height:1}
+  .note-stack{padding:20px 18px}
+  .note-stack div{gap:10px;padding:14px 12px}
+}
+@container story-visual (max-width:360px){
+  .split-diagram{grid-template-columns:minmax(0,1fr);gap:10px;padding:24px 18px}
+  .split-diagram>div{padding:20px 14px;gap:10px}
+  .vertical-separator{justify-self:center;transform:rotate(90deg)}
+}
+@container billing-diagram (max-width:680px){
+  .v23-arch-inner{padding:20px}
+  .v23-flow{grid-template-columns:minmax(0,1fr);gap:8px}
+  .v23-stage{min-height:0;padding:16px}
+  .v23-arrow{transform:rotate(90deg);line-height:16px}
+  .v23-plane-link{padding:18px 0}
+}
+@container billing-diagram (max-width:520px){
+  .v23-control{grid-template-columns:minmax(0,1fr)}
+}
+@container scheduler-diagram (max-width:700px){
+  .scheduler-flow{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;padding:24px 18px 18px}
+  .scheduler-node,.scheduler-input{padding:17px}
+  .scheduler-flow-arrow{justify-self:center;transform:rotate(90deg)}
+  .scheduler-output{grid-template-columns:minmax(0,1fr)}
+  .case-v23 .scheduler-output p{grid-column:1}
+}
+@container article (max-width:600px){
+  .v23-timeline-row{grid-template-columns:30px minmax(0,1fr);gap:6px 12px}
+  .v23-timeline-row p{grid-column:2}
+  .v23-scenario-body{grid-template-columns:minmax(0,1fr);padding-left:28px;gap:17px}
+  .v23-validation-grid,.scheduler-rule-grid,.scheduler-tradeoffs{grid-template-columns:minmax(0,1fr)}
+  .v23-story-end{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:1100px){.factline{padding-block:18px}}
