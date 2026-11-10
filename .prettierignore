@@ -1,0 +1,10 @@
+node_modules/
+.astro/
+dist/
+public/
+docs/
+REVIEW_BEFORE_PUBLISHING.md
+.env
+.env.*
+**/private/**
+**/.private/**
