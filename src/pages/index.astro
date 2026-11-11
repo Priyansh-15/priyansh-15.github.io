@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
 ---
 
@@ -372,13 +373,5 @@ import { site } from '../data/site';
       </div>
     </section>
   </main>
-  <footer class="site-footer">
-    <div class="shell footer-layout">
-      <a class="footer-brand" href="/" aria-label="Back to homepage">
-        PS<span>.</span>
-      </a>
-      <span>© {new Date().getFullYear()} Priyansh Sharma · Designed and built with care.</span>
-      <a href="#main">BACK TO TOP ↑</a>
-    </div>
-  </footer>
+  <Footer credit="Designed and built with care." brandLabel="Back to homepage" />
 </BaseLayout>

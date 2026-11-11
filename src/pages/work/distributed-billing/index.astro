@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
 import ArticleNavigation from '../../../components/ArticleNavigation.astro';
 const articleNavigation = [
   { href: '#overview', label: '01 / The problem' },
@@ -461,13 +462,5 @@ const decisions = [
       </article>
     </div>
   </main>
-  <footer class="site-footer">
-    <div class="shell footer-layout">
-      <a class="footer-brand" href="/">
-        PS<span>.</span>
-      </a>
-      <span>© {new Date().getFullYear()} Priyansh Sharma · Built with care.</span>
-      <a href="#main">BACK TO TOP ↑</a>
-    </div>
-  </footer>
+  <Footer credit="Built with care." />
 </BaseLayout>
