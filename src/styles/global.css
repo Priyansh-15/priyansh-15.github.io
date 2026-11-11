@@ -1058,82 +1058,6 @@ h3 {
 .case-section p em {
   color: var(--fg);
 }
-.case-diagram {
-  margin: 40px 0;
-  background: var(--surface);
-  border: 1px solid var(--line);
-}
-.diagram-heading {
-  display: flex;
-  justify-content: space-between;
-  padding: 17px 20px;
-  border-bottom: 1px solid var(--line);
-  font:
-    10px 'DM Mono',
-    monospace;
-  color: var(--faint);
-}
-.diagram-flow {
-  padding: 44px 23px 32px;
-  display: flex;
-  align-items: stretch;
-  gap: 10px;
-}
-.diagram-node {
-  flex: 1;
-  min-width: 0;
-  border: 1px solid var(--line);
-  background: var(--bg);
-  padding: 15px 8px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.diagram-node small,
-.diagram-control span {
-  font:
-    9px 'DM Mono',
-    monospace;
-  color: var(--accent);
-}
-.diagram-node strong {
-  font-size: 16px;
-}
-.diagram-node span {
-  font-size: 11px;
-  color: var(--muted);
-}
-.diagram-emphasis {
-  border-color: var(--accent);
-}
-.flow-arrow {
-  align-self: center;
-  color: var(--accent);
-}
-.diagram-control {
-  border: 1px dashed var(--faint);
-  margin: 0 30px 32px;
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  text-align: center;
-}
-.diagram-control strong {
-  font-size: 12px;
-}
-.diagram-control small {
-  color: var(--muted);
-}
-.case-diagram figcaption {
-  border-top: 1px solid var(--line);
-  padding: 13px 20px;
-  font-size: 11px;
-  color: var(--faint);
-}
 .case-callout {
   padding: 26px 30px;
   background: var(--surface);
@@ -1141,7 +1065,6 @@ h3 {
   margin: 36px 0;
 }
 .case-callout span,
-.failure-grid > div > span,
 .case-next > span {
   font:
     10px 'DM Mono',
@@ -1154,37 +1077,10 @@ h3 {
   font-size: 19px !important;
   line-height: 1.6 !important;
 }
-.failure-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  border-top: 1px solid var(--line);
-  border-left: 1px solid var(--line);
-  margin: 32px 0;
-}
-.failure-grid > div {
-  border-right: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  padding: 26px;
-}
-.failure-grid h3 {
-  font-size: 19px;
-  line-height: 1.4;
-  margin: 15px 0 9px;
-}
 .failure-grid p {
   font-size: 14px !important;
   line-height: 1.75 !important;
   margin: 0 !important;
-}
-.case-end-link {
-  display: inline-flex;
-  gap: 24px;
-  padding: 15px 20px;
-  background: var(--accent);
-  color: var(--ink);
-  font-weight: 700;
-  font-size: 13px;
 }
 .case-next {
   padding: 5px 0 0;
@@ -1240,32 +1136,6 @@ h3 {
   .case-section p:not(.case-label) {
     font-size: 15px;
     line-height: 1.8;
-  }
-  .diagram-flow {
-    padding: 21px 12px;
-    gap: 4px;
-  }
-  .diagram-node {
-    padding: 10px 4px;
-    gap: 6px;
-  }
-  .diagram-node small {
-    font-size: 7px;
-  }
-  .diagram-node strong {
-    font-size: 11px;
-  }
-  .diagram-node span {
-    font-size: 8px;
-  }
-  .flow-arrow {
-    font-size: 11px;
-  }
-  .diagram-control {
-    margin: 0 10px 17px;
-  }
-  .failure-grid {
-    grid-template-columns: 1fr;
   }
   .case-callout {
     padding: 19px;
