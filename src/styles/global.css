@@ -1059,11 +1059,6 @@ h3 {
   font-size: 19px !important;
   line-height: 1.6 !important;
 }
-.failure-grid p {
-  font-size: 14px !important;
-  line-height: 1.75 !important;
-  margin: 0 !important;
-}
 .case-next {
   padding: 5px 0 0;
   display: flex;
@@ -1307,9 +1302,9 @@ h3 {
   font-size: 15px;
 }
 .case-v23 .v23-timeline-row p {
-  margin: 0 !important;
-  font-size: 13px !important;
-  line-height: 1.7 !important;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
 }
 .v23-scenarios {
   border-top: 1px solid var(--line);
@@ -1362,9 +1357,9 @@ h3 {
   gap: 25px 31px;
 }
 .case-v23 .v23-scenario-body p {
-  font-size: 13px !important;
-  line-height: 1.7 !important;
-  margin: 9px 0 0 !important;
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 9px 0 0;
 }
 .case-v23 .v23-caption-text {
   font-size: 12px !important;
@@ -1426,9 +1421,9 @@ h3 {
   margin: 15px 0 8px;
 }
 .case-v23 .v23-validation-grid p {
-  font-size: 13px !important;
-  line-height: 1.7 !important;
-  margin: 0 !important;
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0;
 }
 .v23-story-end {
   margin-top: 46px;
@@ -1594,9 +1589,9 @@ h3 {
 }
 .case-v23 .scheduler-output p {
   grid-column: 2;
-  font-size: 12px !important;
-  line-height: 1.55 !important;
-  margin: 0 !important;
+  font-size: 12px;
+  line-height: 1.55;
+  margin: 0;
 }
 .scheduler-figure figcaption {
   padding: 14px 18px;
@@ -1650,9 +1645,9 @@ h3 {
 }
 .case-v23 .scheduler-rule-grid p,
 .case-v23 .scheduler-tradeoffs p {
-  font-size: 13px !important;
-  line-height: 1.75 !important;
-  margin: 0 !important;
+  font-size: 13px;
+  line-height: 1.75;
+  margin: 0;
 }
 .scheduler-failure-detail {
   padding: 4px 12px 27px 50px;
@@ -1666,9 +1661,9 @@ h3 {
   margin-top: 10px;
 }
 .case-v23 .scheduler-failure-detail p {
-  font-size: 14px !important;
-  line-height: 1.8 !important;
-  margin: 9px 0 0 !important;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 9px 0 0;
 }
 .case-v23 .scheduler-fineprint {
   font-size: 12px !important;
