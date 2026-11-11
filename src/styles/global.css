@@ -395,7 +395,7 @@ h3 {
   flex-wrap: wrap;
   justify-content: space-between;
   color: var(--faint);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   margin-bottom: 27px;
 }
@@ -460,10 +460,11 @@ h3 {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--faint);
   padding: 18px 20px;
   letter-spacing: 0.06em;
+  line-height: 1.6;
 }
 .visual-label {
   border-bottom: 1px solid var(--line);
@@ -498,8 +499,9 @@ h3 {
 }
 .pipeline-stage small,
 .split-diagram span {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
+  line-height: 1.5;
 }
 .stage-num {
   font:
@@ -814,7 +816,6 @@ h3 {
     font-size: 15px;
   }
   .eyebrow {
-    font-size: 9px;
     gap: 8px;
     flex-wrap: wrap;
   }
@@ -835,15 +836,8 @@ h3 {
   .story-detail > p {
     font-size: 14px;
   }
-  .story-topline {
-    font-size: 9px;
-  }
   .story-visual {
     min-height: 270px;
-  }
-  .visual-label,
-  .visual-bottom {
-    font-size: 8px;
   }
   .pipeline-layout {
     gap: 4px;
@@ -851,12 +845,6 @@ h3 {
   }
   .pipeline-stage {
     padding: 13px 5px;
-  }
-  .pipeline-stage strong {
-    font-size: 12px;
-  }
-  .pipeline-stage small {
-    font-size: 9px;
   }
   .pipeline-arrow {
     font-size: 13px;
@@ -867,12 +855,6 @@ h3 {
   }
   .split-diagram > div {
     padding: 20px 7px;
-  }
-  .split-diagram strong {
-    font-size: 13px;
-  }
-  .split-diagram span {
-    font-size: 9px;
   }
   .about-text p {
     font-size: 15px;
@@ -983,7 +965,7 @@ h3 {
   gap: 12px 35px;
   color: var(--faint);
   font:
-    11px 'DM Mono',
+    12px 'DM Mono',
     monospace;
 }
 .case-byline span:first-child {
@@ -1120,12 +1102,6 @@ h3 {
   .case-standfirst {
     font-size: 17px;
   }
-  .case-meta {
-    font-size: 9px;
-  }
-  .case-byline {
-    font-size: 10px;
-  }
   .case-layout {
     padding-bottom: 70px;
   }
@@ -1194,6 +1170,8 @@ h3 {
   gap: 12px;
   flex-wrap: wrap;
   border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  line-height: 1.6;
 }
 .v23-figure-heading span:last-child {
   color: var(--faint);
@@ -1305,6 +1283,8 @@ h3 {
   justify-content: space-between;
   padding: 16px 0;
   border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  line-height: 1.6;
 }
 .v23-timeline-head span:last-child {
   color: var(--faint);
@@ -1412,7 +1392,7 @@ h3 {
 }
 .v23-decision-table thead th {
   font:
-    10px 'DM Mono',
+    12px/1.5 'DM Mono',
     monospace;
   color: var(--accent);
   background: var(--surface);
@@ -1521,10 +1501,6 @@ h3 {
     align-items: flex-start;
     flex-direction: column;
   }
-  .v23-figure-heading,
-  .v23-timeline-head {
-    font-size: 8px;
-  }
   .v23-figure-heading span:last-child,
   .v23-timeline-head span:last-child {
     max-width: 140px;
@@ -1550,7 +1526,7 @@ h3 {
   padding: 17px 20px;
   border-bottom: 1px solid var(--line);
   font:
-    10px 'DM Mono',
+    11px/1.6 'DM Mono',
     monospace;
   letter-spacing: 0.045em;
   color: var(--faint);
@@ -1640,6 +1616,8 @@ h3 {
   gap: 15px;
   padding: 15px 20px;
   border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  line-height: 1.5;
 }
 .scheduler-contract pre {
   overflow-x: auto;
@@ -1726,7 +1704,7 @@ h3 {
 }
 .scheduler-matrix thead th {
   font:
-    10px 'DM Mono',
+    12px/1.5 'DM Mono',
     monospace;
   color: var(--accent);
 }
@@ -1763,10 +1741,6 @@ h3 {
   .scheduler-rule-grid,
   .scheduler-tradeoffs {
     grid-template-columns: 1fr;
-  }
-  .scheduler-figure-top,
-  .scheduler-contract > div {
-    font-size: 9px;
   }
 }
 
@@ -1859,12 +1833,7 @@ h3 {
   container: scheduler-diagram / inline-size;
 }
 
-.eyebrow,
-.factline,
-.story-topline,
-.visual-label,
-.visual-bottom,
-.case-meta {
+.factline {
   font-size: 11px;
 }
 .factline {
@@ -1880,15 +1849,8 @@ h3 {
 }
 .story-tags span,
 .story-note,
-.case-byline,
 .case-label {
   font-size: 12px;
-}
-.visual-label,
-.visual-bottom,
-.scheduler-figure-top,
-.scheduler-contract > div {
-  line-height: 1.6;
 }
 .visual-bottom span:first-child {
   flex: 1;
@@ -1897,12 +1859,6 @@ h3 {
 .visual-bottom span + span {
   flex-shrink: 0;
 }
-.pipeline-stage strong,
-.split-diagram strong {
-  font-size: 15px;
-}
-.pipeline-stage small,
-.split-diagram span,
 .split-diagram small {
   font-size: 12px;
   line-height: 1.5;
@@ -1935,23 +1891,11 @@ h3 {
 .scheduler-output span,
 .scheduler-node small,
 .scheduler-input small,
-.scheduler-contract > div,
 .scheduler-rule-grid span,
 .scheduler-tradeoffs span,
 .scheduler-failure-detail small,
 .scheduler-figure figcaption,
 .scheduler-matrix caption {
-  font-size: 12px;
-  line-height: 1.5;
-}
-.v23-figure-heading,
-.v23-timeline-head,
-.scheduler-figure-top {
-  font-size: 11px;
-  line-height: 1.6;
-}
-.v23-decision-table thead th,
-.scheduler-matrix thead th {
   font-size: 12px;
   line-height: 1.5;
 }
