@@ -1,4 +1,10 @@
 ---
+const navigationItems = [
+  { label: 'Work', href: '/#work' },
+  { label: 'About', href: '/#about' },
+  { label: 'Notes', href: '/#thinking' },
+  { label: 'Contact', href: '/#contact' },
+] as const satisfies readonly { label: string; href: `/#${string}` }[];
 ---
 
 <header class="site-header" data-site-header>
@@ -10,10 +16,9 @@
       <span class="brand-name">Priyansh Sharma</span>
     </a>
     <nav class="desktop-nav" aria-label="Primary navigation">
-      <a href="/#work">Work</a>
-      <a href="/#about">About</a>
-      <a href="/#thinking">Notes</a>
-      <a href="/#contact">Contact</a>
+      {navigationItems.map(({ href, label }) => (
+        <a href={href}>{label}</a>
+      ))}
     </nav>
     <div class="header-actions">
       <button
@@ -68,9 +73,8 @@
     </div>
   </div>
   <nav id="mobile-nav" class="mobile-nav" data-mobile-nav aria-label="Mobile navigation">
-    <a href="/#work">Work</a>
-    <a href="/#about">About</a>
-    <a href="/#thinking">Notes</a>
-    <a href="/#contact">Contact</a>
+    {navigationItems.map(({ href, label }) => (
+      <a href={href}>{label}</a>
+    ))}
   </nav>
 </header>
