@@ -1,6 +1,12 @@
 ---
 import '../styles/global.css';
 import { site } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
 const { title = site.title, description = site.description } = Astro.props;
 ---
 
