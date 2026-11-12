@@ -62,9 +62,38 @@ The homepage uses the layout's default title and description. Each case study su
 
 ## Development and publication status
 
-`portfolio-v3` is the current development branch for the rebuild. `master` is the GitHub repository's default branch; that does not establish the GitHub Pages publishing source.
+### Current production
 
-[astro.config.mjs](astro.config.mjs) configures static output and the site origin `https://priyansh-15.github.io`. The actual GitHub Pages publishing source and deployment mechanism have not yet been independently verified. Production publication requires separate review and authorization.
+The legacy static HTML website is live at [priyansh-15.github.io](https://priyansh-15.github.io/). The owner verified GitHub Pages settings on November 12, 2026: **Deploy from a branch**, branch **`master`**, directory **`/ (root)`**, with HTTPS enforced. `master` is also the repository's default branch.
+
+`portfolio-v3` contains the new Astro source project, which is not yet deployed. [astro.config.mjs](astro.config.mjs) configures the same site origin and static output; the build produces deployable files in `dist/`. Merging Astro source into the current publishing branch would not automatically build it.
+
+### Validation-only CI
+
+[The CI workflow](.github/workflows/ci.yml) runs on pushes to `portfolio-v3` and pull requests targeting `portfolio-v3` or `master`. It installs locked dependencies, checks source formatting, runs Astro diagnostics and the build, and verifies the three generated pages. It does not deploy.
+
+[CI run #1 (43187706140)](https://github.com/Priyansh-15/priyansh-15.github.io/actions/runs/43187706140) completed successfully for commit `9756e40`.
+
+### Future release design — not implemented
+
+The planned release mechanism is a separate, manually triggered GitHub Actions workflow:
+
+1. Install the reviewed release workflow on the repository's default branch when separately authorized, preserving the legacy website during setup.
+2. Build from an explicitly approved full source commit SHA, run validation, and record provenance: source and workflow revisions, build run, artifact identity, and content hashes.
+3. Review the exact generated release contents and require explicit approval through a protected deployment environment.
+4. Once authorized, migrate Pages publishing to GitHub Actions and publish the reviewed artifact without rebuilding it. Ordinary development pushes will remain validation-only.
+
+No release workflow or deployment approval gate has been implemented yet.
+
+### Release prerequisites and recovery
+
+Before production cutover:
+
+- Complete the [publication review](#publication-review) for the exact candidate, including professional claims, supporting evidence, and disclosure permissions.
+- Resolve how legacy URLs will be handled.
+- Establish and verify environment approval rules and protection of the trusted release workflow.
+- Preserve an approved recoverable release or fallback outside temporary Actions artifact retention, record its identity and hashes, and verify the rollback procedure. Restoring that reviewed output must not depend on rebuilding an old source revision.
+- Obtain explicit owner authorization before changing GitHub Pages settings or publishing. A successful CI run is not release authorization.
 
 ## Publication review
 
