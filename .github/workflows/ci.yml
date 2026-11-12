@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [portfolio-v3]
+  pull_request:
+    branches: [portfolio-v3, master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out triggering revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js and npm cache
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.13.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Report Node.js and npm versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Check source formatting
+        run: npm run format:check
+
+      - name: Check Astro diagnostics and build static site
+        run: npm run build
+
+      - name: Verify generated routes are nonempty
+        run: |
+          test -s dist/index.html
+          test -s dist/work/distributed-billing/index.html
+          test -s dist/work/order-scheduler/index.html
