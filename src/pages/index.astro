@@ -108,15 +108,16 @@ import { site } from '../data/site';
               <span>01 / DISTRIBUTED PROCESSING</span>
               <span>PROFESSIONAL WORK</span>
             </div>
-            <h3>Making large-scale billing and reporting run reliably.</h3>
+            <h3>Designing the core engine for distributed billing.</h3>
             <p>
-              A reporting workflow is easy to describe: read events, calculate charges, generate a
-              report. The interesting part is coordinating the work when processing is concurrent,
-              data is large, and failures are inevitable.
+              Usage-based billing had to apply configured prices and discount tiers per device or
+              across a tenant's usage. Splitting that work across workers meant preserving the
+              pricing rules and knowing when the report was complete.
             </p>
             <p>
-              I worked on a multi-stage distributed processing framework, with particular attention
-              to execution coordination, recovery, and performance validation.
+              I independently architected and implemented the core bill-run engine, from mapping
+              through reporting. I used Cassandra-backed coordination to preserve stage progress
+              across worker interruptions and make recovery part of the execution design.
             </p>
             <div class="story-tags">
               <span>Java</span>
@@ -128,8 +129,8 @@ import { site } from '../data/site';
               Read the engineering case study <span aria-hidden="true">↗</span>
             </a>
             <div class="story-note">
-              <span class="dot"></span> Public-safe architectural discussion; private implementation
-              details omitted.
+              <span class="dot"></span> Professional experience with conceptual illustrations;
+              disclosure review remains outstanding.
             </div>
           </div>
           <div
