@@ -322,10 +322,13 @@ const matrix = [
           <p class="case-label">05 / VALIDATION</p>
           <h2>Test the behavior, not just the method.</h2>
           <p>
-            I would check selection, external execution, and result acceptance separately, then
-            verify that they agree. The matrix defines controlled situations and observable
-            criteria; it does not report executed regression tests. Any claim of preserved behavior
-            would need actual results against an agreed baseline.
+            Replacing internal Fleet paths had to respect behavior that the existing scheduler and
+            its integrations depended on. Compilation or a passing unit test cannot establish that
+            compatibility. I would compare old and new paths against agreed expectations for
+            selection and fallback, the integration boundary reached, outcome and error
+            classification, and retries and notifications under the applicable contracts. In-flight
+            and interrupted work also belongs in that comparison. The matrix below illustrates
+            specific checks; it is not a record of completed regression tests.
           </p>
           <div
             class="scheduler-matrix-scroll"
@@ -358,58 +361,70 @@ const matrix = [
             </table>
           </div>
           <p>
-            Policy checks need fixed state, configuration, and relevant time inputs. Provider
-            simulations should distinguish known rejection from acceptance with a lost response;
-            retryability must follow the supported contract rather than treating every error alike.
-            Result checks need concurrent delivery and interruption cases as well as sequential
-            duplicates. Their logical-transition assertions do not establish exactly-once external
-            effects or atomic updates across the scheduler and a provider.
+            I implemented the framework in stages so that replacing legacy call paths did not
+            require reviewing every responsibility change at once. The rationale was to keep
+            behavior comparisons understandable and make a regression easier to isolate, rather than
+            assume a new boundary preserved behavior automatically. Architecture and staged
+            implementation are part of my reported work; specific test coverage, comparison results,
+            and release status still require evidence review. No independently verified regression
+            results are presented here, and the illustrative checks do not establish complete
+            backward compatibility or production rollout.
           </p>
         </section>
         <section id="tradeoffs" class="case-section">
           <p class="case-label">06 / TRADEOFFS</p>
           <h2>Modularity doesn't make complexity disappear.</h2>
           <p>
-            Separating planning and execution introduces a contract to maintain, more explicit state
-            transitions, and the need to decide which layer owns retries and result handling. If
-            those responsibilities are vague, the split can simply move the coupling somewhere else.
+            I chose centralized Fleet interaction ownership with separate planning and execution
+            boundaries. Keeping selection intertwined with the existing execution paths would leave
+            the decision and external effect spread across those paths. The separation required
+            stricter contracts, but gave each responsibility an explicit place. I accepted that
+            maintenance cost to make policy, provider interaction, and compatibility questions
+            easier to examine independently.
           </p>
           <div class="scheduler-tradeoffs">
             <div>
               <span>WHAT IMPROVES</span>
-              <strong>Decisions can be reasoned about independently.</strong>
+              <strong>Selection and external effects have distinct owners.</strong>
               <p>
-                Policy can change without rewriting every provider call, and provider integrations
-                can evolve without reimplementing scheduling decisions.
+                The intended benefit is to test policy from supplied inputs and trace a selected
+                action through a consistent integration boundary. This gives behavior comparisons
+                clearer points to inspect during migration.
               </p>
             </div>
             <div>
               <span>WHAT IT COSTS</span>
-              <strong>Boundaries need discipline.</strong>
+              <strong>The contracts become work to maintain.</strong>
               <p>
-                Operation identity, error classification, progress semantics, and contracts become
-                first-class design concerns that require documentation and testing.
+                Planning inputs and decision/execution contracts must stay consistent with execution
+                preconditions and adapter boundaries. Result correlation, retry ownership, and state
+                and progress semantics need explicit responsibilities. Regression coverage must
+                follow the paths being migrated; separating the code does not remove that work.
               </p>
             </div>
           </div>
         </section>
         <section id="reflection" class="case-section case-final-section">
           <p class="case-label">07 / WHAT I TOOK AWAY</p>
-          <h2>A good framework makes decisions easier to explain.</h2>
+          <h2>The migration was part of the design.</h2>
           <p>
-            The part I value most from this kind of refactor isn't a new pattern or a cleaner class
-            diagram. It's being able to ask why a particular action was selected, trace which
-            component owns it, and describe what happens when execution doesn't go as planned.
+            Working inside an existing scheduler made compatibility part of the architectural
+            problem. Separating Fleet decisions from external effects gave me clearer boundaries to
+            implement, but the existing behavior still had to be accounted for as call paths moved.
+            The framework design and the migration could not be judged independently.
           </p>
           <p>
-            There's still no architecture that removes every exception. But a clearer boundary lets
-            the exceptions live where they belong—and makes the next change less frightening.
+            The lesson I take from this work is that explicit contracts earn their maintenance cost
+            when they make responsibility inspectable: what selected an interaction, what performs
+            it, and where its result belongs. I can describe that architectural contribution without
+            treating the design itself as proof that every compatibility or recovery condition was
+            verified.
           </p>
           <div class="case-highlight">
             <span>THE TAKEAWAY</span>
             <strong>
-              The best abstraction is the one that makes behavior more predictable for the next
-              engineer reading the code.
+              A useful boundary lets me explain the decision, follow its effects, and identify the
+              existing behavior a change must preserve.
             </strong>
           </div>
           <p class="scheduler-fineprint">
