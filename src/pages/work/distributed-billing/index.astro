@@ -19,41 +19,45 @@ const scenarios = [
   {
     num: '01',
     name: 'Worker loses ownership',
-    event: 'A worker stalls long enough for its lease to expire.',
-    risk: 'An old worker could publish after another worker has reclaimed the task.',
+    event:
+      'Worker A checks its claim, then pauses before publishing long enough for the claim to expire.',
+    risk: 'Worker B takes over, but A later uses its earlier check to publish a stale result.',
     design:
-      'Treat the lease as permission to attempt work, not permission to commit forever. Recheck ownership and make output publication safe against stale attempts.',
+      'Reject obsolete authority where a result becomes authoritative. A separate ownership check before the write leaves a race; a lease alone cannot protect that boundary.',
     check:
-      'Pause a worker beyond expiry, reclaim the task, then release both workers and assert a single valid published result.',
+      'Pause A after its ownership check. Let its claim expire, let B take over and publish, then resume A. Assert that A cannot become authoritative and the logical contribution is not applied twice.',
   },
   {
     num: '02',
     name: 'Write succeeds; acknowledgement fails',
-    event: 'The output is durable, but the completion update is interrupted.',
-    risk: 'A retry might apply the same contribution twice.',
+    event:
+      'A result write succeeds, but its acknowledgement is lost. The worker cannot tell whether the write took effect.',
+    risk: 'Treating the missing acknowledgement or timeout as proof of failure can lead a retry to apply the contribution again.',
     design:
-      'Give work and outputs stable identities; distinguish computing a value from committing it. Replayed work must not change the logical result.',
+      'Keep the logical contribution identity stable within its bill run and make acceptance idempotent. Recording acceptance and applying the contribution must agree even after interruption; an identity alone does not ensure this.',
     check:
-      'Inject a failure between persistence and acknowledgement, retry, and compare results to a single-run baseline.',
+      'Persist a contribution, suppress its acknowledgement, then retry it with the same logical identity. Allow repeated computation, but assert one applied contribution and an unchanged downstream result against a known-correct baseline.',
   },
   {
     num: '03',
     name: 'A stage partially completes',
-    event: 'Some mapping partitions finish while others fail.',
-    risk: 'A downstream reducer could read an incomplete set of contributions.',
+    event:
+      'Some expected contributions finish while another remains missing; a completed contribution may also be retried.',
+    risk: 'An output count can appear complete despite a missing contribution if duplicates are counted as distinct work.',
     design:
-      'Use an explicit stage boundary. Validate the expected contributions before advancing rather than inferring completion from the existence of some output.',
-    check: 'Withhold one partition and assert the next stage cannot finalize prematurely.',
+      'Define the expected contributions for the run. Gate stage completion on valid, durable completion evidence for each one, with no missing contribution or duplicate logical application. Partial output alone is insufficient.',
+    check:
+      'Withhold one required contribution and replay a completed one. Assert that downstream finalization remains blocked. Then complete the missing contribution and verify that valid completion evidence allows the stage to advance without double application.',
   },
   {
     num: '04',
     name: 'Retries compete with useful work',
-    event: 'A shared dependency becomes slow and several jobs retry.',
-    risk: 'Backlog and database pressure compound the original failure.',
+    event: 'A shared dependency slows down or remains unavailable while multiple workers retry.',
+    risk: 'Retries consume capacity needed for useful work; independent per-worker limits can still overload the shared dependency.',
     design:
-      'Bound retries and concurrency; separate recoverable failures from persistent ones. Measure coordination overhead as well as processing time.',
+      'Bound attempts per logical task and limit aggregate in-flight work against the shared dependency. Define retry spacing and what happens when the budget is exhausted; persistent failure must remain visible rather than appearing complete.',
     check:
-      'Introduce dependency latency and observe in-flight work, retry rate, backlog, and eventual recovery.',
+      'Inject transient and persistent failures. Observe retry rate, aggregate concurrency, useful throughput, and backlog. Verify the configured limits and budget-exhaustion behavior; check recovery only when dependencies recover and retry budget remains.',
   },
 ];
 const decisions = [
@@ -246,15 +250,18 @@ const decisions = [
           <p class="case-label">03 / OWNERSHIP AND COMPLETION</p>
           <h2>A lease is not a guarantee that work ran only once.</h2>
           <p>
-            Coordination through persistent state is useful when multiple workers may compete for
-            the same job. In this class of design, leases help identify an active owner and permit
-            recovery when ownership expires. My reporting work also involved Cassandra-backed
-            coordination.
+            A lease is a time-bounded claim coordinating which worker should attempt a task. It does
+            not stop a paused worker from resuming after its claim expires. Each execution is a
+            physical attempt; several attempts can belong to the same logical contribution in a
+            particular bill run. Repeating computation need not mean applying that contribution
+            again.
           </p>
           <p>
-            But expiry creates a race: an apparently stalled worker may resume after the task has
-            been reclaimed. If both executions can publish blindly, the system can produce
-            inconsistent results even though the scheduler behaved as intended.
+            The critical question is where a result becomes authoritative for downstream processing.
+            Checking ownership and publishing later leaves a gap in which authority can change. In
+            the conceptual sequence below, A pauses after checking its claim. B takes over and
+            attempts publication before A resumes. A's earlier check cannot authorize its later
+            write.
           </p>
           <div class="v23-timeline" aria-label="Illustrative lease expiry race">
             <div class="v23-timeline-head">
@@ -263,37 +270,42 @@ const decisions = [
             </div>
             <div class="v23-timeline-row">
               <span>T0</span>
-              <strong>Worker A claims task</strong>
-              <p>A begins processing while its ownership is valid.</p>
+              <strong>Worker A checks its claim</strong>
+              <p>A's claim is valid at the check, before publication.</p>
             </div>
             <div class="v23-timeline-row">
               <span>T1</span>
               <strong>Worker A pauses</strong>
-              <p>Progress stops long enough for the claim to expire.</p>
+              <p>A pauses before writing; its claim expires during the pause.</p>
             </div>
             <div class="v23-timeline-row">
               <span>T2</span>
               <strong>Worker B reclaims task</strong>
-              <p>Recovery restarts the work under a newer claim.</p>
+              <p>B takes over, completes the work, and attempts to publish its result.</p>
             </div>
             <div class="v23-timeline-row">
               <span>T3</span>
               <strong>Worker A resumes</strong>
-              <p>Both attempts may now try to persist a result.</p>
+              <p>A attempts to publish using its earlier check, after B has taken over.</p>
             </div>
           </div>
           <div class="case-callout">
             <span>DESIGN INVARIANT</span>
             <p>
-              Only an authorized, logically valid result should become visible to downstream
-              stages—even when attempts overlap or messages are repeated.
+              At the point a result becomes authoritative, stale attempts must be rejected and the
+              same logical contribution must not be applied twice within its bill run. A successful
+              write alone does not establish that these conditions hold.
             </p>
           </div>
           <p>
-            The implementation choices vary: guarded state transitions, version or fencing checks,
-            deterministic result identities, idempotent writes, or a combination. The important
-            thing is to specify the invariant <em>before</em> adding parallelism. I am not claiming
-            that a particular mechanism here matches confidential production code.
+            These protections have different jobs. A guarded transition or version/fencing check can
+            reject obsolete authority when enforced <em>where the effect is accepted</em>. Guarding
+            a coordination record does not automatically protect a write to another resource. Stable
+            identity associates retries with one logical contribution; idempotent acceptance keeps
+            that contribution from being applied again. Identity alone does not enforce this.
+            Durable completion evidence serves a separate purpose: establishing that every expected
+            contribution is validly complete before advancing a stage. These are conceptual design
+            options, not claims that my implementation used each mechanism.
           </p>
         </section>
 
@@ -301,9 +313,10 @@ const decisions = [
           <p class="case-label">04 / FAILURE WALKTHROUGHS</p>
           <h2>Four scenarios worth designing before the happy path is done.</h2>
           <p>
-            These are concrete design-review scenarios I would use for a distributed reporting
-            pipeline. Expand each one for the failure, the risk, the mitigation, and a reproducible
-            verification idea.
+            These hypothetical scenarios pair a failure with an acceptance rule and a proposed test.
+            Bounded retries and concurrency can limit retry pressure, but cannot guarantee success.
+            Recovery depends on which failures persist, remaining retry budget, dependency
+            availability, and workers being able to make progress.
           </p>
           <div class="v23-scenarios">
             {scenarios.map((scenario) => (
