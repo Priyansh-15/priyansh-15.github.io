@@ -21,60 +21,60 @@ const cases = [
   {
     id: '01',
     title: 'An order is not eligible yet',
-    question: 'Should a worker attempt it anyway?',
+    question: 'What if eligibility changes between planning and execution?',
     answer:
-      'Eligibility belongs to planning. Execution should receive a defined, actionable decision rather than re-deriving business rules.',
-    cost: 'A planner must keep its view of relevant state current.',
+      'Planning selects an interaction from supplied context. A valid selection can become invalid before execution. Checking necessary preconditions at the relevant action boundary is distinct from re-evaluating all selection policy inside the executor; side-effect-free planning alone does not keep inputs fresh.',
+    cost: 'Preconditions need explicit semantics. Proposed check: test an initially ineligible order, then an eligible decision whose preconditions change before execution. Under the illustrative policy, assert that neither permits a prohibited provider call. This does not prescribe a production rejection or replanning protocol.',
   },
   {
     id: '02',
     title: 'A provider call times out',
     question: 'Was the operation executed remotely?',
     answer:
-      'A timeout is not proof of failure. Recovery needs operation identity, an explicit retry policy, and a way to distinguish safe retry from uncertain remote outcome.',
-    cost: 'Some uncertainties require reconciliation rather than another immediate call.',
+      'A missing response leaves several possibilities: failure before acceptance, success with a lost response, or an outcome still unknown to the scheduler. Safe retry or reconciliation depends on the provider contract. Status queries and idempotency support cannot be assumed, and a centralized boundary alone cannot prevent duplicate external effects.',
+    cost: 'Uncertainty may delay progress. Proposed check: simulate acceptance with a lost response separately from a known rejection. Assert that the unknown outcome is not recorded as confirmed failure and that any retry or reconciliation follows the simulated provider contract.',
   },
   {
     id: '03',
     title: 'Several order types are available',
     question: 'Who decides which one takes precedence?',
     answer:
-      'Ordering and precedence rules should be explicit at the decision boundary, not an accidental consequence of executor branching.',
-    cost: 'More explicit policy means more documented cases and regression tests.',
+      'The planner should resolve competing Fleet interactions using explicit precedence, tie, and fallback policies. Repeatable decisions require controlled state, configuration, and any time-dependent inputs. This concerns interaction selection, not the separate Rule Flow initiative.',
+    cost: 'Each policy choice adds cases to maintain. Proposed check: supply competing eligible actions, a tie, and a no-match case with fixed inputs. Assert the selection prescribed by each illustrative policy, including no action where that policy requires it, without inventing production precedence rules.',
   },
   {
     id: '04',
     title: 'A result arrives after a retry',
-    question: 'What happens when results arrive twice or out of order?',
+    question: 'Can late, repeated, or concurrent results change the logical outcome incorrectly?',
     answer:
-      'Completion should be matched to a stable operation identity and its expected state transition. Results are observations, not unconditional commands.',
-    cost: 'Correlation and state checks add complexity but make failures understandable.',
+      'Correlate the result with the logical operation and the attempt it describes, then enforce the permitted state transition. Correlation or a separate state check is insufficient if competing handlers can both accept a result. A late observation must not overwrite a newer authoritative state merely because its operation identity matches.',
+    cost: 'Acceptance rules must cover races as well as sequential delivery. Proposed check: replay a result, deliver duplicates concurrently, and deliver an older attempt after completion. Assert one application of the defined logical transition and no invalid state regression; this does not establish how many times the provider acted.',
   },
 ];
 const matrix = [
   [
-    'Rule produces an eligible order',
-    'Planner selects the applicable action',
-    'Executor applies the selected action',
-    'Order selection is not silently recalculated',
+    'Eligible decision; preconditions change before execution',
+    'Select an action from fixed planning inputs',
+    'Check required execution preconditions without repeating selection policy',
+    'No provider call prohibited by the illustrative preconditions',
   ],
   [
-    'No rule matches',
-    'Planner follows documented fallback behavior',
-    'Executor handles only the resulting action',
-    'No accidental duplicate retrieval',
+    'No policy matches the controlled inputs',
+    'Select the fallback specified by the illustrative policy',
+    'Execute only the resulting action, if any',
+    'Observed action matches the fallback; no provider call for a no-action decision',
   ],
   [
-    'Provider reports a transient error',
-    'Policy identifies retryable outcome',
-    'Adapter reports structured failure',
-    'Retry is bounded and observable',
+    'Simulated retryable failure persists until the budget is exhausted',
+    'Keep the intended interaction distinct from retry classification',
+    'Adapter reports the outcome; the designated retry owner applies the budget',
+    'Attempts stop at the configured limit or deadline; exhaustion is observable',
   ],
   [
-    'An execution result is duplicated',
-    'State transition is checked',
-    'Result handler correlates operation',
-    'No duplicate final outcome',
+    'Duplicate results race; an older attempt arrives later',
+    'Keep the logical operation distinct from its attempts',
+    'Correlate results and enforce valid transition acceptance',
+    'One application of the defined logical transition; no invalid state regression',
   ],
 ];
 ---
@@ -228,9 +228,10 @@ const matrix = [
 }`}</code></pre>
           </div>
           <p>
-            This isn't an API copied from a private repository. It's the minimum shape of a useful
-            idea: clear intent, stable identity, and enough information to preserve the reasoning
-            boundary.
+            This is an illustration, not a private API. An operationId identifies a logical
+            operation; retries are separate attempts whose outcomes need attribution. Identity
+            supports correlation, but does not itself enforce idempotency, safe concurrent result
+            acceptance, or exactly-once provider effects.
           </p>
         </section>
         <section id="rules" class="case-section">
@@ -275,9 +276,13 @@ const matrix = [
           <p class="case-label">04 / FAILURE PATHS</p>
           <h2>The interesting part happens when the happy path stops.</h2>
           <p>
-            A cleaner decomposition doesn't eliminate distributed-systems uncertainty. It gives that
-            uncertainty a place to live. These illustrative scenarios show the questions a design
-            and test review should answer.
+            These proposed checks examine the Fleet boundary under changing state and uncertain
+            outcomes. Retry responsibility must identify who classifies errors, who schedules
+            another attempt, and who enforces an attempt limit or time budget and records
+            exhaustion. Planning, execution, and integration must not each add an independent retry
+            loop that defeats the intended bound. Persistent provider failures also require
+            considering total in-flight work and retry pressure, not just the limit for one
+            operation.
           </p>
           <div class="v23-scenarios">
             {cases.map((item) => (
@@ -299,7 +304,7 @@ const matrix = [
                     <p>{item.answer}</p>
                   </div>
                   <div>
-                    <small>TRADEOFF</small>
+                    <small>TRADEOFF / PROPOSED CHECK</small>
                     <p>{item.cost}</p>
                   </div>
                 </div>
@@ -307,17 +312,20 @@ const matrix = [
             ))}
           </div>
           <p class="scheduler-fineprint">
-            These are general failure-analysis exercises. They are not a list of incidents or an
-            assertion that every mitigation was implemented exactly as described.
+            These are hypothetical scenarios and proposed assertions, not production incidents,
+            completed tests, or evidence of particular enforcement mechanisms. Bounded retries limit
+            repeated attempts; they do not guarantee recovery. Permanent failures and exhausted
+            budgets need explicit outcomes rather than indefinite retries.
           </p>
         </section>
         <section id="testing" class="case-section">
           <p class="case-label">05 / VALIDATION</p>
           <h2>Test the behavior, not just the method.</h2>
           <p>
-            A refactor that compiles is only a starting point. The important regression risk is a
-            behavior change hidden behind a new abstraction. I'd rather be able to trace a scenario
-            from its inputs and policy through an action and an observable outcome.
+            I would check selection, external execution, and result acceptance separately, then
+            verify that they agree. The matrix defines controlled situations and observable
+            criteria; it does not report executed regression tests. Any claim of preserved behavior
+            would need actual results against an agreed baseline.
           </p>
           <div
             class="scheduler-matrix-scroll"
@@ -350,9 +358,12 @@ const matrix = [
             </table>
           </div>
           <p>
-            The useful separation in testing mirrors the design itself: policy tests can validate
-            decisions deterministically; adapter contract tests validate provider boundaries;
-            end-to-end cases verify that both fit together.
+            Policy checks need fixed state, configuration, and relevant time inputs. Provider
+            simulations should distinguish known rejection from acceptance with a lost response;
+            retryability must follow the supported contract rather than treating every error alike.
+            Result checks need concurrent delivery and interruption cases as well as sequential
+            duplicates. Their logical-transition assertions do not establish exactly-once external
+            effects or atomic updates across the scheduler and a provider.
           </p>
         </section>
         <section id="tradeoffs" class="case-section">
