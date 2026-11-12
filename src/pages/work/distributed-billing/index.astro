@@ -95,9 +95,10 @@ const decisions = [
         Making distributed billing <em>finish correctly.</em>
       </h1>
       <p class="case-standfirst">
-        Getting a large workload to run in parallel is only half the job. The harder half is knowing
-        which work actually finished, which work must be retried, and when a report is safe to
-        publish.
+        Usage-based billing had to apply configured prices and discount tiers per device or across a
+        tenant's usage. I architected and implemented the core distributed bill-run engine behind
+        that requirement. The challenge was to preserve those billing semantics across concurrent
+        work and know when a report was complete, including after an interruption.
       </p>
       <div class="case-byline">
         <span>By Priyansh Sharma</span>
@@ -110,38 +111,40 @@ const decisions = [
       <ArticleNavigation items={articleNavigation} />
       <article class="case-prose">
         <div class="case-disclosure">
-          <strong>Scope and attribution.</strong> This story draws on my experience building a
-          multi-stage billing and reporting framework. The diagrams, failure examples, and
-          validation scenarios below are educational abstractions, <em>not</em> documentation of
-          Thales' production architecture or claims that every described test was performed. No
-          internal code, operational configuration, or confidential measurements are reproduced.
+          <strong>Scope and attribution.</strong> My ownership covered the core bill-run engine;
+          other engineers contributed supporting ingestion, bucketing, and API functionality. The
+          diagrams, failure examples, and validation scenarios below are educational abstractions,{' '}
+          <em>not</em> documentation of Thales' production architecture or claims that every
+          described test was performed. No internal code, operational configuration, or confidential
+          measurements are reproduced.
         </div>
 
         <section id="overview" class="case-section">
           <p class="case-label">01 / THE PROBLEM</p>
-          <h2>The last 1% of a report is a systems problem.</h2>
+          <h2>Pricing rules shaped the execution problem.</h2>
           <p>
-            A reporting pipeline sounds straightforward: read the events, compute the charges,
-            aggregate the results, write the report. That story works until the input grows, the
-            calculation is split into concurrent tasks, and some of those tasks stop halfway
-            through.
+            The requirement was to calculate usage-based charges from billable events, configured
+            unit prices, and configurable slicing and discount tiers. Horizontal slicing evaluated
+            discount tiers per device or card; vertical slicing evaluated them across the tenant's
+            usage.
           </p>
           <p>
-            I worked on a distributed billing and reporting framework involving mapping, reduction,
-            and finalization. My focus was on getting those stages to cooperate as a reliable
-            execution flow—not just on making individual computations faster.
+            Starting from that high-level requirement, I independently architected and implemented
+            the core distributed bill-run engine. My implementation covered the mapper, reducer,
+            finalizer, and reporting phases, with work partitioned for parallel execution.
           </p>
           <div class="case-highlight">
             <span>THE CENTRAL QUESTION</span>
             <strong>
-              How can a coordinator distinguish “some work produced output” from “every required
-              contribution is safely complete”?
+              How could I preserve the selected billing semantics across concurrent work and know
+              when every required contribution to a report was complete?
             </strong>
           </div>
           <p>
-            It changes the way you design the pipeline. Instead of treating completion as a boolean
-            set by whichever worker finishes last, you need an explicit contract for ownership,
-            durable results, stage transitions, and recovery.
+            Partitioning the work also meant coordinating when stages could advance. I had to
+            account for checkpointing and recovery from interrupted execution, so that partial
+            progress would not be mistaken for a completed report. Completion needed to be a shared
+            decision that remained meaningful when individual workers stopped or restarted.
           </p>
         </section>
 
@@ -149,10 +152,17 @@ const decisions = [
           <p class="case-label">02 / A SYSTEM MODEL</p>
           <h2>Separate the data being processed from the decisions about progress.</h2>
           <p>
-            My mental model separates the <em>data plane</em>—where events are transformed and
-            aggregated—from the <em>control plane</em>—where task ownership, retries, and
-            progression between phases are decided. This distinction makes failure behavior easier
-            to reason about.
+            I used Cassandra-backed distributed coordination to synchronize execution stages
+            durably. A completion signal held only in one process could not serve as a reliable
+            shared source of truth when independent workers could be interrupted or restarted.
+            Durable coordination let progress and stage-completion decisions survive those
+            interruptions, at the cost of additional state management and coordination overhead.
+          </p>
+          <p>
+            The conceptual model below separates the <em>data plane</em>, where events are processed
+            and contributions combined, from the <em>control plane</em>, where ownership and stage
+            progression are coordinated. It compresses finalization and reporting into the final
+            output step; it is not an exact four-phase production topology.
           </p>
           <figure class="v23-architecture">
             <div class="v23-figure-heading">
@@ -221,12 +231,14 @@ const decisions = [
             </figcaption>
           </figure>
           <p>
-            There's a subtle but important rule here:{' '}
+            The completion requirement carries through each stage:{' '}
             <strong>
               the existence of intermediate output cannot be the sole proof of stage completion.
             </strong>{' '}
-            A reducer needs to know which contributions were expected and which were committed. A
-            finalizer needs a valid aggregate, not merely the most recent aggregate.
+            In this model, a reducer needs to know which contributions were expected and which were
+            committed before treating its input as complete. Durable progress alone does not settle
+            whether an overlapping or retried attempt may publish a result. That ownership question
+            is the next part of the design discussion.
           </p>
         </section>
 
