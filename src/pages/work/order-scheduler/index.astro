@@ -14,9 +14,9 @@ const articleNavigation = [
   { href: '#reflection', label: '07 / What I learned' },
 ] as const;
 
-const title = 'Separating Decisions from Execution — Priyansh Sharma';
+const title = 'Redesigning Fleet Interactions — Priyansh Sharma';
 const description =
-  'A public-safe engineering case study about evolving an order scheduling system: planning, execution, provider boundaries, failure recovery, and explicit behavior.';
+  'An engineering account of the October 2026 Fleet interaction framework redesign within Order Scheduler, with conceptual illustrations of planning, execution, and integration boundaries.';
 const cases = [
   {
     id: '01',
@@ -91,43 +91,46 @@ const matrix = [
         <span>ORCHESTRATION · BACKEND ARCHITECTURE · RELIABILITY</span>
       </div>
       <h1>
-        Separating decisions from <em>execution.</em>
+        Redesigning Fleet <em>interactions.</em>
       </h1>
       <p class="case-standfirst">
-        Scheduling becomes difficult when one component must decide what should happen, know every
-        provider's quirks, perform the work, and recover when the outside world doesn't respond as
-        expected.
+        In October 2026, I designed and implemented the Fleet interaction framework within the
+        existing Order Scheduler. I separated planning from execution and brought Fleet calls behind
+        a centralized interaction boundary to make their control flow easier to reason about.
       </p>
       <div class="case-byline">
         <span>By Priyansh Sharma</span>
         <span>Professional engineering experience · Thales</span>
-        <span>Public-safe conceptual walkthrough</span>
+        <span>Conceptual architectural walkthrough</span>
       </div>
     </div>
     <div class="shell case-layout">
       <ArticleNavigation items={articleNavigation} />
       <article class="case-prose">
         <div class="case-disclosure">
-          <strong>About this write-up.</strong> I worked on an order-scheduler framework redesign
-          involving a separation of planning and execution responsibilities, provider interactions,
-          and clearer order-handling behavior. This article is my public-safe explanation of the
-          architectural reasoning. Diagrams, illustrative interfaces, and failure scenarios are
-          simplified teaching models—not internal system documentation, production traces, or a
-          claim that every example below occurred in production.
+          <strong>About this write-up.</strong> My responsibility was the framework's technical
+          architecture and implementation; the upstream business and configuration specification was
+          developed collaboratively. The scheduler already existed. Earlier legacy refactoring, Rule
+          Flow and conditional order chaining, and later Fleet configuration simplification are
+          separate initiatives. Diagrams, the illustrative contract, and hypothetical failure
+          scenarios explain the reasoning without reproducing private production implementation
+          details or claiming every example was implemented or tested. Disclosure review remains
+          outstanding.
         </div>
         <section id="problem" class="case-section">
           <p class="case-label">01 / WHERE COUPLING STARTS</p>
           <h2>A scheduler can quietly become the whole system.</h2>
           <p>
-            At first, the flow looks small: find pending work, decide what is eligible, send a
-            request, record the result. Over time, each new order type and provider behavior adds
-            another condition. Eventually, making a change in one path risks changing an unrelated
-            one.
+            Fleet interactions were distributed across several legacy execution paths, with
+            configuration decisions intertwined with the code performing the calls. Understanding a
+            change meant tracing both the decision and its effects across those paths. That made it
+            harder to assess how an internal change might affect established scheduler behavior.
           </p>
           <p>
-            My work on an order scheduler pushed me to separate two questions that had become too
-            easy to mix together: <em>what should happen next?</em> and{' '}
-            <em>how should that action actually happen?</em>
+            I designed the framework around a shared Fleet interaction boundary and separated two
+            responsibilities within it: <em>which interaction should be selected?</em> and{' '}
+            <em>how should that interaction be carried out?</em> Centralizing that boundary gave
+            interaction ownership and control flow a consistent place in the design.
           </p>
           <div class="case-highlight">
             <span>THE DESIGN QUESTION</span>
@@ -137,18 +140,21 @@ const matrix = [
             </strong>
           </div>
           <p>
-            That boundary matters because decision rules change for different reasons than provider
-            integrations do. Keeping them together makes both harder to reason about.
+            I implemented the redesign in stages, with compatibility guiding the migration of
+            existing call paths. The constraint was to preserve established scheduler and
+            provider-facing behavior while changing internal responsibilities. A clearer structure
+            would not justify silently changing what those paths did.
           </p>
         </section>
         <section id="boundary" class="case-section">
           <p class="case-label">02 / THE ARCHITECTURAL BOUNDARY</p>
           <h2>Decide first. Execute second. Make the handoff obvious.</h2>
           <p>
-            I think of this kind of system as a set of responsibilities rather than one giant loop.
-            The planner reads relevant state and rules and produces a decision. The executor carries
-            out that decision through a provider-specific boundary. The outcome then informs future
-            scheduling.
+            I made planning side-effect-free: the planner selects the intended Fleet interaction
+            from supplied state and policy context. The executor carries out the selected operation
+            through the integration boundary, where provider-specific interaction concerns belong.
+            Results feed subsequent orchestration decisions. This separation lets decision logic be
+            reasoned about and tested without performing the external operation.
           </p>
           <figure class="scheduler-figure">
             <div class="scheduler-figure-top">
@@ -203,9 +209,11 @@ const matrix = [
             </figcaption>
           </figure>
           <p>
-            The important artifact of this split is the <strong>decision contract</strong>. It
-            should identify an intended action and the context needed to execute it, without forcing
-            the executor to rediscover all the reasons it was selected.
+            The <strong>decision contract</strong> makes the handoff explicit: an intended action
+            and the context needed to execute it, without making the executor reconstruct the
+            selection policy. Supplied inputs can become stale before execution. Side-effect-free
+            planning does not make the whole scheduler independent of external state or establish
+            that a decision remains valid indefinitely.
           </p>
           <div class="scheduler-contract" aria-label="Illustrative planning contract">
             <div>
@@ -229,9 +237,11 @@ const matrix = [
           <p class="case-label">03 / EXPLICIT BEHAVIOR</p>
           <h2>Rules are part of the architecture, not an afterthought.</h2>
           <p>
-            Order handling becomes especially easy to misunderstand when rule-based work, individual
-            requests, and fleet-oriented actions coexist. The absence of a match is itself a case
-            worth specifying. So is whether an event, a result, or a notification should be emitted.
+            Here, rules mean the decision policies governing Fleet interactions: precedence,
+            fallback, result handling, and configuration. These are concerns of the framework
+            boundary; the separate Rule Flow and conditional order-chaining initiative is outside
+            this account. The cards below summarize conceptual questions, not specific policy
+            semantics or a claim that each behavior changed in this redesign.
           </p>
           <p>
             One useful habit from this work was to write down the expected behavior before changing
