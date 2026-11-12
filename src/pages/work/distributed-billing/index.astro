@@ -63,23 +63,23 @@ const scenarios = [
 const decisions = [
   {
     name: 'Parallelize mapping',
-    why: 'Independent event partitions offer natural concurrency.',
-    cost: 'More partitions increase coordination writes, scheduling overhead, and result fan-in.',
+    why: 'Partitioning offers concurrency; the boundaries still have to preserve the selected billing semantics.',
+    cost: 'More partitions can add scheduling, synchronization, and aggregation work. Extra workers alone do not establish an end-to-end improvement.',
   },
   {
     name: 'Make phase boundaries durable',
-    why: 'A restart should not have to guess which processing phase is complete.',
-    cost: 'Durable checkpoints add state transitions and storage activity.',
+    why: 'Shared completion evidence remains available across worker interruption or restart.',
+    cost: 'Persistent coordination adds operations and state to manage, with potential contention and more complex transitions.',
   },
   {
     name: 'Recover abandoned work',
-    why: 'One interrupted worker should not permanently block a reporting run.',
-    cost: 'Lease expiry must account for slow but live workers; reclamation introduces stale-owner races.',
+    why: 'Reclaiming abandoned work gives an interrupted run a path to continue when recovery conditions allow.',
+    cost: 'Lease expiry can overlap attempts; recovery must account for stale authority and duplicate logical contributions.',
   },
   {
     name: 'Gate report finalization',
-    why: 'A report must represent a complete, consistent set of contributions.',
-    cost: 'Stragglers can delay completion; partial progress must remain visible without appearing final.',
+    why: 'A completion barrier keeps finalization dependent on valid evidence for all expected contributions.',
+    cost: 'Missing contributions can delay the report even when most work has finished. Partial progress must remain distinguishable from completion.',
   },
 ];
 ---
@@ -359,9 +359,11 @@ const decisions = [
           <p class="case-label">05 / TRADEOFFS</p>
           <h2 id="billing-tradeoffs-title">Each reliability decision has a cost.</h2>
           <p>
-            One thing I've learned from working on processing frameworks is that “more parallel” and
-            “more reliable” aren't free settings. Every additional partition and checkpoint has an
-            operational price.
+            For the core bill-run engine, I chose Cassandra-backed shared coordination over relying
+            exclusively on completion signals held in worker processes. Independent workers could be
+            interrupted or restarted, so stage progression needed durable evidence that remained
+            available beyond any one worker's lifetime. That choice made persistent coordination
+            state part of my implementation responsibility.
           </p>
           <div
             class="v23-decision-table"
@@ -389,9 +391,10 @@ const decisions = [
             </table>
           </div>
           <p>
-            I'd rather explain these costs honestly than present a larger worker count as an
-            achievement on its own. Concurrency is valuable when the end-to-end result improves{' '}
-            <em>without weakening correctness.</em>
+            The table describes the competing considerations around that choice. I accepted
+            additional coordination operations, persistent state management, and more complex
+            transition and recovery reasoning. Shared state can also introduce contention. Their
+            performance impact requires measurement <em>under a defined workload.</em>
           </p>
         </section>
 
@@ -399,41 +402,46 @@ const decisions = [
           <p class="case-label">06 / VALIDATION</p>
           <h2>The measurement is only useful if you can explain it.</h2>
           <p>
-            On the billing project, I worked with large event volumes and reporting performance
-            tests. I don't want to put a number on a public website unless it is verified, approved
-            to disclose, and accompanied by its measurement conditions.
+            My project work included the core engine implementation and laboratory performance
+            evaluation. The criteria below explain what would substantiate a result; they are not a
+            record that every check was executed. The preceding fault-injection scenarios remain
+            proposed tests. Reported measurements still require review of their supporting evidence.
           </p>
           <div class="v23-validation-grid">
             <div>
               <span>01 / CORRECTNESS</span>
-              <strong>Consistent report output</strong>
+              <strong>Validate the billing result</strong>
               <p>
-                Compare generated results against a baseline; test duplicate attempts and missing
-                contributions.
+                Check charges against independently established expected results for the chosen
+                pricing and slicing rules. Verify complete contributions without double application;
+                producing an output alone is insufficient.
               </p>
             </div>
             <div>
               <span>02 / RECOVERY</span>
-              <strong>Converges after interruption</strong>
+              <strong>Demonstrate recoverable completion</strong>
               <p>
-                Introduce worker loss, delayed acknowledgements, and retry overlap; verify eventual
-                valid completion.
+                Under stated failure and retry assumptions, verify that interrupted work can reach a
+                valid completed report. Distinguish bounded retries that make progress from repeated
+                attempts that never complete.
               </p>
             </div>
             <div>
               <span>03 / PERFORMANCE</span>
-              <strong>Explain the workload</strong>
+              <strong>Define the measurement</strong>
               <p>
-                Record event count, distribution, run scope, concurrency, environment, elapsed time,
-                and what is excluded.
+                Specify workload and distribution, reporting scope, environment, concurrency, and
+                timing start/stop boundaries. State exclusions so the elapsed time describes a
+                defined amount of completed work.
               </p>
             </div>
             <div>
               <span>04 / BOTTLENECKS</span>
-              <strong>See the entire pipeline</strong>
+              <strong>Locate the limiting stage</strong>
               <p>
-                Measure stage duration, coordination pressure, stragglers, aggregation, and
-                finalization separately.
+                Measure stage durations, coordination activity, and waiting for contributions
+                alongside end-to-end time. A total duration alone cannot identify which stage or
+                delay dominates the run.
               </p>
             </div>
           </div>
@@ -449,24 +457,21 @@ const decisions = [
 
         <section id="reflection" class="case-section case-final-section">
           <p class="case-label">07 / WHAT I TOOK AWAY</p>
-          <h2>I think about completion differently now.</h2>
+          <h2>I had to account for the whole run.</h2>
           <p>
-            The useful shift for me was from asking <em>“How fast can we process these events?”</em>{' '}
-            to asking{' '}
-            <em>
-              “What would convince us that the full result is correct, durable, and safe to
-              publish?”
-            </em>
+            Starting from a pricing requirement, I had to decide how{' '}
+            <em>the processing phases fit together</em> and what{' '}
+            <em>completion meant when the workers could change.</em>
           </p>
           <p>
-            That question changes your approach to worker ownership, stage boundaries, recovery,
-            testing, and observability. It also makes performance numbers more meaningful: you can
-            say what finished, not just what ran.
+            Making coordination durable put state management and recovery reasoning inside my
+            core-engine responsibility. Concurrency required me to think about the validity of the
+            whole report as well as the execution of each worker.
           </p>
           <p>
-            Some implementation details have to remain private, but the engineering lessons are
-            worth sharing. They're also the questions I keep bringing to new distributed-systems
-            work.
+            The lesson I take forward is to make completion conditions and recovery assumptions
+            explainable, then distinguish what the design intends from what verification actually
+            demonstrates.
           </p>
           <div class="v23-story-end">
             <div>
