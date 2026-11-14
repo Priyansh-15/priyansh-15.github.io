@@ -5,4 +5,5 @@ export const site = {
     'Backend and distributed systems engineer designing reliable infrastructure, data processing systems, and engineering tools.',
   github: 'https://github.com/Priyansh-15',
   linkedin: 'https://www.linkedin.com/in/priyansh-sharma-bb4095216/',
+  email: '15priyansh13.2001@gmail.com',
 } as const;
