@@ -2153,7 +2153,9 @@ button:focus-visible,
     display: block;
     margin: 20px 0 0;
     color: var(--faint);
-    font: 12px/1.6 'DM Mono', monospace;
+    font:
+      12px/1.6 'DM Mono',
+      monospace;
     letter-spacing: 0.02em;
   }
 }
