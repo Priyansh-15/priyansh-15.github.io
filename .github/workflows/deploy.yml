@@ -1,27 +1,37 @@
-# Manual release only. Run from master after the publication checklist is cleared
-# and repository Settings > Pages > Source has been set to GitHub Actions.
-name: Deploy portfolio
+# Build Astro and publish compiled files into the already-configured
+# GitHub Pages source: master / (root). No Pages settings migration needed.
+name: Publish Astro portfolio
 
 on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/deploy.yml'
+      - 'src/**'
+      - 'public/**'
+      - 'astro.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pages: write
 
 concurrency:
-  group: portfolio-pages
+  group: portfolio-branch-publishing
   cancel-in-progress: false
 
 jobs:
-  build:
+  publish:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - name: Check out reviewed master revision
+      - name: Check out master with scoped push permission
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false
+          persist-credentials: true
 
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -29,25 +39,24 @@ jobs:
           node-version: '26.13.0'
           package-manager-cache: false
 
-      - name: Install dependencies
+      - name: Install locked dependencies
         run: npm ci
 
       - name: Check formatting
         run: npm run format:check
 
-      - name: Build static site
+      - name: Check and build Astro
         run: npm run build
 
-      - name: Verify pages and legacy redirects
+      - name: Verify generated pages and legacy redirects
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
           from html import escape
-
           root = Path('dist')
-          pages = (
+          required = (
               'index.html',
               'work/distributed-billing/index.html',
               'work/order-scheduler/index.html',
@@ -60,34 +69,46 @@ jobs:
               'achievements_and_certifications.html':
                   'https://www.linkedin.com/in/priyansh-sharma-bb4095216/',
           }
-          for name in (*pages, *redirects):
-              file = root / name
-              assert file.is_file() and file.stat().st_size, f'Missing or empty: {name}'
-          for name, target in redirects.items():
-              generated = (root / name).read_text(encoding='utf-8')
-              assert target in generated or escape(target, quote=True) in generated, (
-                  f'Unexpected destination for {name}: expected {target}'
+          for name in (*required, *redirects):
+              path = root / name
+              assert path.is_file() and path.stat().st_size > 0, (
+                  f'Missing or empty output: {name}'
               )
-          print('Verified 3 pages and 5 redirects.')
+          for name, target in redirects.items():
+              html = (root / name).read_text(encoding='utf-8')
+              assert target in html or escape(target, quote=True) in html, (
+                  f'Wrong redirect destination: {name}'
+              )
+          assert any((root / '_astro').glob('*.css')), 'Missing Astro CSS'
+          print('Verified 3 HTML routes, 5 redirects and stylesheet outputs')
           PY
 
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
-        with:
-          path: dist
+      - name: Stage static build in Pages branch root
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f .nojekyll
+          test -f index.html
+          # These are generated output paths, not the Astro source directories.
+          rm -rf -- _astro work
+          cp -a dist/. .
+          git add -A --             index.html             work             _astro             favicon.svg             about_me.html             projects.html             work_experience.html             coding_profile.html             achievements_and_certifications.html
 
-  deploy:
-    if: github.ref == 'refs/heads/master'
-    needs: build
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy GitHub Pages artifact
-        id: deployment
-        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+          if git diff --cached --quiet; then
+            echo "No generated site changes"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'build: publish compiled Astro portfolio'
+          git push origin HEAD:master
+
+      - name: Request branch-based Pages build
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # A commit written with GITHUB_TOKEN does not itself trigger Pages.
+          # Explicitly request the branch build after publishing all files.
+          curl --fail-with-body --location --retry 3 --retry-all-errors             --request POST             --header 'Accept: application/vnd.github+json'             --header "Authorization: Bearer $GH_TOKEN"             --header 'X-GitHub-Api-Version: 2022-11-28'             --data '{}'             "https://api.github.com/repos/$GITHUB_REPOSITORY/pages/builds"
