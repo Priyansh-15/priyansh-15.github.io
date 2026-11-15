@@ -15,7 +15,7 @@ const { title = site.title, description = site.description } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#101112" />
+    <meta name="theme-color" content="#0c0d10" />
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -41,7 +41,7 @@ const { title = site.title, description = site.description } = Astro.props;
                 : 'dark';
           document.documentElement.dataset.theme = theme;
           const themeMeta = document.querySelector('meta[name="theme-color"]');
-          themeMeta?.setAttribute('content', theme === 'light' ? '#faf9f7' : '#101112');
+          themeMeta?.setAttribute('content', theme === 'light' ? '#faf9f6' : '#0c0d10');
         } catch {
           document.documentElement.dataset.theme = 'dark';
         }
@@ -68,7 +68,7 @@ const { title = site.title, description = site.description } = Astro.props;
         const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
         document.documentElement.dataset.theme = next;
         const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-        themeMeta?.setAttribute('content', next === 'light' ? '#faf9f7' : '#101112');
+        themeMeta?.setAttribute('content', next === 'light' ? '#faf9f6' : '#0c0d10');
         try {
           localStorage.setItem('portfolio-theme', next);
         } catch {}
