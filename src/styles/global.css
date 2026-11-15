@@ -188,8 +188,8 @@ button:focus-visible {
   grid-template-columns: minmax(0, 1.22fr) minmax(340px, 0.78fr);
   gap: clamp(50px, 7vw, 115px);
   align-items: center;
-  padding-top: 126px;
-  padding-bottom: 140px;
+  padding-top: 94px;
+  padding-bottom: 96px;
 }
 .eyebrow {
   font-size: 11px;
@@ -357,6 +357,12 @@ h3 {
 .section-spacing {
   padding-top: 120px;
   padding-bottom: 120px;
+}
+/* Bring selected work closer to the first viewport without changing mobile spacing. */
+@media (min-width: 801px) {
+  .work-section {
+    padding-top: 90px;
+  }
 }
 .section-kicker {
   font-size: 11px;
@@ -916,8 +922,8 @@ h3 {
   overflow: clip;
 }
 .case-hero {
-  padding-top: 75px;
-  padding-bottom: 89px;
+  padding-top: 62px;
+  padding-bottom: 72px;
 }
 .case-back {
   display: inline-block;
@@ -930,7 +936,7 @@ h3 {
   color: var(--accent);
 }
 .case-meta {
-  margin: 88px 0 25px;
+  margin: 58px 0 25px;
   display: flex;
   justify-content: space-between;
   gap: 16px;
@@ -1041,7 +1047,7 @@ h3 {
 .case-section p:not(.case-label) {
   color: var(--muted);
   font-size: 17px;
-  line-height: 1.95;
+  line-height: 1.8;
   max-width: 760px;
   margin-bottom: 23px;
 }
