@@ -111,7 +111,7 @@ button:focus-visible {
   color: var(--accent);
 }
 .brand-name {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
 }
 .desktop-nav {
@@ -192,13 +192,26 @@ button:focus-visible {
   padding-bottom: 96px;
 }
 .eyebrow {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--accent);
   letter-spacing: 0.05em;
   margin: 0 0 34px;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 13px;
+}
+.eyebrow-identity {
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.eyebrow-identity strong {
+  color: var(--fg);
+  font-weight: 700;
 }
 .tiny-star {
   font-size: 22px;
@@ -799,7 +812,7 @@ h3 {
     width: min(100% - 36px, 1240px);
   }
   .brand-name {
-    font-size: 12px;
+    font-size: 14px;
   }
   .intro {
     padding-top: 61px;
