@@ -1,0 +1,93 @@
+# Manual release only. Run from master after the publication checklist is cleared
+# and repository Settings > Pages > Source has been set to GitHub Actions.
+name: Deploy portfolio
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out reviewed master revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.13.0'
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Verify pages and legacy redirects
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          from html import escape
+
+          root = Path('dist')
+          pages = (
+              'index.html',
+              'work/distributed-billing/index.html',
+              'work/order-scheduler/index.html',
+          )
+          redirects = {
+              'about_me.html': '/#about',
+              'projects.html': '/#work',
+              'work_experience.html': '/#work',
+              'coding_profile.html': 'https://github.com/Priyansh-15',
+              'achievements_and_certifications.html':
+                  'https://www.linkedin.com/in/priyansh-sharma-bb4095216/',
+          }
+          for name in (*pages, *redirects):
+              file = root / name
+              assert file.is_file() and file.stat().st_size, f'Missing or empty: {name}'
+          for name, target in redirects.items():
+              generated = (root / name).read_text(encoding='utf-8')
+              assert target in generated or escape(target, quote=True) in generated, (
+                  f'Unexpected destination for {name}: expected {target}'
+              )
+          print('Verified 3 pages and 5 redirects.')
+          PY
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
