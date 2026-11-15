@@ -1,0 +1,263 @@
+# LOCAL DRAFT ONLY. Do not install, dispatch, or activate without separate authorization.
+name: Controlled Pages release
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: 'Reviewed source commit: exactly 40 lowercase hexadecimal characters'
+        type: string
+        required: true
+
+permissions: {}
+
+# One release at a time, including the future approval wait. No automatic cancellation.
+concurrency:
+  group: portfolio-production-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      source_sha: ${{ steps.resolve.outputs.sha }}
+      artifact_name: ${{ steps.request.outputs.artifact_name }}
+      artifact_id: ${{ steps.pages.outputs.artifact_id }}
+      archive_sha256: ${{ steps.manifest.outputs.archive_sha256 }}
+      manifest_sha256: ${{ steps.manifest.outputs.manifest_sha256 }}
+    steps:
+      - name: Validate dispatch and trusted workflow ref
+        id: request
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          WORKFLOW_SHA: ${{ github.workflow_sha }}
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = workflow_dispatch
+          test "$GITHUB_REPOSITORY" = Priyansh-15/priyansh-15.github.io
+          test "$GITHUB_REF" = refs/heads/master
+          test "$WORKFLOW_REF" = 'Priyansh-15/priyansh-15.github.io/.github/workflows/release-pages.yml@refs/heads/master'
+          test "${#SOURCE_SHA}" = 40
+          [[ "$SOURCE_SHA" =~ ^[0123456789abcdef]{40}$ ]] || exit 1
+          test "${#WORKFLOW_SHA}" = 40
+          [[ "$WORKFLOW_SHA" =~ ^[0123456789abcdef]{40}$ ]] || exit 1
+          # Reject reruns: a new reviewed candidate needs a new run, not reused approval.
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          printf 'sha=%s\n' "$SOURCE_SHA" >> "$GITHUB_OUTPUT"
+          printf 'artifact_name=github-pages-%s-%s\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
+
+      - name: Check out exact source from the fixed repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Priyansh-15/priyansh-15.github.io
+          ref: ${{ steps.request.outputs.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Resolve and verify source commit
+        id: resolve
+        env:
+          SOURCE_SHA: ${{ steps.request.outputs.sha }}
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse --verify 'HEAD^{commit}')"
+          test "$actual" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          test -f package-lock.json
+          test ! -L package-lock.json
+          # Fresh checkout must have no generated output to reuse or overwrite.
+          test ! -e dist
+          test ! -L dist
+          sha256sum package-lock.json > "$RUNNER_TEMP/lockfile.sha256"
+          printf 'sha=%s\n' "$actual" >> "$GITHUB_OUTPUT"
+
+      - name: Set up the CI-tested Node version without cache
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.13.0'
+          package-manager-cache: false
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Check source formatting
+        run: npm run format:check
+
+      - name: Run Astro diagnostics and fresh static build
+        # Existing build script is "astro check && astro build".
+        run: npm run build
+
+      - name: Verify output and inventory every published file
+        env:
+          SOURCE_SHA: ${{ steps.resolve.outputs.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse --verify 'HEAD^{commit}')" = "$SOURCE_SHA"
+          git diff --exit-code
+          git diff --cached --exit-code
+          sha256sum -c "$RUNNER_TEMP/lockfile.sha256"
+          python3 - <<'PY'
+          import hashlib, json, os, stat
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import unquote, urlsplit
+          root = Path('dist')
+          assert root.is_dir() and not root.is_symlink(), 'Missing/unsafe dist'
+          routes = {'index.html', 'work/distributed-billing/index.html', 'work/order-scheduler/index.html'}
+          files = {}
+          for path in sorted(root.rglob('*')):
+              rel = path.relative_to(root).as_posix()
+              assert not any(p.startswith('.') for p in Path(rel).parts), 'Unexpected hidden output'
+              mode = path.lstat().st_mode
+              assert stat.S_ISDIR(mode) or stat.S_ISREG(mode), 'Links/special files forbidden'
+              if path.is_dir():
+                  continue
+              assert path.stat().st_nlink == 1, 'Hard links forbidden'
+              assert rel in routes or rel == 'favicon.svg' or (rel.startswith('_astro/') and path.suffix in {'.css', '.js', '.woff', '.woff2'}), 'Unexpected output: ' + rel
+              data = path.read_bytes()
+              assert data, 'Empty output: ' + rel
+              files[rel] = {'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)}
+          assert routes <= files.keys() and 'favicon.svg' in files, 'Missing required route/asset'
+          assert any(p.endswith('.css') for p in files), 'Missing CSS'
+          assert sum(f['bytes'] for f in files.values()) < 100_000_000, 'Unexpected output size'
+          class Assets(HTMLParser):
+              def __init__(self, page):
+                  super().__init__()
+                  self.page = page
+                  self.css = False
+              def handle_starttag(self, tag, attributes):
+                  attrs = dict(attributes)
+                  value = attrs.get('src') or (attrs.get('href') if tag == 'link' else None)
+                  if not value:
+                      return
+                  url = urlsplit(value)
+                  if url.scheme or url.netloc:
+                      return
+                  rel = unquote(url.path).lstrip('/') if url.path.startswith('/') else (Path(self.page).parent / unquote(url.path)).as_posix()
+                  assert rel in files, 'Missing local asset: ' + rel
+                  self.css |= rel.endswith('.css')
+          for page in routes:
+              parser = Assets(page)
+              parser.feed((root / page).read_text())
+              assert parser.css, 'Page missing stylesheet: ' + page
+          evidence = Path(os.environ['RUNNER_TEMP']) / 'release-review'
+          evidence.mkdir()
+          (evidence / 'files.json').write_text(json.dumps(files, indent=2, sort_keys=True) + '\n')
+          PY
+
+      - name: Package the verified site as a Pages artifact
+        id: pages
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist
+          name: ${{ steps.request.outputs.artifact_name }}
+          retention-days: 14
+          include-hidden-files: false
+
+      - name: Record provenance after artifact identity is known
+        id: manifest
+        env:
+          SOURCE_SHA: ${{ steps.resolve.outputs.sha }}
+          WORKFLOW_SHA: ${{ github.workflow_sha }}
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+          ARTIFACT_NAME: ${{ steps.request.outputs.artifact_name }}
+          ARTIFACT_ID: ${{ steps.pages.outputs.artifact_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os, re, subprocess, tarfile
+          from pathlib import Path
+          temp = Path(os.environ['RUNNER_TEMP'])
+          evidence = temp / 'release-review'
+          inventory = json.loads((evidence / 'files.json').read_text())
+          archive = temp / 'artifact.tar'
+          actual = {}
+          with tarfile.open(archive, 'r:') as tar:
+              for member in tar.getmembers():
+                  assert member.isdir() or member.isfile(), 'Unsafe archive entry'
+                  if member.isdir():
+                      continue
+                  name = member.name.removeprefix('./')
+                  assert name not in actual, 'Duplicate archive entry'
+                  data = tar.extractfile(member).read()
+                  actual[name] = {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+          assert actual == inventory, 'Packaged bytes differ from verified files'
+          assert re.fullmatch(r'[1-9][0-9]*', os.environ['ARTIFACT_ID']), 'Missing artifact identity'
+          digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+          record = {
+              'source_sha': os.environ['SOURCE_SHA'],
+              'workflow_sha': os.environ['WORKFLOW_SHA'],
+              'workflow_ref': os.environ['WORKFLOW_REF'],
+              'run_id': os.environ['GITHUB_RUN_ID'],
+              'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'node': subprocess.check_output(['node', '--version'], text=True).strip(),
+              'npm': subprocess.check_output(['npm', '--version'], text=True).strip(),
+              'lockfile_sha256': hashlib.sha256(Path('package-lock.json').read_bytes()).hexdigest(),
+              'files': inventory,
+              'pages_artifact': {'id': os.environ['ARTIFACT_ID'], 'name': os.environ['ARTIFACT_NAME'], 'artifact_tar_sha256': digest, 'service_archive_digest': None, 'requested_retention_days': 14},
+              'validation': {'npm_ci': 'passed', 'format_check': 'passed', 'astro_check_and_build': 'passed', 'routes_assets_archive_inventory': 'passed', 'run_url': f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"},
+              'disclosure_approval_status': 'pending_external_review',
+              'release_approval_reference': None,
+              'rollback_artifact_reference': None,
+          }
+          content = json.dumps(record, indent=2, sort_keys=True) + '\n'
+          (evidence / 'release-manifest.json').write_text(content)
+          manifest_digest = hashlib.sha256(content.encode()).hexdigest()
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write(f'archive_sha256={digest}\nmanifest_sha256={manifest_digest}\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write(f'Candidate only; publication approval PENDING.\n\nSource `{record["source_sha"]}`\n\nWorkflow `{record["workflow_sha"]}`\n\nPages artifact ID `{record["pages_artifact"]["id"]}`\n\nArchive SHA-256 `{digest}`\n\nManifest SHA-256 `{manifest_digest}`\n')
+          PY
+
+      - name: Preserve public-safe candidate review evidence separately
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-review-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-review/
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy:
+    # UNCONDITIONAL DRAFT SAFETY GUARD. No input or environment variable can enable it.
+    if: ${{ false }}
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download this run's uniquely named candidate for byte verification
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ${{ needs.build.outputs.artifact_name }}
+          path: ${{ runner.temp }}/candidate
+
+      - name: Reconfirm exact candidate bytes before publication
+        shell: bash
+        env:
+          EXPECTED_SHA256: ${{ needs.build.outputs.archive_sha256 }}
+        run: |
+          set -euo pipefail
+          test "${#EXPECTED_SHA256}" = 64
+          [[ "$EXPECTED_SHA256" =~ ^[0123456789abcdef]{64}$ ]] || exit 1
+          cd "$RUNNER_TEMP/candidate"
+          test -f artifact.tar
+          test ! -L artifact.tar
+          printf '%s  artifact.tar\n' "$EXPECTED_SHA256" | sha256sum -c -
+
+      - name: Deploy the same run's artifact without rebuilding
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+        with:
+          artifact_name: ${{ needs.build.outputs.artifact_name }}
