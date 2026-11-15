@@ -40,12 +40,7 @@ jobs:
         run: npm ci
 
       - name: Check source formatting
-        run: |
-          if ! npm run format:check; then
-            npx prettier --write src/styles/global.css
-            git --no-pager diff -- src/styles/global.css
-            exit 1
-          fi
+        run: npm run format:check
 
       - name: Check Astro diagnostics and build static site
         run: npm run build
