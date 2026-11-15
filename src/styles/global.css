@@ -186,16 +186,16 @@ button:focus-visible {
 .intro {
   display: grid;
   grid-template-columns: minmax(0, 1.22fr) minmax(340px, 0.78fr);
-  gap: clamp(50px, 7vw, 115px);
+  gap: clamp(48px, 6vw, 92px);
   align-items: center;
-  padding-top: 94px;
-  padding-bottom: 96px;
+  padding-top: 72px;
+  padding-bottom: 76px;
 }
 .eyebrow {
   font-size: 12px;
   color: var(--accent);
   letter-spacing: 0.05em;
-  margin: 0 0 34px;
+  margin: 0 0 26px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -232,11 +232,11 @@ h3 {
   font-family: Manrope, sans-serif;
 }
 .intro h1 {
-  font-size: clamp(53px, 5.3vw, 82px);
+  font-size: clamp(52px, 4.5vw, 70px);
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.09;
   letter-spacing: -0.067em;
-  margin: 0 0 35px;
+  margin: 0 0 28px;
   max-width: 800px;
 }
 .intro h1 em,
@@ -249,10 +249,10 @@ h3 {
 }
 .intro-lede {
   font-size: 18px;
-  line-height: 1.75;
+  line-height: 1.68;
   max-width: 675px;
   color: var(--fg);
-  margin-bottom: 19px;
+  margin-bottom: 15px;
 }
 .intro-lede strong {
   font-weight: 700;
@@ -260,7 +260,7 @@ h3 {
 .intro-secondary {
   color: var(--muted);
   font-size: 16px;
-  line-height: 1.78;
+  line-height: 1.68;
   max-width: 630px;
   margin-bottom: 0;
 }
@@ -269,7 +269,7 @@ h3 {
   align-items: center;
   gap: 27px;
   flex-wrap: wrap;
-  margin-top: 34px;
+  margin-top: 27px;
 }
 .button {
   display: inline-flex;
@@ -319,7 +319,7 @@ h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 25px;
+  padding: 17px 23px;
   font-size: 10px;
   letter-spacing: 0.07em;
   color: var(--faint);
@@ -332,13 +332,13 @@ h3 {
   color: var(--accent);
 }
 .note-body {
-  padding: 36px 30px 29px;
+  padding: 27px 26px 23px;
 }
 .note-body p {
-  font-size: 17px;
-  line-height: 1.75;
+  font-size: 16px;
+  line-height: 1.65;
   color: var(--muted);
-  margin-bottom: 22px;
+  margin-bottom: 17px;
 }
 .note-body p:last-child {
   margin-bottom: 0;
@@ -706,11 +706,11 @@ h3 {
     width: min(100% - 64px, 1240px);
   }
   .intro {
-    gap: 45px;
+    gap: clamp(48px, 6vw, 92px);
     grid-template-columns: 1.1fr 0.9fr;
   }
   .intro h1 {
-    font-size: clamp(50px, 5.6vw, 68px);
+    font-size: clamp(52px, 4.5vw, 70px);
   }
   .story {
     gap: 36px;
@@ -753,9 +753,9 @@ h3 {
   }
   .intro {
     grid-template-columns: 1fr;
-    gap: 68px;
-    padding-top: 85px;
-    padding-bottom: 95px;
+    gap: 52px;
+    padding-top: 70px;
+    padding-bottom: 78px;
   }
   .intro-aside {
     justify-self: start;
@@ -764,6 +764,13 @@ h3 {
   }
   .intro h1 {
     font-size: clamp(52px, 8vw, 78px);
+    margin-bottom: 28px;
+  }
+  .eyebrow {
+    margin-bottom: 26px;
+  }
+  .intro-links {
+    margin-top: 27px;
   }
   .factline {
     flex-wrap: wrap;
@@ -815,14 +822,15 @@ h3 {
     font-size: 14px;
   }
   .intro {
-    padding-top: 61px;
-    padding-bottom: 80px;
-    gap: 49px;
+    padding-top: 47px;
+    padding-bottom: 70px;
+    gap: 40px;
   }
   .intro h1 {
     font-size: clamp(43px, 11.5vw, 64px);
     line-height: 1.14;
     letter-spacing: -0.07em;
+    margin-bottom: 27px;
   }
   .intro-lede {
     font-size: 16px;
@@ -832,18 +840,20 @@ h3 {
   }
   .intro-links {
     gap: 19px;
+    margin-top: 27px;
   }
   .intro-aside {
     transform: none;
   }
   .note-body {
-    padding: 26px 23px;
+    padding: 25px 23px 22px;
   }
   .note-body p {
     font-size: 15px;
   }
   .eyebrow {
     gap: 8px;
+    margin-bottom: 24px;
     flex-wrap: wrap;
   }
   .factline {
