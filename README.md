@@ -70,30 +70,24 @@ The legacy static HTML website is live at [priyansh-15.github.io](https://priyan
 
 ### Validation-only CI
 
-[The CI workflow](.github/workflows/ci.yml) runs on pushes to `portfolio-v3` and pull requests targeting `portfolio-v3` or `master`. It installs locked dependencies, checks source formatting, runs Astro diagnostics and the build, and verifies the three generated pages. It does not deploy.
+[The CI workflow](.github/workflows/ci.yml) runs on pushes to `portfolio-v3` and pull requests targeting `portfolio-v3` or `master`. It installs locked dependencies, checks source formatting, runs Astro diagnostics and the build, and verifies the three generated pages and five legacy redirects. It does not deploy.
 
 [CI run #1 (43187706140)](https://github.com/Priyansh-15/priyansh-15.github.io/actions/runs/43187706140) completed successfully for commit `9756e40`.
 
-### Future release design — not implemented
+### Simple GitHub Pages deployment — prepared, not activated
 
-The planned release mechanism is a separate, manually triggered GitHub Actions workflow:
+[The manual deployment workflow](.github/workflows/deploy.yml) uses GitHub Actions to install the locked dependencies, validate and build the Astro site, verify the three pages and five legacy redirects, and upload/deploy the generated `dist/` artifact. It runs **only on manual dispatch from `master`**. Neither pull requests nor ordinary pushes deploy the site.
 
-1. Install the reviewed release workflow on the repository's default branch when separately authorized, preserving the legacy website during setup.
-2. Build from an explicitly approved full source commit SHA, run validation, and record provenance: source and workflow revisions, build run, artifact identity, and content hashes.
-3. Review the exact generated release contents and require explicit approval through a protected deployment environment.
-4. Once authorized, migrate Pages publishing to GitHub Actions and publish the reviewed artifact without rebuilding it. Ordinary development pushes will remain validation-only.
+The legacy site is still served from the `master` repository root. This means a source-only merge **must not happen before the publishing cutover is coordinated**: an Astro source tree does not include a built `index.html` at the repository root.
 
-No release workflow or deployment approval gate has been implemented yet.
+After the publication checklist and any required employer disclosures are fully cleared:
 
-### Release prerequisites and recovery
+1. Review the pull request, ensure CI passes, and record a recoverable copy of the existing legacy site.
+2. Coordinate the cutover to GitHub Actions in **Settings → Pages → Build and deployment → Source**. This settings change must be performed by the repository owner; it is not accomplished by merging code.
+3. Merge the approved `portfolio-v3` pull request into `master` and run **Actions → Deploy portfolio → Run workflow**, selecting `master`.
+4. Verify the live homepage, both case studies, redirects, and HTTPS. Roll back to the saved approved legacy site if the cutover fails.
 
-Before production cutover:
-
-- Complete the [publication review](#publication-review) for the exact candidate, including professional claims, supporting evidence, and disclosure permissions.
-- Resolve how legacy URLs will be handled.
-- Establish and verify environment approval rules and protection of the trusted release workflow.
-- Preserve an approved recoverable release or fallback outside temporary Actions artifact retention, record its identity and hashes, and verify the rollback procedure. Restoring that reviewed output must not depend on rebuilding an old source revision.
-- Obtain explicit owner authorization before changing GitHub Pages settings or publishing. A successful CI run is not release authorization.
+Until approval and the publishing-source migration, leave deployment untriggered and preserve the current live site. The earlier `master`-only `release-pages.yml` workflow is an inert draft, not part of this simplified deployment path, and can be removed separately.
 
 ## Publication review
 
