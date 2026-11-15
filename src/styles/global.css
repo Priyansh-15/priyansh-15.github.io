@@ -2,29 +2,35 @@
   font-family: 'DM Sans', sans-serif;
   font-synthesis: none;
   color-scheme: dark;
-  --bg: #101514;
-  --surface: #19211f;
-  --surface-2: #202b27;
-  --fg: #eef0e9;
-  --muted: #a8b4ad;
-  --faint: #82958a;
-  --line: #344039;
-  --accent: #c2dbc4;
-  --accent-strong: #d5ebd5;
-  --ink: #112016;
+  --bg: #101112;
+  --surface: #1b1c20;
+  --surface-2: #24252a;
+  --fg: #f4f3f0;
+  --muted: #b3b0b8;
+  --faint: #928f9a;
+  --line: #39363e;
+  --accent: #d9d8db;
+  --accent-strong: #f1eef3;
+  --ink: #1a1425;
+  --signature: #b6a3e6;
+  --signature-strong: #d0bdf5;
+  --hero-accent: #e7e0ed;
 }
 :root[data-theme='light'] {
   color-scheme: light;
-  --bg: #f6f5ef;
-  --surface: #eaece5;
-  --surface-2: #e0e7df;
-  --fg: #1a2920;
-  --muted: #4b5b50;
-  --faint: #56665b;
-  --line: #cdd5c9;
-  --accent: #315f48;
-  --accent-strong: #234e39;
+  --bg: #faf9f7;
+  --surface: #f0eef0;
+  --surface-2: #e5e1e9;
+  --fg: #242229;
+  --muted: #5d5962;
+  --faint: #6e6875;
+  --line: #cfcad4;
+  --accent: #4b4851;
+  --accent-strong: #2b2a30;
   --ink: #fff;
+  --signature: #7655a9;
+  --signature-strong: #5b3e8b;
+  --hero-accent: #4c4159;
 }
 *,
 *::before,
@@ -2043,4 +2049,43 @@ h3 {
   .factline {
     padding-block: 18px;
   }
+}
+
+/* Obsidian Ink theme audit: Ink & Ivory foundation, restrained violet signature.
+   This section changes colors only; it does not modify sizing or layout. */
+.brand-period,
+.tiny-star,
+.note-asterisk,
+.section-kicker,
+.case-label {
+  color: var(--signature);
+}
+.intro h1 em,
+.case-hero h1 em {
+  color: var(--hero-accent);
+}
+.button-primary {
+  background: var(--signature);
+}
+.button-primary:hover {
+  background: var(--signature-strong);
+}
+.availability-link:hover,
+.v23-stage-featured,
+.scheduler-key {
+  border-color: var(--signature);
+}
+.underline-link:hover,
+.case-back:hover,
+.case-next a:hover,
+.v23-scenario[open] summary {
+  color: var(--signature);
+}
+a:focus-visible,
+button:focus-visible,
+.v23-scenario summary:focus-visible,
+.v23-decision-table:focus-visible,
+.scheduler-matrix-scroll:focus-visible,
+.case-mobile-toc summary:focus-visible {
+  outline-color: var(--signature);
 }
