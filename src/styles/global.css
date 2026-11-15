@@ -2,35 +2,37 @@
   font-family: 'DM Sans', sans-serif;
   font-synthesis: none;
   color-scheme: dark;
-  --bg: #101112;
-  --surface: #1b1c20;
-  --surface-2: #24252a;
-  --fg: #f4f3f0;
-  --muted: #b3b0b8;
-  --faint: #928f9a;
-  --line: #39363e;
-  --accent: #d9d8db;
-  --accent-strong: #f1eef3;
-  --ink: #1a1425;
-  --signature: #b6a3e6;
-  --signature-strong: #d0bdf5;
-  --hero-accent: #e7e0ed;
+  --bg: #0c0d10;
+  --surface: #202027;
+  --surface-2: #2a2832;
+  --fg: #f5f3f0;
+  --muted: #bdb8c1;
+  --faint: #a19aa8;
+  --line: #48434f;
+  --accent: #dedbe1;
+  --accent-strong: #f1edf5;
+  --ink: #1c1524;
+  --signature: #ad95db;
+  --signature-strong: #c4afe9;
+  --hero-accent: #e7dcf3;
+  --note-border: #61556e;
 }
 :root[data-theme='light'] {
   color-scheme: light;
-  --bg: #faf9f7;
-  --surface: #f0eef0;
-  --surface-2: #e5e1e9;
-  --fg: #242229;
-  --muted: #5d5962;
-  --faint: #6e6875;
-  --line: #cfcad4;
-  --accent: #4b4851;
-  --accent-strong: #2b2a30;
+  --bg: #faf9f6;
+  --surface: #edeaf0;
+  --surface-2: #e2deea;
+  --fg: #242128;
+  --muted: #5b5662;
+  --faint: #6c6573;
+  --line: #ccc5d2;
+  --accent: #4d4653;
+  --accent-strong: #2b2630;
   --ink: #fff;
   --signature: #7655a9;
-  --signature-strong: #5b3e8b;
+  --signature-strong: #634594;
   --hero-accent: #4c4159;
+  --note-border: #b5a7c5;
 }
 *,
 *::before,
@@ -2088,4 +2090,19 @@ button:focus-visible,
 .scheduler-matrix-scroll:focus-visible,
 .case-mobile-toc summary:focus-visible {
   outline-color: var(--signature);
+}
+
+/* Obsidian Ink V2: tonal depth only. Same layout, spacing, and typography as V1.
+   The radial light is deliberately faint; the canvas stays predominantly black. */
+:root:not([data-theme='light']) .intro,
+:root:not([data-theme='light']) .case-hero {
+  background-image: radial-gradient(
+    ellipse 72% 78% at 77% 54%,
+    rgba(114, 91, 146, 0.085),
+    transparent 74%
+  );
+}
+.intro-aside {
+  background-image: linear-gradient(140deg, var(--surface-2), var(--surface) 66%);
+  border-color: var(--note-border);
 }
