@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [portfolio-v3]
+  pull_request:
+    branches: [portfolio-v3, master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out triggering revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js and npm cache
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.13.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Report Node.js and npm versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Check source formatting
+        run: npm run format:check
+
+      - name: Check Astro diagnostics and build static site
+        run: npm run build
+
+      - name: Verify generated pages and legacy redirects
+        run: |
+          set -euo pipefail
+          for file in \
+            index.html \
+            work/distributed-billing/index.html \
+            work/order-scheduler/index.html \
+            about_me.html \
+            projects.html \
+            work_experience.html \
+            coding_profile.html \
+            achievements_and_certifications.html
+          do
+            test -s "dist/$file"
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          from html import escape
+          redirects = {
+              'about_me.html': '/#about',
+              'projects.html': '/#work',
+              'work_experience.html': '/#work',
+              'coding_profile.html': 'https://github.com/Priyansh-15',
+              'achievements_and_certifications.html':
+                  'https://www.linkedin.com/in/priyansh-sharma-bb4095216/',
+          }
+          for name, target in redirects.items():
+              generated = (Path('dist') / name).read_text(encoding='utf-8')
+              assert target in generated or escape(target, quote=True) in generated, (
+                  f'Unexpected destination for {name}: expected {target}'
+              )
+          print('Verified 3 pages and 5 redirects.')
+          PY

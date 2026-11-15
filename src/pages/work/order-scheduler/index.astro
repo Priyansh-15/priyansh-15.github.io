@@ -1,0 +1,446 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import ArticleNavigation from '../../../components/ArticleNavigation.astro';
+
+const articleNavigation = [
+  { href: '#problem', label: '01 / Where coupling starts' },
+  { href: '#boundary', label: '02 / The architectural boundary' },
+  { href: '#rules', label: '03 / Making behavior explicit' },
+  { href: '#failures', label: '04 / Failure paths' },
+  { href: '#testing', label: '05 / How to test it' },
+  { href: '#tradeoffs', label: '06 / What the design costs' },
+  { href: '#reflection', label: '07 / What I learned' },
+] as const;
+
+const title = 'Redesigning Fleet Interactions — Priyansh Sharma';
+const description =
+  'An engineering account of the October 2026 Fleet interaction framework redesign within Order Scheduler, with conceptual illustrations of planning, execution, and integration boundaries.';
+const cases = [
+  {
+    id: '01',
+    title: 'An order is not eligible yet',
+    question: 'What if eligibility changes between planning and execution?',
+    answer:
+      'Planning selects an interaction from supplied context. A valid selection can become invalid before execution. Checking necessary preconditions at the relevant action boundary is distinct from re-evaluating all selection policy inside the executor; side-effect-free planning alone does not keep inputs fresh.',
+    cost: 'Preconditions need explicit semantics. Proposed check: test an initially ineligible order, then an eligible decision whose preconditions change before execution. Under the illustrative policy, assert that neither permits a prohibited provider call. This does not prescribe a production rejection or replanning protocol.',
+  },
+  {
+    id: '02',
+    title: 'A provider call times out',
+    question: 'Was the operation executed remotely?',
+    answer:
+      'A missing response leaves several possibilities: failure before acceptance, success with a lost response, or an outcome still unknown to the scheduler. Safe retry or reconciliation depends on the provider contract. Status queries and idempotency support cannot be assumed, and a centralized boundary alone cannot prevent duplicate external effects.',
+    cost: 'Uncertainty may delay progress. Proposed check: simulate acceptance with a lost response separately from a known rejection. Assert that the unknown outcome is not recorded as confirmed failure and that any retry or reconciliation follows the simulated provider contract.',
+  },
+  {
+    id: '03',
+    title: 'Several order types are available',
+    question: 'Who decides which one takes precedence?',
+    answer:
+      'The planner should resolve competing Fleet interactions using explicit precedence, tie, and fallback policies. Repeatable decisions require controlled state, configuration, and any time-dependent inputs. This concerns interaction selection, not the separate Rule Flow initiative.',
+    cost: 'Each policy choice adds cases to maintain. Proposed check: supply competing eligible actions, a tie, and a no-match case with fixed inputs. Assert the selection prescribed by each illustrative policy, including no action where that policy requires it, without inventing production precedence rules.',
+  },
+  {
+    id: '04',
+    title: 'A result arrives after a retry',
+    question: 'Can late, repeated, or concurrent results change the logical outcome incorrectly?',
+    answer:
+      'Correlate the result with the logical operation and the attempt it describes, then enforce the permitted state transition. Correlation or a separate state check is insufficient if competing handlers can both accept a result. A late observation must not overwrite a newer authoritative state merely because its operation identity matches.',
+    cost: 'Acceptance rules must cover races as well as sequential delivery. Proposed check: replay a result, deliver duplicates concurrently, and deliver an older attempt after completion. Assert one application of the defined logical transition and no invalid state regression; this does not establish how many times the provider acted.',
+  },
+];
+const matrix = [
+  [
+    'Eligible decision; preconditions change before execution',
+    'Select an action from fixed planning inputs',
+    'Check required execution preconditions without repeating selection policy',
+    'No provider call prohibited by the illustrative preconditions',
+  ],
+  [
+    'No policy matches the controlled inputs',
+    'Select the fallback specified by the illustrative policy',
+    'Execute only the resulting action, if any',
+    'Observed action matches the fallback; no provider call for a no-action decision',
+  ],
+  [
+    'Simulated retryable failure persists until the budget is exhausted',
+    'Keep the intended interaction distinct from retry classification',
+    'Adapter reports the outcome; the designated retry owner applies the budget',
+    'Attempts stop at the configured limit or deadline; exhaustion is observable',
+  ],
+  [
+    'Duplicate results race; an older attempt arrives later',
+    'Keep the logical operation distinct from its attempts',
+    'Correlate results and enforce valid transition acceptance',
+    'One application of the defined logical transition; no invalid state regression',
+  ],
+];
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+  <main id="main" class="case-page case-v23 scheduler-study">
+    <div class="shell case-hero">
+      <a class="case-back" href="/#work">
+        ← Back to selected work
+      </a>
+      <div class="case-meta">
+        <span>ENGINEERING STORY / 02</span>
+        <span>ORCHESTRATION · BACKEND ARCHITECTURE · RELIABILITY</span>
+      </div>
+      <h1>
+        Redesigning Fleet <em>interactions.</em>
+      </h1>
+      <p class="case-standfirst">
+        In October 2026, I designed and implemented the Fleet interaction framework within the
+        existing Order Scheduler. I separated planning from execution and brought Fleet calls behind
+        a centralized interaction boundary to make their control flow easier to reason about.
+      </p>
+      <div class="case-byline">
+        <span>By Priyansh Sharma</span>
+        <span>Professional engineering experience · Thales</span>
+        <span>Conceptual architectural walkthrough</span>
+      </div>
+    </div>
+    <div class="shell case-layout">
+      <ArticleNavigation items={articleNavigation} />
+      <article class="case-prose">
+        <div class="case-disclosure">
+          <strong>About this write-up.</strong> My responsibility was the framework's technical
+          architecture and implementation; the upstream business and configuration specification was
+          developed collaboratively. The scheduler already existed. Earlier legacy refactoring, Rule
+          Flow and conditional order chaining, and later Fleet configuration simplification are
+          separate initiatives. Diagrams, the illustrative contract, and hypothetical failure
+          scenarios explain the reasoning without reproducing private production implementation
+          details or claiming every example was implemented or tested. Disclosure review remains
+          outstanding.
+        </div>
+        <section id="problem" class="case-section">
+          <p class="case-label">01 / WHERE COUPLING STARTS</p>
+          <h2>A scheduler can quietly become the whole system.</h2>
+          <p>
+            Fleet interactions were distributed across several legacy execution paths, with
+            configuration decisions intertwined with the code performing the calls. Understanding a
+            change meant tracing both the decision and its effects across those paths. That made it
+            harder to assess how an internal change might affect established scheduler behavior.
+          </p>
+          <p>
+            I designed the framework around a shared Fleet interaction boundary and separated two
+            responsibilities within it: <em>which interaction should be selected?</em> and{' '}
+            <em>how should that interaction be carried out?</em> Centralizing that boundary gave
+            interaction ownership and control flow a consistent place in the design.
+          </p>
+          <div class="case-highlight">
+            <span>THE DESIGN QUESTION</span>
+            <strong>
+              Can a scheduling decision be understood and tested without running the external
+              operation it chooses?
+            </strong>
+          </div>
+          <p>
+            I implemented the redesign in stages, with compatibility guiding the migration of
+            existing call paths. The constraint was to preserve established scheduler and
+            provider-facing behavior while changing internal responsibilities. A clearer structure
+            would not justify silently changing what those paths did.
+          </p>
+        </section>
+        <section id="boundary" class="case-section">
+          <p class="case-label">02 / THE ARCHITECTURAL BOUNDARY</p>
+          <h2>Decide first. Execute second. Make the handoff obvious.</h2>
+          <p>
+            I made planning side-effect-free: the planner selects the intended Fleet interaction
+            from supplied state and policy context. The executor carries out the selected operation
+            through the integration boundary, where provider-specific interaction concerns belong.
+            Results feed subsequent orchestration decisions. This separation lets decision logic be
+            reasoned about and tested without performing the external operation.
+          </p>
+          <figure class="scheduler-figure">
+            <div class="scheduler-figure-top">
+              <span>FIG. 01 / RESPONSIBILITY BOUNDARIES</span>
+              <span>CONCEPTUAL MODEL</span>
+            </div>
+            <div
+              class="scheduler-flow"
+              role="img"
+              aria-label="Relevant state and rules feed a planner. The planner emits an action description to an executor. The executor uses a provider adapter and reports a result back to durable progress state."
+            >
+              <div class="scheduler-input">
+                <span>CONTEXT</span>
+                <strong>State + rules</strong>
+                <small>Eligibility · precedence · fallback</small>
+              </div>
+              <div class="scheduler-flow-arrow" aria-hidden="true">
+                →
+              </div>
+              <div class="scheduler-node scheduler-key">
+                <span>DECIDE</span>
+                <strong>Planner</strong>
+                <small>Choose an action</small>
+              </div>
+              <div class="scheduler-flow-arrow" aria-hidden="true">
+                →
+              </div>
+              <div class="scheduler-node">
+                <span>DO</span>
+                <strong>Executor</strong>
+                <small>Run the chosen action</small>
+              </div>
+              <div class="scheduler-flow-arrow" aria-hidden="true">
+                →
+              </div>
+              <div class="scheduler-node">
+                <span>INTEGRATE</span>
+                <strong>Provider adapter</strong>
+                <small>Translate the external contract</small>
+              </div>
+            </div>
+            <div class="scheduler-output">
+              <span>OUTCOME LOOP</span>
+              <strong>Result + progress</strong>
+              <p>
+                Correlate the result, update durable state, and inform the next planning decision.
+              </p>
+            </div>
+            <figcaption>
+              An educational decomposition of responsibilities; it does not describe internal
+              services, deployment topology, or proprietary protocols.
+            </figcaption>
+          </figure>
+          <p>
+            The <strong>decision contract</strong> makes the handoff explicit: an intended action
+            and the context needed to execute it, without making the executor reconstruct the
+            selection policy. Supplied inputs can become stale before execution. Side-effect-free
+            planning does not make the whole scheduler independent of external state or establish
+            that a decision remains valid indefinitely.
+          </p>
+          <div class="scheduler-contract" role="group" aria-label="Illustrative planning contract">
+            <div>
+              <span>ILLUSTRATIVE CONTRACT</span>
+              <span>NOT PRODUCTION CODE</span>
+            </div>
+            <pre><code>{`Decision {
+  operationId
+  actionType
+  targetReference
+  policyContext
+}`}</code></pre>
+          </div>
+          <p>
+            This is an illustration, not a private API. An operationId identifies a logical
+            operation; retries are separate attempts whose outcomes need attribution. Identity
+            supports correlation, but does not itself enforce idempotency, safe concurrent result
+            acceptance, or exactly-once provider effects.
+          </p>
+        </section>
+        <section id="rules" class="case-section">
+          <p class="case-label">03 / EXPLICIT BEHAVIOR</p>
+          <h2>Rules are part of the architecture, not an afterthought.</h2>
+          <p>
+            Here, rules mean the decision policies governing Fleet interactions: precedence,
+            fallback, result handling, and configuration. These are concerns of the framework
+            boundary; the separate Rule Flow and conditional order-chaining initiative is outside
+            this account. The cards below summarize conceptual questions, not specific policy
+            semantics or a claim that each behavior changed in this redesign.
+          </p>
+          <p>
+            One useful habit from this work was to write down the expected behavior before changing
+            the framework. It turns “what happens here?” from an argument spread across conditionals
+            into something reviewers and testers can inspect.
+          </p>
+          <div class="scheduler-rule-grid">
+            <div>
+              <span>01 / PRIORITY</span>
+              <strong>What takes precedence?</strong>
+              <p>Define how competing eligible actions are selected.</p>
+            </div>
+            <div>
+              <span>02 / FALLBACK</span>
+              <strong>What happens on no match?</strong>
+              <p>Make the default path an explicit behavior.</p>
+            </div>
+            <div>
+              <span>03 / RESULTS</span>
+              <strong>Where does the outcome go?</strong>
+              <p>Specify correlation and result publication.</p>
+            </div>
+            <div>
+              <span>04 / FLAGS</span>
+              <strong>What varies by configuration?</strong>
+              <p>Keep policy switches distinct from execution plumbing.</p>
+            </div>
+          </div>
+        </section>
+        <section id="failures" class="case-section">
+          <p class="case-label">04 / FAILURE PATHS</p>
+          <h2>The interesting part happens when the happy path stops.</h2>
+          <p>
+            These proposed checks examine the Fleet boundary under changing state and uncertain
+            outcomes. Retry responsibility must identify who classifies errors, who schedules
+            another attempt, and who enforces an attempt limit or time budget and records
+            exhaustion. Planning, execution, and integration must not each add an independent retry
+            loop that defeats the intended bound. Persistent provider failures also require
+            considering total in-flight work and retry pressure, not just the limit for one
+            operation.
+          </p>
+          <div class="v23-scenarios">
+            {cases.map((item) => (
+              <details class="v23-scenario">
+                <summary>
+                  <span class="v23-number">{item.id}</span>
+                  <span>{item.title}</span>
+                  <span class="v23-plus" aria-hidden="true">
+                    +
+                  </span>
+                </summary>
+                <div class="scheduler-failure-detail">
+                  <div>
+                    <small>THE QUESTION</small>
+                    <strong>{item.question}</strong>
+                  </div>
+                  <div>
+                    <small>DESIGN RESPONSE</small>
+                    <p>{item.answer}</p>
+                  </div>
+                  <div>
+                    <small>TRADEOFF / PROPOSED CHECK</small>
+                    <p>{item.cost}</p>
+                  </div>
+                </div>
+              </details>
+            ))}
+          </div>
+          <p class="scheduler-fineprint">
+            These are hypothetical scenarios and proposed assertions, not production incidents,
+            completed tests, or evidence of particular enforcement mechanisms. Bounded retries limit
+            repeated attempts; they do not guarantee recovery. Permanent failures and exhausted
+            budgets need explicit outcomes rather than indefinite retries.
+          </p>
+        </section>
+        <section id="testing" class="case-section">
+          <p class="case-label">05 / VALIDATION</p>
+          <h2>Test the behavior, not just the method.</h2>
+          <p>
+            Replacing internal Fleet paths had to respect behavior that the existing scheduler and
+            its integrations depended on. Compilation or a passing unit test cannot establish that
+            compatibility. I would compare old and new paths against agreed expectations for
+            selection and fallback, the integration boundary reached, outcome and error
+            classification, and retries and notifications under the applicable contracts. In-flight
+            and interrupted work also belongs in that comparison. The matrix below illustrates
+            specific checks; it is not a record of completed regression tests.
+          </p>
+          <div
+            class="scheduler-matrix-scroll"
+            role="region"
+            aria-label="Order scheduler test matrix — scrollable table"
+            tabindex="0"
+          >
+            <table class="scheduler-matrix">
+              <caption>
+                Illustrative behavioral test matrix — examples to verify, not a claim of completed
+                tests.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Situation</th>
+                  <th scope="col">Planning expectation</th>
+                  <th scope="col">Execution expectation</th>
+                  <th scope="col">Correctness property</th>
+                </tr>
+              </thead>
+              <tbody>
+                {matrix.map((row) => (
+                  <tr>
+                    {row.map((cell, index) =>
+                      index === 0 ? <th scope="row">{cell}</th> : <td>{cell}</td>,
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            I implemented the framework in stages so that replacing legacy call paths did not
+            require reviewing every responsibility change at once. The rationale was to keep
+            behavior comparisons understandable and make a regression easier to isolate, rather than
+            assume a new boundary preserved behavior automatically. Architecture and staged
+            implementation are part of my reported work; specific test coverage, comparison results,
+            and release status still require evidence review. No independently verified regression
+            results are presented here, and the illustrative checks do not establish complete
+            backward compatibility or production rollout.
+          </p>
+        </section>
+        <section id="tradeoffs" class="case-section">
+          <p class="case-label">06 / TRADEOFFS</p>
+          <h2>Modularity doesn't make complexity disappear.</h2>
+          <p>
+            I chose centralized Fleet interaction ownership with separate planning and execution
+            boundaries. Keeping selection intertwined with the existing execution paths would leave
+            the decision and external effect spread across those paths. The separation required
+            stricter contracts, but gave each responsibility an explicit place. I accepted that
+            maintenance cost to make policy, provider interaction, and compatibility questions
+            easier to examine independently.
+          </p>
+          <div class="scheduler-tradeoffs">
+            <div>
+              <span>WHAT IMPROVES</span>
+              <strong>Selection and external effects have distinct owners.</strong>
+              <p>
+                The intended benefit is to test policy from supplied inputs and trace a selected
+                action through a consistent integration boundary. This gives behavior comparisons
+                clearer points to inspect during migration.
+              </p>
+            </div>
+            <div>
+              <span>WHAT IT COSTS</span>
+              <strong>The contracts become work to maintain.</strong>
+              <p>
+                Planning inputs and decision/execution contracts must stay consistent with execution
+                preconditions and adapter boundaries. Result correlation, retry ownership, and state
+                and progress semantics need explicit responsibilities. Regression coverage must
+                follow the paths being migrated; separating the code does not remove that work.
+              </p>
+            </div>
+          </div>
+        </section>
+        <section id="reflection" class="case-section case-final-section">
+          <p class="case-label">07 / WHAT I TOOK AWAY</p>
+          <h2>The migration was part of the design.</h2>
+          <p>
+            Working inside an existing scheduler made compatibility part of the architectural
+            problem. Separating Fleet decisions from external effects gave me clearer boundaries to
+            implement, but the existing behavior still had to be accounted for as call paths moved.
+            The framework design and the migration could not be judged independently.
+          </p>
+          <p>
+            The lesson I take from this work is that explicit contracts earn their maintenance cost
+            when they make responsibility inspectable: what selected an interaction, what performs
+            it, and where its result belongs. I can describe that architectural contribution without
+            treating the design itself as proof that every compatibility or recovery condition was
+            verified.
+          </p>
+          <div class="case-highlight">
+            <span>THE TAKEAWAY</span>
+            <strong>
+              A useful boundary lets me explain the decision, follow its effects, and identify the
+              existing behavior a change must preserve.
+            </strong>
+          </div>
+          <p class="scheduler-fineprint">
+            This case study is intended for architectural discussion only. All examples require
+            personal accuracy and employer-confidentiality review before public publication.
+          </p>
+        </section>
+        <div class="v23-story-end">
+          <div>
+            <span>PREVIOUS ENGINEERING STORY</span>
+            <strong>Distributed billing and reporting</strong>
+          </div>
+          <a href="/work/distributed-billing/">Read the case study ↗</a>
+        </div>
+      </article>
+    </div>
+  </main>
+  <Footer credit="Designed and built with care." brandLabel="Back to homepage" />
+</BaseLayout>
