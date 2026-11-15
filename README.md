@@ -62,32 +62,23 @@ The homepage uses the layout's default title and description. Each case study su
 
 ## Development and publication status
 
-### Current production
+### Publishing setup
 
-The legacy static HTML website is live at [priyansh-15.github.io](https://priyansh-15.github.io/). The owner verified GitHub Pages settings on November 12, 2026: **Deploy from a branch**, branch **`master`**, directory **`/ (root)`**, with HTTPS enforced. `master` is also the repository's default branch.
+GitHub Pages was verified by the owner on November 12, 2026 as **Deploy from a branch**, branch **`master`**, folder **`/ (root)`**, HTTPS enforced. The repository keeps `.nojekyll` so its Astro source files are not interpreted as Jekyll front matter.
 
-`portfolio-v3` contains the new Astro source project, which is not yet deployed. [astro.config.mjs](astro.config.mjs) configures the same site origin and static output; the build produces deployable files in `dist/`. Merging Astro source into the current publishing branch would not automatically build it.
+The source of truth for the new portfolio is `src/`, `public/`, and [astro.config.mjs](astro.config.mjs). The [publishing workflow](.github/workflows/deploy.yml) builds this source into `dist/`, verifies the three pages and five redirect outputs, then copies the generated files to the already-configured `master` root and requests a GitHub Pages rebuild. GitHub Actions uses a short-lived repository-scoped token for the output commit; no personal access token is required.
 
-### Validation-only CI
+- On relevant source changes to `master`, GitHub Actions runs the locked dependency install, formatting check and Astro build, then commits generated static files to the existing Pages root.
+- The workflow is also manually dispatchable from `master`.
+- Changes to the generated root `index.html`, root `work/`, or root `_astro/` are build outputs and may be overwritten. Edit the Astro sources instead.
+- The legacy source before the migration is preserved at [backup/legacy-site-2026-11-15](https://github.com/Priyansh-15/priyansh-15.github.io/tree/backup/legacy-site-2026-11-15).
+- The previous `.github/workflows/release-pages.yml` is an inert draft and is not used by this branch-root publishing process.
 
-[The CI workflow](.github/workflows/ci.yml) runs on pushes to `portfolio-v3` and pull requests targeting `portfolio-v3` or `master`. It installs locked dependencies, checks source formatting, runs Astro diagnostics and the build, and verifies the three generated pages and five legacy redirects. It does not deploy.
+### Source validation
 
-[CI run #1 (43187706140)](https://github.com/Priyansh-15/priyansh-15.github.io/actions/runs/43187706140) completed successfully for commit `9756e40`.
+[CI](.github/workflows/ci.yml) checks the feature branch and pull requests, including all three generated pages and five legacy redirects. Production publishing applies equivalent checks before copying generated output.
 
-### Simple GitHub Pages deployment — prepared, not activated
-
-[The manual deployment workflow](.github/workflows/deploy.yml) uses GitHub Actions to install the locked dependencies, validate and build the Astro site, verify the three pages and five legacy redirects, and upload/deploy the generated `dist/` artifact. It runs **only on manual dispatch from `master`**. Neither pull requests nor ordinary pushes deploy the site.
-
-The legacy site is still served from the `master` repository root. This means a source-only merge **must not happen before the publishing cutover is coordinated**: an Astro source tree does not include a built `index.html` at the repository root.
-
-After the publication checklist and any required employer disclosures are fully cleared:
-
-1. Review the pull request, ensure CI passes, and record a recoverable copy of the existing legacy site.
-2. Coordinate the cutover to GitHub Actions in **Settings → Pages → Build and deployment → Source**. This settings change must be performed by the repository owner; it is not accomplished by merging code.
-3. Merge the approved `portfolio-v3` pull request into `master` and run **Actions → Deploy portfolio → Run workflow**, selecting `master`.
-4. Verify the live homepage, both case studies, redirects, and HTTPS. Roll back to the saved approved legacy site if the cutover fails.
-
-Until approval and the publishing-source migration, leave deployment untriggered and preserve the current live site. The earlier `master`-only `release-pages.yml` workflow is an inert draft, not part of this simplified deployment path, and can be removed separately.
+To check a deployment, inspect the latest successful `Publish Astro portfolio` and GitHub-managed `pages build and deployment` runs. A workflow that only commits generated files is insufficient to trigger branch-based Pages builds: the publishing workflow explicitly requests a Pages rebuild afterward.
 
 ## Publication review
 
