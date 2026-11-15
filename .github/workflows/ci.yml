@@ -40,12 +40,7 @@ jobs:
         run: npm ci
 
       - name: Check source formatting
-        run: |
-          if ! npm run format:check; then
-            npx prettier --write src/pages/index.astro
-            git --no-pager diff -- src/pages/index.astro
-            exit 1
-          fi
+        run: npm run format:check
 
       - name: Check Astro diagnostics and build static site
         run: npm run build
