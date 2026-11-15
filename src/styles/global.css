@@ -1037,17 +1037,17 @@ h3 {
   padding: 22px 26px;
   border-left: 2px solid var(--accent);
   background: var(--surface);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.8;
   color: var(--muted);
-  margin-bottom: 75px;
+  margin-bottom: 56px;
 }
 .case-disclosure strong {
   color: var(--fg);
 }
 .case-section {
-  padding: 0 0 70px;
-  margin-bottom: 70px;
+  padding: 0 0 60px;
+  margin-bottom: 60px;
   border-bottom: 1px solid var(--line);
   scroll-margin-top: 30px;
 }
@@ -1061,7 +1061,7 @@ h3 {
   color: var(--muted);
   font-size: 17px;
   line-height: 1.8;
-  max-width: 760px;
+  max-width: 710px;
   margin-bottom: 23px;
 }
 .case-section p em {
@@ -1330,7 +1330,7 @@ h3 {
 }
 .case-v23 .v23-timeline-row p {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
 }
 .v23-scenarios {
@@ -1384,7 +1384,7 @@ h3 {
   gap: 25px 31px;
 }
 .case-v23 .v23-scenario-body p {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
   margin: 9px 0 0;
 }
@@ -1448,7 +1448,7 @@ h3 {
   margin: 15px 0 8px;
 }
 .case-v23 .v23-validation-grid p {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
   margin: 0;
 }
@@ -1616,7 +1616,7 @@ h3 {
 }
 .case-v23 .scheduler-output p {
   grid-column: 2;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.55;
   margin: 0;
 }
@@ -1672,7 +1672,7 @@ h3 {
 }
 .case-v23 .scheduler-rule-grid p,
 .case-v23 .scheduler-tradeoffs p {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.75;
   margin: 0;
 }
@@ -1721,7 +1721,7 @@ h3 {
   padding: 16px 14px;
   border-top: 1px solid var(--line);
   vertical-align: top;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.65;
 }
 .scheduler-matrix thead th {
@@ -2141,4 +2141,19 @@ button:focus-visible,
 .v23-timeline-head,
 .scheduler-figure-top {
   font-size: 12px;
+}
+
+/* Audit C: visible guidance for technical tables on narrow screens.
+   Both table regions remain keyboard-focusable with their native scrolling. */
+.table-scroll-hint {
+  display: none;
+}
+@media (max-width: 540px) {
+  .case-section p.table-scroll-hint {
+    display: block;
+    margin: 20px 0 0;
+    color: var(--faint);
+    font: 12px/1.6 'DM Mono', monospace;
+    letter-spacing: 0.02em;
+  }
 }
