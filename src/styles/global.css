@@ -2106,3 +2106,20 @@ button:focus-visible,
   background-image: linear-gradient(140deg, var(--surface-2), var(--surface) 66%);
   border-color: var(--note-border);
 }
+
+/* Theme-audit closure: keep small metadata legible on desktop and mobile.
+   Layout and wording are unchanged; mobile rules already allow these labels to wrap. */
+.eyebrow,
+.story-topline,
+.visual-label,
+.visual-bottom,
+.note-top,
+.note-bottom,
+.factline,
+.case-meta,
+.case-sidebar p,
+.v23-figure-heading,
+.v23-timeline-head,
+.scheduler-figure-top {
+  font-size: 12px;
+}
