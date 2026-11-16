@@ -2311,3 +2311,54 @@ button:focus-visible,
     padding: 14px 20px;
   }
 }
+
+/* Path from selected professional work to the full project collection. */
+.work-directory-bridge {
+  margin-top: 42px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px 45px;
+}
+.work-directory-bridge > div {
+  max-width: 640px;
+}
+.work-directory-label {
+  color: var(--signature);
+  font: 11px/1.6 'DM Mono', monospace;
+  letter-spacing: 0.075em;
+  margin-bottom: 9px;
+}
+.work-directory-bridge > div > p:last-child {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--muted);
+  margin: 0;
+}
+.work-directory-link {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 26px;
+  border-bottom: 1px solid var(--signature);
+  padding: 9px 0;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+.work-directory-link span {
+  color: var(--signature);
+}
+.work-directory-link:hover {
+  color: var(--signature);
+}
+@media (max-width: 700px) {
+  .work-directory-bridge {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+}
