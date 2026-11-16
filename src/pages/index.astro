@@ -36,6 +36,14 @@ import { site } from '../data/site';
           <a class="button button-primary" href="#work">
             See what I've worked on <span aria-hidden="true">↗</span>
           </a>
+          <a
+            class="underline-link"
+            href="/Priyansh_Sharma_Resume.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Résumé <span aria-hidden="true">↗</span>
+          </a>
           <a class="underline-link" href={site.github} target="_blank" rel="noopener noreferrer">
             GitHub <span aria-hidden="true">↗</span>
           </a>
@@ -285,27 +293,95 @@ import { site } from '../data/site';
       </p>
     </section>
 
+    <section
+      class="experience-section shell section-spacing"
+      id="experience"
+      tabindex="-1"
+      aria-labelledby="experience-title"
+    >
+      <div class="section-intro-row">
+        <div>
+          <p class="section-kicker">02 / EXPERIENCE</p>
+          <h2 id="experience-title">
+            Where I've <span class="serif-accent">built and grown.</span>
+          </h2>
+        </div>
+        <p>
+          A concise view of my professional journey. The engineering case studies above explore
+          selected problems in greater depth.
+        </p>
+      </div>
+      <div class="experience-list">
+        <article class="experience-entry">
+          <div class="experience-company">
+            <h3>Thales</h3>
+            <p>Noida, India</p>
+            <span>FEB 2023 — PRESENT</span>
+          </div>
+          <div class="experience-detail">
+            <p class="experience-summary">
+              Building backend and distributed systems across processing, orchestration,
+              provisioning, and AI-powered engineering tooling.
+            </p>
+            <ol class="experience-roles" aria-label="Roles at Thales">
+              <li>
+                <strong>Software Engineer II</strong>
+                <span>Jan 2024 – Present</span>
+              </li>
+              <li>
+                <strong>Software Engineer I</strong>
+                <span>Aug 2023 – Jan 2024</span>
+              </li>
+              <li>
+                <strong>Software Engineer Intern</strong>
+                <span>Feb 2023 – Aug 2023</span>
+              </li>
+            </ol>
+          </div>
+        </article>
+        <article class="experience-entry">
+          <div class="experience-company">
+            <h3>Vinsol</h3>
+            <p>Delhi, India</p>
+            <span>JUN 2022 — JUL 2022</span>
+          </div>
+          <div class="experience-detail">
+            <h4>Software Development Engineer Intern</h4>
+            <p class="experience-summary">
+              Worked on Ruby on Rails backend development and regression test automation using
+              Selenium and Cucumber.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
     <section class="about-section" id="about" tabindex="-1" aria-labelledby="about-title">
       <div class="shell about-grid">
         <div>
-          <p class="section-kicker">02 / A LITTLE ABOUT ME</p>
+          <p class="section-kicker">03 / A LITTLE ABOUT ME</p>
           <h2 id="about-title">
             Engineer by profession. <span class="serif-accent">Curious by default.</span>
           </h2>
         </div>
         <div class="about-text">
           <p>
-            I started out enjoying the straightforward part of programming: solving a problem and
-            getting the right answer. Working on real backend systems taught me to care just as much
-            about everything surrounding that answer.
+            I started with algorithms and competitive programming while studying Computer Science at
+            JIIT. I enjoyed breaking problems down, understanding the constraints, and finding
+            solutions that were both efficient and correct.
           </p>
           <p>
-            What happens if the process dies halfway through? Who owns the state? What changes when
-            the workload grows? Can someone else understand the design six months later?
+            Working on backend systems at Thales gave me a different perspective. A solution isn't
+            just about getting the right output anymore. It's also about what happens across
+            services, how state is managed, what breaks under failure, and whether someone else can
+            understand the design. I enjoy being involved in that entire process — from figuring out
+            the requirement to designing, implementing, and validating the system.
           </p>
           <p>
-            Those questions keep the work interesting for me. Outside my day job, I spend time on
-            algorithms, engineering tools, and learning how good systems are put together.
+            That curiosity extends beyond my day job. I spend time on algorithms, distributed
+            systems, and AI-powered developer tools, particularly ways to make large codebases
+            easier to understand and work with. I like learning how things work, questioning how
+            they could work better, and then building something to find out.
           </p>
           <a class="underline-link" href={site.linkedin} target="_blank" rel="noopener noreferrer">
             More about my experience on LinkedIn ↗
@@ -322,7 +398,7 @@ import { site } from '../data/site';
     >
       <div class="section-intro-row thinking-heading">
         <div>
-          <p class="section-kicker">03 / THINGS I'VE LEARNED</p>
+          <p class="section-kicker">04 / THINGS I'VE LEARNED</p>
           <h2 id="thinking-title">
             The details <span class="serif-accent">are the work.</span>
           </h2>
@@ -360,7 +436,7 @@ import { site } from '../data/site';
     <section class="closing-section" id="contact" tabindex="-1" aria-labelledby="contact-title">
       <div class="shell closing-layout">
         <div>
-          <p class="section-kicker">04 / SAY HELLO</p>
+          <p class="section-kicker">05 / SAY HELLO</p>
           <h2 id="contact-title">
             Have an interesting <span class="serif-accent">problem?</span>
           </h2>
