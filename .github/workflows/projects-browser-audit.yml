@@ -1,4 +1,4 @@
-# Temporary compatibility audit; remove after verifying the finished project page.
+# Temporary compatibility audit; rerun against the final static legacy redirect.
 name: Projects page browser audit (temporary)
 on:
   push:
