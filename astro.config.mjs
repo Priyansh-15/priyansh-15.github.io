@@ -8,7 +8,6 @@ export default defineConfig({
   },
   redirects: {
     '/about_me': '/#about',
-    '/projects': '/#work',
     '/work_experience': '/#work',
     '/coding_profile': 'https://github.com/Priyansh-15',
     '/achievements_and_certifications':
