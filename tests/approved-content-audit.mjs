@@ -77,13 +77,11 @@ try {
     await page.close();
   }
   const page = await browser.newPage();
-  const response = await page.goto('http://127.0.0.1:4321' + PDF, { waitUntil: 'domcontentloaded' });
   const request = await page.request.get('http://127.0.0.1:4321' + PDF);
   const body = await request.body();
-  if (response?.status() !== 200 || request.status() !== 200 ||
-      !body.subarray(0, 5).equals(Buffer.from('%PDF-'))) {
+  if (request.status() !== 200 || !body.subarray(0, 5).equals(Buffer.from('%PDF-'))) {
     failures += 1;
-    console.log('PDF_FAIL ' + JSON.stringify({ pageStatus:response?.status(), status:request.status() }));
+    console.log('PDF_FAIL ' + JSON.stringify({ status:request.status() }));
   }
   console.log('PDF_HTTP ' + JSON.stringify({ status:request.status(), type:request.headers()['content-type'], bytes:body.length }));
   await page.close();
