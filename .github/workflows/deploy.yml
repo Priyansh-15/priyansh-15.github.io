@@ -9,10 +9,13 @@ on:
       - '.github/workflows/deploy.yml'
       - 'src/**'
       - 'public/**'
+      - 'scripts/sync_resume_from_drive.py'
       - 'astro.config.mjs'
       - 'package.json'
       - 'package-lock.json'
   workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
 
 permissions:
   contents: write
@@ -44,6 +47,25 @@ jobs:
 
       - name: Check formatting
         run: npm run format:check
+
+      - name: Install résumé synchronization dependencies
+        run: python3 -m pip install --quiet --break-system-packages gdown==5.2.0 pymupdf==1.26.6
+
+      - name: Refresh public résumé from canonical Google Drive
+        env:
+          RESUME_DRIVE_URL: https://drive.google.com/file/d/1eQ1Kpk4iCxpiRDX51FEXSFa7egDshbyl/view?usp=sharing
+        shell: bash
+        run: |
+          set -euo pipefail
+          # On source-code pushes, retain the last safe PDF if Drive is temporarily unavailable.
+          # Scheduled/manual checks fail visibly, so a broken Drive link cannot go unnoticed.
+          if ! python3 scripts/sync_resume_from_drive.py --source-url "$RESUME_DRIVE_URL"; then
+            if [ "${{ github.event_name }}" != 'push' ]; then
+              echo "::error::Drive résumé sync failed; keeping last published copy"
+              exit 1
+            fi
+            echo "::warning::Drive résumé unavailable; proceeding with previous safe PDF"
+          fi
 
       - name: Check and build Astro
         run: npm run build
@@ -107,7 +129,12 @@ jobs:
             work_experience.html \
             coding_profile.html \
             achievements_and_certifications.html \
-            Priyansh_Sharma_Resume.pdf
+            Priyansh_Sharma_Resume.pdf \
+            public/Priyansh_Sharma_Resume.pdf
+
+          if test -f .github/resume-source.sha256; then
+            git add -A -- .github/resume-source.sha256
+          fi
 
           if git diff --cached --quiet; then
             echo "No generated site changes"
