@@ -620,7 +620,9 @@ h3 {
   margin-bottom: 12px;
 }
 .experience-company > span {
-  font: 11px/1.6 'DM Mono', monospace;
+  font:
+    11px/1.6 'DM Mono',
+    monospace;
   color: var(--faint);
   letter-spacing: 0.045em;
 }
@@ -661,7 +663,9 @@ h3 {
   color: var(--fg);
 }
 .experience-roles li span {
-  font: 12px/1.6 'DM Mono', monospace;
+  font:
+    12px/1.6 'DM Mono',
+    monospace;
   color: var(--faint);
   text-align: right;
 }
