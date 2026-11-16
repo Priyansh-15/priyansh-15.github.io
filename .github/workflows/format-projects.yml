@@ -1,0 +1,41 @@
+# Temporary formatting export, remove before merging.
+name: Project page formatting export (temporary)
+on:
+  push:
+    branches: [feature/projects-portfolio-audit]
+    paths:
+      - '.github/workflows/format-projects.yml'
+permissions:
+  contents: read
+jobs:
+  output:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.13.0'
+          package-manager-cache: false
+      - name: Format project page and export exact corrected source
+        run: |
+          set -euo pipefail
+          npm ci
+          npx prettier --write \
+            src/pages/index.astro \
+            src/pages/projects.html.astro \
+            src/pages/projects/index.astro \
+            src/styles/global.css
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for name in [
+            'src/pages/index.astro',
+            'src/pages/projects.html.astro',
+            'src/pages/projects/index.astro',
+            'src/styles/global.css',
+          ]:
+              print('FORMATTED_FILE_JSON ' + json.dumps({'path':name, 'content':Path(name).read_text()}, ensure_ascii=False))
+          PY
