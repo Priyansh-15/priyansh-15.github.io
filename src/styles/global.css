@@ -596,6 +596,92 @@ h3 {
   max-width: 740px;
   margin: 26px 0 0;
 }
+/* Approved experience timeline — concise progression, not a duplicate résumé. */
+.experience-list {
+  border-top: 1px solid var(--line);
+}
+.experience-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  gap: clamp(36px, 6vw, 96px);
+  padding: 38px 0 43px;
+  border-bottom: 1px solid var(--line);
+}
+.experience-company h3 {
+  font-size: clamp(24px, 2.6vw, 34px);
+  line-height: 1.2;
+  letter-spacing: -0.05em;
+  margin-bottom: 12px;
+}
+.experience-company p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.experience-company > span {
+  font: 11px/1.6 'DM Mono', monospace;
+  color: var(--faint);
+  letter-spacing: 0.045em;
+}
+.experience-detail {
+  min-width: 0;
+}
+.experience-summary {
+  max-width: 680px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.8;
+  margin: 0;
+}
+.experience-detail h4 {
+  font-family: Manrope, sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.45;
+  letter-spacing: -0.025em;
+  margin: 0 0 11px;
+}
+.experience-roles {
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 0;
+}
+.experience-roles li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px 22px;
+  border-top: 1px solid var(--line);
+  padding: 14px 0;
+}
+.experience-roles strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg);
+}
+.experience-roles li span {
+  font: 12px/1.6 'DM Mono', monospace;
+  color: var(--faint);
+  text-align: right;
+}
+@media (max-width: 800px) {
+  .experience-entry {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    padding: 31px 0 35px;
+  }
+}
+@media (max-width: 540px) {
+  .experience-roles li {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .experience-roles li span {
+    text-align: left;
+  }
+}
 .about-section {
   background: var(--surface);
   border-block: 1px solid var(--line);
