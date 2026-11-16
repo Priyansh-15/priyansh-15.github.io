@@ -82,10 +82,11 @@ jobs:
               'index.html',
               'work/distributed-billing/index.html',
               'work/order-scheduler/index.html',
+              'projects/index.html',
           )
           redirects = {
               'about_me.html': '/#about',
-              'projects.html': '/#work',
+              'projects.html': '/projects/',
               'work_experience.html': '/#work',
               'coding_profile.html': 'https://github.com/Priyansh-15',
               'achievements_and_certifications.html':
@@ -107,7 +108,12 @@ jobs:
               'Missing or empty résumé PDF in generated site'
           )
           assert resume.read_bytes().startswith(b'%PDF-'), 'Invalid résumé PDF signature'
-          print('Verified 3 routes, 5 redirects, stylesheets and résumé PDF')
+          project_page = (root / 'projects/index.html').read_text(encoding='utf-8')
+          assert all(fragment in project_page for fragment in
+                     ('id="professional"', 'id="independent"', 'id="earlier"')), (
+              'Missing Project index sections'
+          )
+          print('Verified 4 routes, 5 redirects, stylesheets and résumé PDF')
           PY
 
       - name: Stage static build in Pages branch root
@@ -117,11 +123,12 @@ jobs:
           test -f .nojekyll
           test -f index.html
           # These are generated output paths, not the Astro source directories.
-          rm -rf -- _astro work
+          rm -rf -- _astro work projects
           cp -a dist/. .
           git add -A -- \
             index.html \
             work \
+            projects \
             _astro \
             favicon.svg \
             about_me.html \
