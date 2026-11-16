@@ -1,0 +1,66 @@
+# Temporary acceptance test; remove before merge.
+name: Verify exact Drive résumé and identity strip (temporary)
+
+on:
+  push:
+    branches: [fix/resume-exact-drive-pdf]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate unchanged Drive PDF synchronization
+        env:
+          SOURCE_URL: https://drive.google.com/file/d/1eQ1Kpk4iCxpiRDX51FEXSFa7egDshbyl/view?usp=sharing
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet --break-system-packages gdown==5.2.0 pymupdf==1.26.6
+          python3 scripts/sync_resume_from_drive.py \
+            --source-url "$SOURCE_URL" \
+            --public-path /tmp/site-pdf.pdf \
+            --root-path /tmp/site-root-pdf.pdf \
+            --fingerprint-path /tmp/drive-sha256.txt
+          python3 -m gdown --fuzzy "$SOURCE_URL" -O /tmp/drive-original.pdf
+          cmp /tmp/drive-original.pdf /tmp/site-pdf.pdf
+          cmp /tmp/drive-original.pdf /tmp/site-root-pdf.pdf
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import fitz
+          original=Path('/tmp/drive-original.pdf').read_bytes()
+          published=Path('/tmp/site-pdf.pdf').read_bytes()
+          assert original == published
+          assert hashlib.sha256(original).hexdigest() == Path('/tmp/drive-sha256.txt').read_text().strip()
+          with fitz.open(stream=published, filetype='pdf') as doc:
+              assert doc.page_count >= 1
+              text='\n'.join(page.get_text() for page in doc)
+              assert 'Priyansh Sharma' in text
+              assert len(text) >= 300
+          print('EXACT_DRIVE_COPY_VALIDATED:', len(published), 'bytes, 0 transformations')
+          PY
+
+      - name: Build updated strip and verify wording
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run format:check
+          npm run build
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('dist/index.html').read_text()
+          for item in (
+            'NOIDA, INDIA', 'BACKEND ARCHITECTURE',
+            'DISTRIBUTED SYSTEMS', 'APPLIED AI &amp; LLM SYSTEMS'
+          ):
+              assert item in html, f'Missing identity label: {item}'
+          print('IDENTITY_STRIP_VALIDATED: all four labels present')
+          PY
