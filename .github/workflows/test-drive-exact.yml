@@ -59,7 +59,7 @@ jobs:
           html=Path('dist/index.html').read_text()
           for item in (
             'NOIDA, INDIA', 'BACKEND ARCHITECTURE',
-            'DISTRIBUTED SYSTEMS', 'APPLIED AI &amp; LLM SYSTEMS'
+            'DISTRIBUTED SYSTEMS', 'APPLIED AI & LLM SYSTEMS'
           ):
               assert item in html, f'Missing identity label: {item}'
           print('IDENTITY_STRIP_VALIDATED: all four labels present')
