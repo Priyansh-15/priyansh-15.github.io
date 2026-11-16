@@ -1,0 +1,58 @@
+# Temporary audit for approved résumé, About and Experience additions.
+name: Approved content acceptance (temporary)
+on:
+  push:
+    branches: [audit/approved-portfolio-details]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.13.0'
+          package-manager-cache: false
+      - name: Install dependencies and show formatting corrections
+        run: |
+          npm ci
+          npx prettier --write src/pages/index.astro src/styles/global.css
+          git --no-pager diff -- src/pages/index.astro src/styles/global.css
+      - name: Validate public PDF is readable and private phone omitted
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          pdf=Path('public/Priyansh_Sharma_Resume.pdf')
+          data=pdf.read_bytes()
+          assert data.startswith(b'%PDF-') and b'%%EOF' in data[-100:], 'Invalid PDF file signature or footer'
+          assert len(data)>2000
+          print('PDF byte structure:',len(data),'bytes')
+          PY
+          if ! command -v pdftotext; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq poppler-utils
+          fi
+          pdfinfo public/Priyansh_Sharma_Resume.pdf | grep -E '^Pages:|^Page size:'
+          test "$(pdfinfo public/Priyansh_Sharma_Resume.pdf | awk '/^Pages:/ {print $2}')" = "1"
+          pdftotext public/Priyansh_Sharma_Resume.pdf /tmp/resume-text.txt
+          grep -q "Priyansh Sharma" /tmp/resume-text.txt
+          grep -q "Professional Experience" /tmp/resume-text.txt
+          grep -q "Software Engineer II" /tmp/resume-text.txt
+          grep -q "Achievements" /tmp/resume-text.txt
+          if grep -q "9717053987" /tmp/resume-text.txt; then
+            echo "ERROR: personal phone appears in public PDF" >&2
+            exit 1
+          fi
+          echo "Public PDF validated: 1-page, text searchable, phone omitted"
+      - name: Check Astro build and public resume copy
+        run: |
+          npm run build
+          test -s dist/index.html
+          test -s dist/Priyansh_Sharma_Resume.pdf
+          grep -q 'id="experience"' dist/index.html
+          grep -q 'B.Tech' /tmp/resume-text.txt
+          echo "Generated site contains experience and résumé."
