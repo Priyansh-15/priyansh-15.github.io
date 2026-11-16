@@ -1,6 +1,7 @@
 ---
 const destination = '/projects/';
 ---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -12,7 +13,11 @@ const destination = '/projects/';
     <title>Projects — Priyansh Sharma</title>
   </head>
   <body>
-    <p>The Projects page has moved. <a href={destination}>Open the project index.</a></p>
-    <script is:inline>window.location.replace('/projects/');</script>
+    <p>
+      The Projects page has moved. <a href={destination}>Open the project index.</a>
+    </p>
+    <script is:inline>
+      window.location.replace('/projects/');
+    </script>
   </body>
 </html>
