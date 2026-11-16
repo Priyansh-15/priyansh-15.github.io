@@ -2328,7 +2328,9 @@ button:focus-visible,
 }
 .work-directory-label {
   color: var(--signature);
-  font: 11px/1.6 'DM Mono', monospace;
+  font:
+    11px/1.6 'DM Mono',
+    monospace;
   letter-spacing: 0.075em;
   margin-bottom: 9px;
 }
