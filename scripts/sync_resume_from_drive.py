@@ -9,7 +9,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import re
-import shutil
 import tempfile
 from pathlib import Path
 
@@ -44,6 +43,7 @@ def generate_public_pdf(source_bytes: bytes) -> tuple[bytes, int]:
     redact_count = 0
     for page in document:
         text = page.get_text("text", sort=True)
+        marked_redactions = False
         for phone in _phone_candidates(text):
             rectangles = page.search_for(phone)
             if not rectangles:
@@ -54,6 +54,7 @@ def generate_public_pdf(source_bytes: bytes) -> tuple[bytes, int]:
                 raise RuntimeError("Unable to safely locate phone text for redaction")
             for rect in rectangles:
                 page.add_redact_annot(rect + (-0.5, -0.5, 0.5, 0.5), fill=(1, 1, 1))
+                marked_redactions = True
                 redact_count += 1
 
         for link in page.get_links():
@@ -61,7 +62,7 @@ def generate_public_pdf(source_bytes: bytes) -> tuple[bytes, int]:
             if _phone_candidates(uri):
                 page.delete_link(link)
 
-        if page.has_annots():
+        if marked_redactions:
             # Applying actual redactions removes the underlying glyphs from the PDF.
             page.apply_redactions(images=0, graphics=0)
 
