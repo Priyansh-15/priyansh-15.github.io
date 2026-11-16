@@ -19,7 +19,7 @@ const pages = ['/', '/projects/', '/work/distributed-billing/', '/work/order-sch
 
 try {
   for (const viewport of viewports) {
-    const page = await browser.newPage({viewport});
+    const page = await browser.newPage({viewport: {width: viewport.w, height: viewport.h}});
     for (const path of pages) {
       await page.goto('http://127.0.0.1:4321' + path, {waitUntil:'networkidle'});
       for (const theme of ['dark','light']) {
