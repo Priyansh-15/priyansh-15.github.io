@@ -80,7 +80,12 @@ jobs:
                   f'Wrong redirect destination: {name}'
               )
           assert any((root / '_astro').glob('*.css')), 'Missing Astro CSS'
-          print('Verified 3 HTML routes, 5 redirects and stylesheet outputs')
+          resume = root / 'Priyansh_Sharma_Resume.pdf'
+          assert resume.is_file() and resume.stat().st_size > 2000, (
+              'Missing or empty résumé PDF in generated site'
+          )
+          assert resume.read_bytes().startswith(b'%PDF-'), 'Invalid résumé PDF signature'
+          print('Verified 3 routes, 5 redirects, stylesheets and résumé PDF')
           PY
 
       - name: Stage static build in Pages branch root
@@ -92,7 +97,17 @@ jobs:
           # These are generated output paths, not the Astro source directories.
           rm -rf -- _astro work
           cp -a dist/. .
-          git add -A --             index.html             work             _astro             favicon.svg             about_me.html             projects.html             work_experience.html             coding_profile.html             achievements_and_certifications.html
+          git add -A -- \
+            index.html \
+            work \
+            _astro \
+            favicon.svg \
+            about_me.html \
+            projects.html \
+            work_experience.html \
+            coding_profile.html \
+            achievements_and_certifications.html \
+            Priyansh_Sharma_Resume.pdf
 
           if git diff --cached --quiet; then
             echo "No generated site changes"
