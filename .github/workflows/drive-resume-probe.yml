@@ -1,0 +1,32 @@
+name: Temporary Drive résumé access probe
+on:
+  push:
+    branches: [audit/drive-resume-source]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Download and inspect publicly accessible Drive résumé
+        env:
+          RESUME_DRIVE_URL: https://drive.google.com/file/d/1eQ1Kpk4iCxpiRDX51FEXSFa7egDshbyl/view?usp=sharing
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet --break-system-packages gdown==5.2.0 pymupdf==1.26.6
+          python3 -m gdown --fuzzy "$RESUME_DRIVE_URL" -O /tmp/drive_resume.pdf
+          python3 - <<'PY'
+          from pathlib import Path
+          import fitz
+          p=Path('/tmp/drive_resume.pdf')
+          data=p.read_bytes()
+          if not data.startswith(b'%PDF-'):
+              raise RuntimeError('Google Drive URL did not return a PDF')
+          doc=fitz.open(stream=data,filetype='pdf')
+          text='\n'.join(page.get_text() for page in doc)
+          print('Verified Drive file: pages=',len(doc),'bytes=',len(data),'searchable_chars=',len(text))
+          print('Contains current private contact number:', '9717053987' in ''.join(text.split()))
+          if len(text)<250:
+              raise RuntimeError('PDF lacks searchable text')
+          PY
