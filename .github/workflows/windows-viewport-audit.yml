@@ -33,3 +33,4 @@ jobs:
             sleep 1
           done
           node tests/windows-viewport-audit.mjs
+          node tests/windows-adaptive-options.mjs
