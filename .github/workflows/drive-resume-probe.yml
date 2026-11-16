@@ -1,4 +1,4 @@
-name: Temporary Drive résumé access probe
+name: Temporary Drive résumé access and sanitization probe
 on:
   push:
     branches: [audit/drive-resume-source]
@@ -7,26 +7,35 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
-      - name: Download and inspect publicly accessible Drive résumé
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download, remove personal phone, and verify latest Drive résumé
         env:
           RESUME_DRIVE_URL: https://drive.google.com/file/d/1eQ1Kpk4iCxpiRDX51FEXSFa7egDshbyl/view?usp=sharing
         run: |
           set -euo pipefail
           python3 -m pip install --quiet --break-system-packages gdown==5.2.0 pymupdf==1.26.6
-          python3 -m gdown --fuzzy "$RESUME_DRIVE_URL" -O /tmp/drive_resume.pdf
+          python3 scripts/sync_resume_from_drive.py \
+            --source-url "$RESUME_DRIVE_URL" \
+            --public-path /tmp/public-resume.pdf \
+            --root-path /tmp/root-resume.pdf \
+            --fingerprint-path /tmp/source.sha256
           python3 - <<'PY'
           from pathlib import Path
           import fitz
-          p=Path('/tmp/drive_resume.pdf')
-          data=p.read_bytes()
-          if not data.startswith(b'%PDF-'):
-              raise RuntimeError('Google Drive URL did not return a PDF')
-          doc=fitz.open(stream=data,filetype='pdf')
-          text='\n'.join(page.get_text() for page in doc)
-          print('Verified Drive file: pages=',len(doc),'bytes=',len(data),'searchable_chars=',len(text))
-          print('Contains current private contact number:', '9717053987' in ''.join(text.split()))
-          if len(text)<250:
-              raise RuntimeError('PDF lacks searchable text')
+          p=Path('/tmp/public-resume.pdf')
+          assert p.read_bytes()==Path('/tmp/root-resume.pdf').read_bytes()
+          pdf=fitz.open(p)
+          assert pdf.page_count==1
+          text='\n'.join(page.get_text() for page in pdf)
+          assert 'Priyansh Sharma' in text
+          assert '9717053987' not in ''.join(text.split())
+          assert len(text)>3000
+          for page in pdf:
+            pix=page.get_pixmap(matrix=fitz.Matrix(0.6,0.6),alpha=False)
+            assert pix.width>300 and pix.height>400
+          print('PUBLIC_PDF_SAFE:',len(text),'searchable characters, phone absent')
           PY
