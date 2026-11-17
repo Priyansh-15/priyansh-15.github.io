@@ -1,0 +1,166 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import '../../styles/coding-profiles.css';
+
+const platforms = [
+  {
+    number: '01',
+    platform: 'LeetCode',
+    username: 'Priyansh_15',
+    focus: 'ALGORITHMS & INTERVIEW PRACTICE',
+    url: 'https://leetcode.com/Priyansh_15/',
+  },
+  {
+    number: '02',
+    platform: 'Codeforces',
+    username: 'Priyansh.15',
+    focus: 'COMPETITIVE PROGRAMMING',
+    url: 'https://codeforces.com/profile/Priyansh.15',
+  },
+  {
+    number: '03',
+    platform: 'GeeksforGeeks',
+    username: 'spidey15priyansh',
+    focus: 'DATA STRUCTURES & ALGORITHMS',
+    url: 'https://auth.geeksforgeeks.org/user/spidey15priyansh',
+  },
+  {
+    number: '04',
+    platform: 'InterviewBit',
+    username: 'priyansh-sharma_596',
+    focus: 'INTERVIEW PREPARATION',
+    url: 'https://www.interviewbit.com/profile/priyansh-sharma_596',
+  },
+  {
+    number: '05',
+    platform: 'CodeChef',
+    username: 'spidy_ps15',
+    focus: 'COMPETITIVE PROGRAMMING',
+    url: 'https://www.codechef.com/users/spidy_ps15',
+  },
+  {
+    number: '06',
+    platform: 'HackerRank',
+    username: '15priyansh13_201',
+    focus: 'CODING PRACTICE',
+    url: 'https://www.hackerrank.com/15priyansh13_201?hr_r=1',
+  },
+  {
+    number: '07',
+    platform: 'HackerEarth',
+    username: '15priyansh13.2001',
+    focus: 'CODING CHALLENGES',
+    url: 'https://www.hackerearth.com/@15priyansh13.2001',
+  },
+  {
+    number: '08',
+    platform: 'AtCoder',
+    username: 'Priyansh15',
+    focus: 'COMPETITIVE PROGRAMMING',
+    url: 'https://atcoder.jp/users/Priyansh15',
+  },
+] as const;
+
+const title = 'Coding Profiles — Priyansh Sharma';
+const description =
+  'Coding practice and competitive programming profiles from Priyansh Sharma, including LeetCode, Codeforces, AtCoder, and more.';
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+  <main class="coding-index" id="main">
+    <section class="coding-hero shell" aria-labelledby="coding-title">
+      <div class="coding-hero-topline">
+        <a href="/#about" class="coding-return">← Back to the homepage</a>
+        <span>CODING PROFILES / PRIYANSH SHARMA</span>
+      </div>
+
+      <div class="coding-hero-grid">
+        <div class="coding-hero-copy">
+          <p class="coding-kicker">ALGORITHMS · PRACTICE · PROBLEM SOLVING</p>
+          <h1 id="coding-title">Learning to think <em>through problems.</em></h1>
+          <p class="coding-lede">
+            Before I worked on distributed systems, I spent a lot of time with algorithms,
+            data structures, and competitive programming. These are the profiles I used along
+            the way—kept together as part of that engineering foundation.
+          </p>
+        </div>
+        <aside class="coding-hero-aside" aria-label="Profile collection summary">
+          <span>PROFILE DIRECTORY</span>
+          <strong>08</strong>
+          <p>Original coding-platform profiles preserved from my earlier portfolio.</p>
+        </aside>
+      </div>
+
+      <div class="coding-intro-rule">
+        <span>01 / WHERE I PRACTICED</span>
+        <span>DIRECT PROFILE LINKS</span>
+      </div>
+    </section>
+
+    <section class="coding-directory shell" aria-labelledby="coding-directory-title">
+      <div class="coding-directory-heading">
+        <div>
+          <p class="coding-kicker">01 / PROFILE DIRECTORY</p>
+          <h2 id="coding-directory-title">The places I <em>kept practicing.</em></h2>
+        </div>
+        <p>
+          Not a leaderboard or a snapshot of today's ratings. Just a direct, honest directory
+          of the profiles I used for coding practice and competitions.
+        </p>
+      </div>
+      <ol class="coding-profile-list">
+        {platforms.map((item) => (
+          <li>
+            <a
+              class="coding-profile-row"
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Open ${item.platform} profile for ${item.username} in a new tab`}
+            >
+              <span class="coding-index-number">{item.number}</span>
+              <span class="coding-profile-main">
+                <strong>{item.platform}</strong>
+                <span>@{item.username}</span>
+              </span>
+              <span class="coding-profile-focus">{item.focus}</span>
+              <span class="coding-profile-arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+      <p class="coding-directory-note">
+        Profile handles and URLs are preserved from my original website. Rankings and activity
+        counts can change, so I don't duplicate unverified statistics here.
+      </p>
+    </section>
+
+    <section class="coding-next" aria-labelledby="coding-next-title">
+      <div class="shell coding-next-grid">
+        <div>
+          <p class="coding-kicker">BEYOND THE PRACTICE</p>
+          <h2 id="coding-next-title">The foundations <em>show up in the work.</em></h2>
+          <p>
+            The contests and exercises were one part of the journey. Designing systems that
+            survive real-world constraints became the next.
+          </p>
+        </div>
+        <div class="coding-next-links">
+          <a href="/achievements/" class="coding-next-link">
+            Competition achievements <span aria-hidden="true">↗</span>
+          </a>
+          <a href="/projects/" class="coding-next-link">
+            Engineering projects <span aria-hidden="true">↗</span>
+          </a>
+          <a href="/#work" class="button button-primary">
+            See selected work <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer credit="Designed and built with care." brandLabel="Back to homepage" />
+</BaseLayout>
