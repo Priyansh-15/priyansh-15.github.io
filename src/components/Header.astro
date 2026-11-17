@@ -1,10 +1,10 @@
 ---
 const navigationItems = [
-  { label: 'Work', href: '/#work' },
+  { label: 'Work', href: '/work/' },
+  { label: 'Projects', href: '/projects/' },
   { label: 'About', href: '/#about' },
-  { label: 'Notes', href: '/#thinking' },
   { label: 'Contact', href: '/#contact' },
-] as const satisfies readonly { label: string; href: `/#${string}` }[];
+] as const satisfies readonly { label: string; href: `/${string}` }[];
 ---
 
 <header class="site-header" data-site-header>
