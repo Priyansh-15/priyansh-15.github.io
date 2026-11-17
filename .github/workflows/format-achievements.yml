@@ -1,0 +1,31 @@
+# Temporary formatter, removed before merge.
+name: Achievements formatting export (temporary)
+on:
+  push:
+    branches: [feature/achievements-credentials-audit]
+    paths:
+      - '.github/workflows/format-achievements.yml'
+permissions:
+  contents: read
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.13.0'
+          package-manager-cache: false
+      - name: Export exact Prettier result
+        run: |
+          npm ci
+          npx prettier --write src/pages/achievements/index.astro
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('src/pages/achievements/index.astro')
+          print('FORMATTED_ACHIEVEMENTS_JSON '+json.dumps({'path':str(p),'content':p.read_text()}, ensure_ascii=False))
+          PY
