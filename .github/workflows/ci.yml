@@ -54,6 +54,7 @@ jobs:
             work/order-scheduler/index.html \
             projects/index.html \
             achievements/index.html \
+            coding-profiles/index.html \
             about_me.html \
             projects.html \
             work_experience.html \
@@ -69,7 +70,7 @@ jobs:
               'about_me.html': '/#about',
               'projects.html': '/projects/',
               'work_experience.html': '/#work',
-              'coding_profile.html': 'https://github.com/Priyansh-15',
+              'coding_profile.html': '/coding-profiles/',
               'achievements_and_certifications.html': '/achievements/',
           }
           for name, target in redirects.items():
@@ -88,5 +89,13 @@ jobs:
                        'Google Kick Start', 'Meta Hacker Cup',
                        'Amazon Security Certificate', 'CodeKaze', 'GATE'):
               assert item in achievements, 'Missing achievements entry: ' + item
-          print('Verified 5 primary pages, 5 legacy redirects, projects and achievements.')
+          profiles = (Path('dist') / 'coding-profiles/index.html').read_text(
+              encoding='utf-8'
+          )
+          for handle in ('Priyansh_15', 'Priyansh.15', 'spidey15priyansh',
+                         'priyansh-sharma_596', 'spidy_ps15', '15priyansh13_201',
+                         '15priyansh13.2001', 'Priyansh15'):
+              assert handle in profiles, 'Missing coding profile: ' + handle
+          assert profiles.count('class="coding-profile-row"') == 8
+          print('Verified 6 primary pages, 5 redirects, projects, achievements, and 8 coding profiles.')
           PY
