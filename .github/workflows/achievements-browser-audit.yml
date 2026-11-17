@@ -1,0 +1,36 @@
+# Temporary achievements browser acceptance audit. Remove before merge.
+name: Achievements responsive browser audit (temporary)
+on:
+  push:
+    branches: [feature/achievements-credentials-audit]
+    paths:
+      - '.github/workflows/achievements-browser-audit.yml'
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.13.0'
+          package-manager-cache: false
+      - name: Build reviewed collection
+        run: |
+          npm ci
+          npm run format:check
+          npm run build
+      - name: Check links and layout with real Chromium
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.55.0
+          command -v google-chrome
+          npm run preview -- --host 127.0.0.1 --port 4321 >/tmp/astro-preview.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4321/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tests/achievements-browser-audit.mjs
