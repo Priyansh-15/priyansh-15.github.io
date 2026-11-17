@@ -706,6 +706,12 @@ h3 {
   display: inline-block;
   margin-top: 12px;
 }
+.about-reference-links {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 28px;
+}
 .thinking-heading {
   margin-bottom: 47px;
 }

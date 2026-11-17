@@ -9,6 +9,5 @@ export default defineConfig({
   redirects: {
     '/about_me': '/#about',
     '/work_experience': '/#work',
-    '/coding_profile': 'https://github.com/Priyansh-15',
   },
 });

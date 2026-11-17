@@ -84,12 +84,13 @@ jobs:
               'work/order-scheduler/index.html',
               'projects/index.html',
               'achievements/index.html',
+              'coding-profiles/index.html',
           )
           redirects = {
               'about_me.html': '/#about',
               'projects.html': '/projects/',
               'work_experience.html': '/#work',
-              'coding_profile.html': 'https://github.com/Priyansh-15',
+              'coding_profile.html': '/coding-profiles/',
               'achievements_and_certifications.html': '/achievements/',
           }
           for name in (*required, *redirects):
@@ -120,7 +121,16 @@ jobs:
                      ('id="highlights"', 'id="record"', 'id="credentials"')), (
               'Missing achievements collection sections'
           )
-          print('Verified 5 routes, 5 redirects, stylesheets and résumé PDF')
+          coding_page = (root / 'coding-profiles/index.html').read_text(
+              encoding='utf-8'
+          )
+          assert all(handle in coding_page for handle in
+                     ('Priyansh_15', 'Priyansh.15', 'spidey15priyansh',
+                      'priyansh-sharma_596', 'spidy_ps15', '15priyansh13_201',
+                      '15priyansh13.2001', 'Priyansh15')), (
+              'Missing coding profile entry'
+          )
+          print('Verified 6 routes, 5 redirects, stylesheets and résumé PDF')
           PY
 
       - name: Stage static build in Pages branch root
@@ -130,13 +140,14 @@ jobs:
           test -f .nojekyll
           test -f index.html
           # These are generated output paths, not the Astro source directories.
-          rm -rf -- _astro work projects achievements
+          rm -rf -- _astro work projects achievements coding-profiles
           cp -a dist/. .
           git add -A -- \
             index.html \
             work \
             projects \
             achievements \
+            coding-profiles \
             _astro \
             favicon.svg \
             about_me.html \
