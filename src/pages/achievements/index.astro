@@ -70,7 +70,8 @@ const competitionRecord = [
     year: '2021',
     round: 'Round G',
     result: 'Global Rank 1,855',
-    evidence: 'https://drive.google.com/file/d/1axD3Bx1p1qhleK3x3QwvdyUxLhQAQV2v/view?usp=share_link',
+    evidence:
+      'https://drive.google.com/file/d/1axD3Bx1p1qhleK3x3QwvdyUxLhQAQV2v/view?usp=share_link',
   },
   {
     event: 'Google Code Jam',
@@ -84,14 +85,16 @@ const competitionRecord = [
     year: '2022',
     round: 'Round 2',
     result: 'Global Rank 2,993',
-    evidence: 'https://drive.google.com/file/d/19E9gp90GcKJvi4drhqhlTsEuYqZT9wQZ/view?usp=share_link',
+    evidence:
+      'https://drive.google.com/file/d/19E9gp90GcKJvi4drhqhlTsEuYqZT9wQZ/view?usp=share_link',
   },
   {
     event: 'Meta Hacker Cup',
     year: '2021',
     round: 'Round 2',
     result: 'Global Rank 2,826',
-    evidence: 'https://drive.google.com/file/d/1PQ11AxE9oXvIiG4M9dFRIKBbuJijlfDD/view?usp=share_link',
+    evidence:
+      'https://drive.google.com/file/d/1PQ11AxE9oXvIiG4M9dFRIKBbuJijlfDD/view?usp=share_link',
   },
   {
     event: 'GATE',
@@ -133,13 +136,17 @@ const description =
   <main id="main" class="achievements-page">
     <section class="ach-hero shell" aria-labelledby="ach-title">
       <div class="ach-topline">
-        <a class="ach-back" href="/#experience">← Back to the homepage</a>
+        <a class="ach-back" href="/#experience">
+          ← Back to the homepage
+        </a>
         <span>ACHIEVEMENTS / PRIYANSH SHARMA</span>
       </div>
       <div class="ach-hero-grid">
         <div>
           <p class="ach-kicker">PROBLEM SOLVING · COMPETITIONS · CREDENTIALS</p>
-          <h1 id="ach-title">Before the systems, <em>there were problems to solve.</em></h1>
+          <h1 id="ach-title">
+            Before the systems, <em>there were problems to solve.</em>
+          </h1>
           <p class="ach-intro">
             Algorithms and competitive programming were a big part of how I learned to think about
             constraints, correctness and efficient solutions. These are the results and credentials
@@ -148,23 +155,45 @@ const description =
         </div>
         <aside class="ach-hero-aside" aria-label="Collection overview">
           <span class="ach-aside-kicker">THE RECORD</span>
-          <div><strong>10</strong><span>Competition and examination results</span></div>
-          <div><strong>04</strong><span>Selected placements highlighted</span></div>
-          <div><strong>01</strong><span>Earlier certificate</span></div>
+          <div>
+            <strong>10</strong>
+            <span>Competition and examination results</span>
+          </div>
+          <div>
+            <strong>04</strong>
+            <span>Selected placements highlighted</span>
+          </div>
+          <div>
+            <strong>01</strong>
+            <span>Earlier certificate</span>
+          </div>
         </aside>
       </div>
       <nav class="ach-jump" aria-label="Achievements categories">
-        <a href="#highlights">01 / Selected results <span aria-hidden="true">↓</span></a>
-        <a href="#record">02 / Complete record <span aria-hidden="true">↓</span></a>
-        <a href="#credentials">03 / Credentials <span aria-hidden="true">↓</span></a>
+        <a href="#highlights">
+          01 / Selected results <span aria-hidden="true">↓</span>
+        </a>
+        <a href="#record">
+          02 / Complete record <span aria-hidden="true">↓</span>
+        </a>
+        <a href="#credentials">
+          03 / Credentials <span aria-hidden="true">↓</span>
+        </a>
       </nav>
     </section>
 
-    <section class="ach-section shell" id="highlights" tabindex="-1" aria-labelledby="ach-highlights-title">
+    <section
+      class="ach-section shell"
+      id="highlights"
+      tabindex="-1"
+      aria-labelledby="ach-highlights-title"
+    >
       <div class="ach-section-intro">
         <div>
           <p class="ach-kicker">01 / SELECTED RESULTS</p>
-          <h2 id="ach-highlights-title">A few results that <em>stayed with me.</em></h2>
+          <h2 id="ach-highlights-title">
+            A few results that <em>stayed with me.</em>
+          </h2>
         </div>
         <p>
           Each ranking belongs to a particular competition and year. I prefer keeping that context
@@ -194,12 +223,19 @@ const description =
       </div>
     </section>
 
-    <section class="ach-record-section" id="record" tabindex="-1" aria-labelledby="ach-record-title">
+    <section
+      class="ach-record-section"
+      id="record"
+      tabindex="-1"
+      aria-labelledby="ach-record-title"
+    >
       <div class="shell">
         <div class="ach-section-intro">
           <div>
             <p class="ach-kicker">02 / COMPLETE COMPETITION RECORD</p>
-            <h2 id="ach-record-title">The complete <em>picture.</em></h2>
+            <h2 id="ach-record-title">
+              The complete <em>picture.</em>
+            </h2>
           </div>
           <p>
             All ten results from my original portfolio, including contests where I participated
@@ -208,7 +244,10 @@ const description =
         </div>
         <div class="ach-ledger">
           <div class="ach-ledger-head" aria-hidden="true">
-            <span>NO.</span><span>COMPETITION / YEAR</span><span>RESULT</span><span>RECORD</span>
+            <span>NO.</span>
+            <span>COMPETITION / YEAR</span>
+            <span>RESULT</span>
+            <span>RECORD</span>
           </div>
           <ol class="ach-ledger-list">
             {competitionRecord.map((item, index) => (
@@ -216,10 +255,17 @@ const description =
                 <span class="ach-row-index">{String(index + 1).padStart(2, '0')}</span>
                 <div class="ach-row-event">
                   <strong>{item.event}</strong>
-                  <span>{item.year} · {item.round}</span>
+                  <span>
+                    {item.year} · {item.round}
+                  </span>
                 </div>
                 <p class="ach-row-result">{item.result}</p>
-                <a class="ach-evidence" href={item.evidence} target="_blank" rel="noopener noreferrer">
+                <a
+                  class="ach-evidence"
+                  href={item.evidence}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   View record <span aria-hidden="true">↗</span>
                 </a>
               </li>
@@ -229,11 +275,18 @@ const description =
       </div>
     </section>
 
-    <section class="ach-section shell ach-credentials" id="credentials" tabindex="-1" aria-labelledby="ach-credentials-title">
+    <section
+      class="ach-section shell ach-credentials"
+      id="credentials"
+      tabindex="-1"
+      aria-labelledby="ach-credentials-title"
+    >
       <div class="ach-section-intro">
         <div>
           <p class="ach-kicker">03 / CERTIFICATIONS & CREDENTIALS</p>
-          <h2 id="ach-credentials-title">One more part of <em>the record.</em></h2>
+          <h2 id="ach-credentials-title">
+            One more part of <em>the record.</em>
+          </h2>
         </div>
         <p>
           I've kept this separate from competition placements. A certificate and a contest ranking
@@ -243,12 +296,19 @@ const description =
       <article class="ach-credential">
         <div class="ach-credential-index">
           <span>01 / EARLIER CERTIFICATE</span>
-          <span aria-hidden="true" class="ach-credential-glyph">✳</span>
+          <span aria-hidden="true" class="ach-credential-glyph">
+            ✳
+          </span>
         </div>
         <div class="ach-credential-body">
           <h3>{credential.title}</h3>
           <p>{credential.description}</p>
-          <a class="ach-action" href={credential.evidence} target="_blank" rel="noopener noreferrer">
+          <a
+            class="ach-action"
+            href={credential.evidence}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             View original certificate <span aria-hidden="true">↗</span>
           </a>
         </div>
@@ -264,8 +324,13 @@ const description =
       <div class="shell ach-lastword-content">
         <div>
           <p class="ach-kicker">WHAT CAME NEXT</p>
-          <h2 id="ach-lastword-title">The problems changed. <em>The curiosity didn't.</em></h2>
-          <p>That early focus on algorithms carried into the backend systems and engineering work I do today.</p>
+          <h2 id="ach-lastword-title">
+            The problems changed. <em>The curiosity didn't.</em>
+          </h2>
+          <p>
+            That early focus on algorithms carried into the backend systems and engineering work I
+            do today.
+          </p>
         </div>
         <div class="ach-lastword-actions">
           <a class="button button-primary" href="/#work">
