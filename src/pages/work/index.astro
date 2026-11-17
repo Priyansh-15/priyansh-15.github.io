@@ -36,7 +36,9 @@ const studies = [
   <main id="main" class="work-index">
     <section class="work-index-hero shell" aria-labelledby="work-index-title">
       <div class="work-index-topline">
-        <a href="/" class="work-index-return">← Back to the homepage</a>
+        <a href="/" class="work-index-return">
+          ← Back to the homepage
+        </a>
         <span>WORK / PRIYANSH SHARMA</span>
       </div>
       <div class="work-index-intro">
@@ -45,15 +47,21 @@ const studies = [
           Work that needed <em>more than code.</em>
         </h1>
         <p class="work-index-lede">
-          The problems that have shaped how I design software: coordinating distributed
-          processing, separating decisions from execution, and giving engineering tools
-          better context. These are selected stories, not a catalogue of every task.
+          The problems that have shaped how I design software: coordinating distributed processing,
+          separating decisions from execution, and giving engineering tools better context. These
+          are selected stories, not a catalogue of every task.
         </p>
       </div>
       <nav class="work-index-jump" aria-label="On this page">
-        <a href="#case-studies">Professional case studies <span aria-hidden="true">↗</span></a>
-        <a href="#independent-initiative">Independent initiative <span aria-hidden="true">↗</span></a>
-        <a href="#explore-more">More to explore <span aria-hidden="true">↗</span></a>
+        <a href="#case-studies">
+          Professional case studies <span aria-hidden="true">↗</span>
+        </a>
+        <a href="#independent-initiative">
+          Independent initiative <span aria-hidden="true">↗</span>
+        </a>
+        <a href="#explore-more">
+          More to explore <span aria-hidden="true">↗</span>
+        </a>
       </nav>
     </section>
 
@@ -71,21 +79,25 @@ const studies = [
           </h2>
         </div>
         <p>
-          Each case study focuses on constraints, tradeoffs, and failure handling.
-          The illustrations are conceptual rather than internal design documents.
+          Each case study focuses on constraints, tradeoffs, and failure handling. The illustrations
+          are conceptual rather than internal design documents.
         </p>
       </div>
       <ol class="work-index-study-list">
         {studies.map((study) => (
           <li class="work-index-study">
             <div class="work-index-study-meta">
-              <span>{study.number} / {study.type}</span>
+              <span>
+                {study.number} / {study.type}
+              </span>
               <span>PROFESSIONAL WORK</span>
             </div>
             <h3>{study.title}</h3>
             <p>{study.description}</p>
             <ul class="work-index-tags" aria-label="Topics">
-              {study.tags.map((tag) => <li>{tag}</li>)}
+              {study.tags.map((tag) => (
+                <li>{tag}</li>
+              ))}
             </ul>
             <a class="work-index-action" href={study.href}>
               {study.link} <span aria-hidden="true">↗</span>
@@ -94,9 +106,9 @@ const studies = [
         ))}
       </ol>
       <p class="work-index-disclosure">
-        Some of my most substantial work is on private systems. I share the engineering
-        reasoning and conceptual designs, not proprietary code, configurations, or customer
-        details. Employer disclosure review remains outstanding.
+        Some of my most substantial work is on private systems. I share the engineering reasoning
+        and conceptual designs, not proprietary code, configurations, or customer details. Employer
+        disclosure review remains outstanding.
       </p>
     </section>
 
@@ -115,14 +127,13 @@ const studies = [
         </div>
         <div>
           <p>
-            While working on large backend codebases at Thales, I independently started
-            building a persistent code intelligence system to address context loss between
-            AI sessions. It later became a tool my whole team adopted.
+            While working on large backend codebases at Thales, I independently started building a
+            persistent code intelligence system to address context loss between AI sessions. It
+            later became a tool my whole team adopted.
           </p>
           <p>
-            This was my own initiative, developed alongside professional engineering work.
-            The public project overview describes the approach without exposing private
-            implementations.
+            This was my own initiative, developed alongside professional engineering work. The
+            public project overview describes the approach without exposing private implementations.
           </p>
           <a class="work-index-action" href="/projects/#code-intelligence">
             Explore the code intelligence initiative <span aria-hidden="true">↗</span>
@@ -138,23 +149,33 @@ const studies = [
       aria-labelledby="work-more-title"
     >
       <p class="work-index-kicker">03 / KEEP EXPLORING</p>
-      <h2 id="work-more-title">There's more <em>behind the highlights.</em></h2>
+      <h2 id="work-more-title">
+        There's more <em>behind the highlights.</em>
+      </h2>
       <div class="work-index-more-links">
         <a href="/projects/">
           <strong>All projects</strong>
-          <span>Professional, independent, and earlier work <span aria-hidden="true">↗</span></span>
+          <span>
+            Professional, independent, and earlier work <span aria-hidden="true">↗</span>
+          </span>
         </a>
         <a href="/#experience">
           <strong>Experience</strong>
-          <span>Roles and career timeline <span aria-hidden="true">↗</span></span>
+          <span>
+            Roles and career timeline <span aria-hidden="true">↗</span>
+          </span>
         </a>
         <a href="/achievements/">
           <strong>Achievements</strong>
-          <span>Competitions and credentials <span aria-hidden="true">↗</span></span>
+          <span>
+            Competitions and credentials <span aria-hidden="true">↗</span>
+          </span>
         </a>
         <a href="/coding-profiles/">
           <strong>Coding profiles</strong>
-          <span>Algorithms and competitive programming <span aria-hidden="true">↗</span></span>
+          <span>
+            Algorithms and competitive programming <span aria-hidden="true">↗</span>
+          </span>
         </a>
       </div>
     </section>
