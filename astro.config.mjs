@@ -10,7 +10,5 @@ export default defineConfig({
     '/about_me': '/#about',
     '/work_experience': '/#work',
     '/coding_profile': 'https://github.com/Priyansh-15',
-    '/achievements_and_certifications':
-      'https://www.linkedin.com/in/priyansh-sharma-bb4095216/',
   },
 });
