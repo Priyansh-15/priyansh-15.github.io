@@ -53,6 +53,7 @@ jobs:
             work/distributed-billing/index.html \
             work/order-scheduler/index.html \
             projects/index.html \
+            achievements/index.html \
             about_me.html \
             projects.html \
             work_experience.html \
@@ -69,8 +70,7 @@ jobs:
               'projects.html': '/projects/',
               'work_experience.html': '/#work',
               'coding_profile.html': 'https://github.com/Priyansh-15',
-              'achievements_and_certifications.html':
-                  'https://www.linkedin.com/in/priyansh-sharma-bb4095216/',
+              'achievements_and_certifications.html': '/achievements/',
           }
           for name, target in redirects.items():
               generated = (Path('dist') / name).read_text(encoding='utf-8')
@@ -81,5 +81,12 @@ jobs:
           for required in ('id="professional"', 'id="independent"', 'id="earlier"',
                            'Job Find Helper', 'Steganography', 'Mancala'):
               assert required in html, 'Missing Projects content: ' + required
-          print('Verified 4 primary pages, 5 legacy redirects, and project inventory.')
+          achievements = (Path('dist') / 'achievements/index.html').read_text(
+              encoding='utf-8'
+          )
+          for item in ('id="highlights"', 'id="record"', 'id="credentials"',
+                       'Google Kick Start', 'Meta Hacker Cup',
+                       'Amazon Security Certificate', 'CodeKaze', 'GATE'):
+              assert item in achievements, 'Missing achievements entry: ' + item
+          print('Verified 5 primary pages, 5 legacy redirects, projects and achievements.')
           PY
