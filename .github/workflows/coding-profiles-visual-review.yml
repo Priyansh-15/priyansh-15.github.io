@@ -1,0 +1,57 @@
+# Temporary visual review; remove before merge.
+name: Coding profiles visual review (temporary)
+on:
+  push:
+    branches: [feature/coding-profiles-directory]
+    paths: ['.github/workflows/coding-profiles-visual-review.yml']
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.13.0'
+          package-manager-cache: false
+      - name: Compile directory and prepare Chromium
+        run: |
+          npm ci
+          npm run build
+          npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.55.0
+      - name: Capture desktop, scaled Windows laptop and mobile
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4321 >/tmp/astro-preview.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4321/coding-profiles/ >/dev/null; then break; fi
+            sleep 1
+          done
+          mkdir -p screenshots
+          node --input-type=module <<'JS'
+          import {chromium} from 'playwright-core';
+          const browser=await chromium.launch({
+            executablePath:'/usr/bin/google-chrome',
+            headless:true,
+            args:['--no-sandbox','--disable-dev-shm-usage'],
+          });
+          try{
+            for(const [name,width,height] of [['desktop',1440,900],['scaled-laptop',1093,650],['mobile',390,844]]){
+              const page=await browser.newPage({viewport:{width,height}});
+              await page.goto('http://127.0.0.1:4321/coding-profiles/',{waitUntil:'networkidle'});
+              for(const theme of ['dark','light']){
+                await page.evaluate(async t=>{document.documentElement.dataset.theme=t;await document.fonts.ready},theme);
+                await page.screenshot({path:'screenshots/'+name+'-'+theme+'.jpg',fullPage:true,type:'jpeg',quality:60});
+              }
+              await page.close();
+            }
+          }finally{await browser.close()}
+          JS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coding-profile-review-images
+          path: screenshots/*.jpg
+          retention-days: 1
