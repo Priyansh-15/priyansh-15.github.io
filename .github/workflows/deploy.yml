@@ -83,14 +83,14 @@ jobs:
               'work/distributed-billing/index.html',
               'work/order-scheduler/index.html',
               'projects/index.html',
+              'achievements/index.html',
           )
           redirects = {
               'about_me.html': '/#about',
               'projects.html': '/projects/',
               'work_experience.html': '/#work',
               'coding_profile.html': 'https://github.com/Priyansh-15',
-              'achievements_and_certifications.html':
-                  'https://www.linkedin.com/in/priyansh-sharma-bb4095216/',
+              'achievements_and_certifications.html': '/achievements/',
           }
           for name in (*required, *redirects):
               path = root / name
@@ -113,7 +113,14 @@ jobs:
                      ('id="professional"', 'id="independent"', 'id="earlier"')), (
               'Missing Project index sections'
           )
-          print('Verified 4 routes, 5 redirects, stylesheets and résumé PDF')
+          achievements_page = (root / 'achievements/index.html').read_text(
+              encoding='utf-8'
+          )
+          assert all(fragment in achievements_page for fragment in
+                     ('id="highlights"', 'id="record"', 'id="credentials"')), (
+              'Missing achievements collection sections'
+          )
+          print('Verified 5 routes, 5 redirects, stylesheets and résumé PDF')
           PY
 
       - name: Stage static build in Pages branch root
@@ -123,12 +130,13 @@ jobs:
           test -f .nojekyll
           test -f index.html
           # These are generated output paths, not the Astro source directories.
-          rm -rf -- _astro work projects
+          rm -rf -- _astro work projects achievements
           cp -a dist/. .
           git add -A -- \
             index.html \
             work \
             projects \
+            achievements \
             _astro \
             favicon.svg \
             about_me.html \
