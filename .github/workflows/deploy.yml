@@ -80,6 +80,7 @@ jobs:
           root = Path('dist')
           required = (
               'index.html',
+              'work/index.html',
               'work/distributed-billing/index.html',
               'work/order-scheduler/index.html',
               'projects/index.html',
@@ -130,7 +131,7 @@ jobs:
                       '15priyansh13.2001', 'Priyansh15')), (
               'Missing coding profile entry'
           )
-          print('Verified 6 routes, 5 redirects, stylesheets and résumé PDF')
+          print('Verified 7 routes, 5 redirects, stylesheets and résumé PDF')
           PY
 
       - name: Stage static build in Pages branch root
