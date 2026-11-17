@@ -161,7 +161,9 @@
   gap: clamp(16px, 2.5vw, 40px);
   padding: clamp(25px, 3vw, 38px) 14px clamp(25px, 3vw, 38px) 0;
   min-width: 0;
-  transition: background-color 0.2s ease, padding 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    padding 0.2s ease;
 }
 .coding-profile-row:hover,
 .coding-profile-row:focus-visible {
