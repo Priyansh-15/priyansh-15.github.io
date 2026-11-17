@@ -50,6 +50,7 @@ jobs:
           set -euo pipefail
           for file in \
             index.html \
+            work/index.html \
             work/distributed-billing/index.html \
             work/order-scheduler/index.html \
             projects/index.html \
@@ -97,5 +98,5 @@ jobs:
                          '15priyansh13.2001', 'Priyansh15'):
               assert handle in profiles, 'Missing coding profile: ' + handle
           assert profiles.count('class="coding-profile-row"') == 8
-          print('Verified 6 primary pages, 5 redirects, projects, achievements, and 8 coding profiles.')
+          print('Verified 7 primary pages, 5 redirects, projects, achievements, and 8 coding profiles.')
           PY
