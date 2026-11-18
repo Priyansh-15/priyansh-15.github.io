@@ -35,7 +35,9 @@ def verify(page, width: int, height: int) -> None:
 
     if width > 800:
         assert page.locator(".desktop-nav").is_visible()
-        page.locator('.stage-cue--hero a[href="#work"]').click()
+        hero_cue = page.locator('.stage-cue--hero a[href="#work"]')
+        assert hero_cue.count() == 1, "Hero next-section cue must exist"
+        hero_cue.click(timeout=6000)
         page.wait_for_timeout(1100)
         header = bounds(page, ".site-header")
         work = bounds(page, "#work")
