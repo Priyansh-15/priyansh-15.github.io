@@ -1,0 +1,44 @@
+name: Portfolio browser experience
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'src/pages/index.astro'
+      - 'src/layouts/BaseLayout.astro'
+      - 'src/styles/global.css'
+      - 'src/styles/section-experience.css'
+      - 'src/scripts/section-navigation.ts'
+      - 'scripts/check_portfolio_browser.py'
+      - '.github/workflows/portfolio-browser-experience.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  viewport-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.13.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Use hosted Chrome for viewport tests
+        run: |
+          python3 -m pip install --quiet --break-system-packages playwright==1.58.0
+          google-chrome --version
+
+      - name: Verify section transitions and mobile navigation
+        run: |
+          python3 -m http.server 8765 --directory dist >/tmp/portfolio-ux-server.log 2>&1 &
+          python3 scripts/check_portfolio_browser.py
