@@ -5,9 +5,7 @@
  * completed user scroll that has crossed a boundary between major sections.
  * Links and browser anchor/history behavior remain native.
  */
-const stageElements = Array.from(
-  document.querySelectorAll<HTMLElement>('[data-scroll-stage]'),
-);
+const stageElements = Array.from(document.querySelectorAll<HTMLElement>('[data-scroll-stage]'));
 const siteHeader = document.querySelector<HTMLElement>('[data-site-header]');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -56,10 +54,13 @@ if (stageElements.length > 1 && siteHeader) {
       // scrollend fires for smooth scroll on modern browsers. The fallback
       // protects older Safari builds without intercepting any input events.
       window.clearTimeout(adjustmentFallback);
-      adjustmentFallback = window.setTimeout(() => {
-        adjusting = false;
-        previousPosition = window.scrollY;
-      }, reducedMotion.matches ? 60 : 750);
+      adjustmentFallback = window.setTimeout(
+        () => {
+          adjusting = false;
+          previousPosition = window.scrollY;
+        },
+        reducedMotion.matches ? 60 : 750,
+      );
       return;
     }
   };
