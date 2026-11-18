@@ -97,5 +97,16 @@ jobs:
                          '15priyansh13.2001', 'Priyansh15'):
               assert handle in profiles, 'Missing coding profile: ' + handle
           assert profiles.count('class="coding-profile-row"') == 8
+          home = (Path('dist') / 'index.html').read_text(encoding='utf-8')
+          assert home.count('data-scroll-stage') == 6, 'Six reading stages required'
+          assert home.count('stage-cue--previous') == 5, 'Previous cues missing'
+          assert home.count('stage-cue--next') == 5, 'Next cues missing'
+          for target in ('#top', '#work', '#experience', '#about', '#thinking', '#contact'):
+              assert f'href="{target}"' in home, f'Missing section navigation: {target}'
+          for content in ('Designing the core engine for distributed billing',
+                          'Redesigning the framework for Fleet interactions',
+                          'Helping AI keep up with a real codebase'):
+              assert content in home, 'Lost approved engineering content: ' + content
+          print('Verified 6 stages, 10 optional cues, and retained engineering content.')
           print('Verified 6 primary pages, 5 redirects, projects, achievements, and 8 coding profiles.')
           PY
