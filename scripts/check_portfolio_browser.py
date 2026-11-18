@@ -88,7 +88,7 @@ def verify(page, width: int, height: int) -> None:
 def main() -> None:
     viewports = [(1512, 832), (1440, 900), (1366, 768), (390, 844), (360, 740)]
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
+        browser = p.chromium.launch(channel="chrome", headless=True, args=["--no-sandbox"])
         for width, height in viewports:
             page = browser.new_page(
                 viewport={"width": width, "height": height},
