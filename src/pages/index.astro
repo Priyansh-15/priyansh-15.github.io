@@ -3,12 +3,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
+import '../styles/section-experience.css';
 ---
 
 <BaseLayout>
   <Header />
-  <main id="main">
-    <section class="intro shell" aria-labelledby="intro-title">
+  <main id="main" class="portfolio-home">
+    <div class="landing-stage" id="top" tabindex="-1" data-scroll-stage>
+      <section class="intro shell" aria-labelledby="intro-title">
       <div class="intro-content">
         <p class="eyebrow">
           <span class="tiny-star" aria-hidden="true">
@@ -79,6 +81,13 @@ import { site } from '../data/site';
       </aside>
     </section>
 
+    <nav class="stage-cue stage-cue--next" aria-label="Next section">
+        <a href="#work">
+          <span class="stage-cue-arrow" aria-hidden="true">↓</span>
+          <span>Next: Selected Work</span>
+        </a>
+      </nav>
+
     <div class="marquee-rule">
       <div class="shell factline">
         <span>NOIDA, INDIA</span>
@@ -96,13 +105,21 @@ import { site } from '../data/site';
         <span>APPLIED AI & LLM SYSTEMS</span>
       </div>
     </div>
+    </div>
 
     <section
       class="work-section shell section-spacing"
       id="work"
       tabindex="-1"
+      data-scroll-stage
       aria-labelledby="work-title"
     >
+      <nav class="stage-cue stage-cue--previous" aria-label="Previous section">
+        <a href="#top">
+          <span class="stage-cue-arrow" aria-hidden="true">↑</span>
+          <span>Previous: Introduction</span>
+        </a>
+      </nav>
       <div class="section-intro-row">
         <div>
           <p class="section-kicker">01 / SELECTED WORK</p>
@@ -307,14 +324,27 @@ import { site } from '../data/site';
           Explore all projects <span aria-hidden="true">↗</span>
         </a>
       </div>
+      <nav class="stage-cue stage-cue--next" aria-label="Next section">
+        <a href="#experience">
+          <span class="stage-cue-arrow" aria-hidden="true">↓</span>
+          <span>Next: Experience</span>
+        </a>
+      </nav>
     </section>
 
     <section
       class="experience-section shell section-spacing"
       id="experience"
       tabindex="-1"
+      data-scroll-stage
       aria-labelledby="experience-title"
     >
+      <nav class="stage-cue stage-cue--previous" aria-label="Previous section">
+        <a href="#work">
+          <span class="stage-cue-arrow" aria-hidden="true">↑</span>
+          <span>Previous: Selected Work</span>
+        </a>
+      </nav>
       <div class="section-intro-row">
         <div>
           <p class="section-kicker">02 / EXPERIENCE</p>
@@ -382,9 +412,23 @@ import { site } from '../data/site';
           Explore achievements &amp; credentials <span aria-hidden="true">↗</span>
         </a>
       </div>
+      <nav class="stage-cue stage-cue--next" aria-label="Next section">
+        <a href="#about">
+          <span class="stage-cue-arrow" aria-hidden="true">↓</span>
+          <span>Next: About</span>
+        </a>
+      </nav>
     </section>
 
-    <section class="about-section" id="about" tabindex="-1" aria-labelledby="about-title">
+    <section class="about-section" id="about" tabindex="-1" data-scroll-stage aria-labelledby="about-title">
+      <div class="shell">
+        <nav class="stage-cue stage-cue--previous" aria-label="Previous section">
+        <a href="#experience">
+          <span class="stage-cue-arrow" aria-hidden="true">↑</span>
+          <span>Previous: Experience</span>
+        </a>
+      </nav>
+      </div>
       <div class="shell about-grid">
         <div>
           <p class="section-kicker">03 / A LITTLE ABOUT ME</p>
@@ -426,14 +470,29 @@ import { site } from '../data/site';
           </div>
         </div>
       </div>
+      <div class="shell">
+        <nav class="stage-cue stage-cue--next" aria-label="Next section">
+        <a href="#thinking">
+          <span class="stage-cue-arrow" aria-hidden="true">↓</span>
+          <span>Next: Engineering Notes</span>
+        </a>
+      </nav>
+      </div>
     </section>
 
     <section
       class="thinking-section shell section-spacing"
       id="thinking"
       tabindex="-1"
+      data-scroll-stage
       aria-labelledby="thinking-title"
     >
+      <nav class="stage-cue stage-cue--previous" aria-label="Previous section">
+        <a href="#about">
+          <span class="stage-cue-arrow" aria-hidden="true">↑</span>
+          <span>Previous: About</span>
+        </a>
+      </nav>
       <div class="section-intro-row thinking-heading">
         <div>
           <p class="section-kicker">04 / THINGS I'VE LEARNED</p>
@@ -469,9 +528,23 @@ import { site } from '../data/site';
           </p>
         </div>
       </div>
+      <nav class="stage-cue stage-cue--next" aria-label="Next section">
+        <a href="#contact">
+          <span class="stage-cue-arrow" aria-hidden="true">↓</span>
+          <span>Next: Contact</span>
+        </a>
+      </nav>
     </section>
 
-    <section class="closing-section" id="contact" tabindex="-1" aria-labelledby="contact-title">
+    <section class="closing-section" id="contact" tabindex="-1" data-scroll-stage aria-labelledby="contact-title">
+      <div class="shell">
+        <nav class="stage-cue stage-cue--previous" aria-label="Previous section">
+        <a href="#thinking">
+          <span class="stage-cue-arrow" aria-hidden="true">↑</span>
+          <span>Previous: Engineering Notes</span>
+        </a>
+      </nav>
+      </div>
       <div class="shell closing-layout">
         <div>
           <p class="section-kicker">05 / SAY HELLO</p>
@@ -502,5 +575,8 @@ import { site } from '../data/site';
       </div>
     </section>
   </main>
+  <script>
+    import '../scripts/section-navigation';
+  </script>
   <Footer credit="Designed and built with care." brandLabel="Back to homepage" />
 </BaseLayout>
