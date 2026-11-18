@@ -2371,7 +2371,6 @@ button:focus-visible,
   }
 }
 
-
 /* Persistent, space-conscious navigation on every portfolio page. */
 :root {
   --compact-header-height: 64px;
