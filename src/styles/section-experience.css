@@ -25,7 +25,9 @@
   gap: 11px;
   padding: 7px 0;
   color: var(--muted);
-  font: 11px/1.5 'DM Mono', monospace;
+  font:
+    11px/1.5 'DM Mono',
+    monospace;
   letter-spacing: 0.045em;
   transition: color 0.2s ease;
 }
@@ -42,7 +44,9 @@
   border: 1px solid var(--line);
   border-radius: 50%;
   color: var(--signature);
-  font: 15px/1 'DM Mono', monospace;
+  font:
+    15px/1 'DM Mono',
+    monospace;
   transition: border-color 0.2s ease;
 }
 .portfolio-home .stage-cue a:hover .stage-cue-arrow {
