@@ -8,6 +8,7 @@
 const stageElements = Array.from(document.querySelectorAll<HTMLElement>('[data-scroll-stage]'));
 const siteHeader = document.querySelector<HTMLElement>('[data-site-header]');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const supportsScrollEnd = 'onscrollend' in document.documentElement;
 
 if (stageElements.length > 1 && siteHeader) {
   let previousPosition = window.scrollY;
@@ -85,7 +86,7 @@ if (stageElements.length > 1 && siteHeader) {
       }
       previousPosition = current;
       // Fallback for browsers that do not support the scrollend event.
-      if (!('onscrollend' in window)) {
+      if (!supportsScrollEnd) {
         window.clearTimeout(scrollIdle);
         scrollIdle = window.setTimeout(completeScroll, 160);
       }
@@ -93,7 +94,7 @@ if (stageElements.length > 1 && siteHeader) {
     { passive: true },
   );
 
-  if ('onscrollend' in window) {
+  if (supportsScrollEnd) {
     window.addEventListener('scrollend', completeScroll, { passive: true });
   }
 }
