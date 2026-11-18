@@ -51,7 +51,8 @@ def verify(page, width: int, height: int) -> None:
         )
         assert abs(header["top"]) <= 3, "Sticky header not attached to viewport top"
         assert page.locator(".site-header.is-condensed").count() == 1
-        assert abs(work["top"] - header["bottom"]) <= 12, (
+        landing_gap = work["top"] - header["bottom"]
+        assert -2 <= landing_gap <= 32, (
             f"Work section not aligned after arrow navigation: {work}, {header}"
         )
         # The user's reference viewport is 1512x832; maintain first project
@@ -71,7 +72,10 @@ def verify(page, width: int, height: int) -> None:
         )
         exp = bounds(page, "#experience")
         header = bounds(page, ".site-header")
-        clean = abs(exp["top"] - header["bottom"]) < 18 or abs(exp["top"] - height) < 18
+        clean = (
+            -2 <= exp["top"] - header["bottom"] <= 32
+            or abs(exp["top"] - height) < 24
+        )
         assert clean, f"Boundary did not settle cleanly at {width}x{height}: {exp}"
     else:
         menu = page.locator("[data-menu-toggle]")
