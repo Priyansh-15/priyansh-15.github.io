@@ -111,6 +111,7 @@ jobs:
           assert parser.count == 6, f'Expected 6 reading stages, got {parser.count}'
           assert home.count('stage-cue--previous') >= 5, 'Previous cues missing'
           assert home.count('stage-cue--next') >= 5, 'Next cues missing'
+          assert 'stage-cue--hero' in home, 'Hero cue needs centered presentation'
           for target in ('#top', '#work', '#experience', '#about', '#thinking', '#contact'):
               assert f'href="{target}"' in home, f'Missing section navigation: {target}'
           for content in ('Designing the core engine for distributed billing',
