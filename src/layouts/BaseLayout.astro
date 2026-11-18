@@ -75,6 +75,23 @@ const { title = site.title, description = site.description } = Astro.props;
         syncTheme();
       });
       const header = document.querySelector<HTMLElement>('[data-site-header]');
+      if (header) {
+        let headerUpdateScheduled = false;
+        const updateHeaderAppearance = () => {
+          header.classList.toggle('is-condensed', window.scrollY > 48);
+          headerUpdateScheduled = false;
+        };
+        updateHeaderAppearance();
+        window.addEventListener(
+          'scroll',
+          () => {
+            if (headerUpdateScheduled) return;
+            headerUpdateScheduled = true;
+            window.requestAnimationFrame(updateHeaderAppearance);
+          },
+          { passive: true },
+        );
+      }
       const nav = header?.querySelector<HTMLElement>('[data-mobile-nav]');
       const navButton = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
       const desktopNav = header?.querySelector<HTMLElement>('.desktop-nav');
