@@ -2370,3 +2370,44 @@ button:focus-visible,
     gap: 15px;
   }
 }
+
+
+/* Persistent, space-conscious navigation on every portfolio page. */
+:root {
+  --compact-header-height: 64px;
+}
+html {
+  scroll-padding-top: var(--compact-header-height);
+}
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  transition: height 180ms ease;
+}
+.site-header.is-condensed {
+  height: var(--compact-header-height);
+}
+.site-header.is-condensed .availability-link {
+  padding-block: 9px;
+}
+@media (max-width: 800px) {
+  :root {
+    --compact-header-height: 60px;
+  }
+  .site-header.is-condensed {
+    height: var(--compact-header-height);
+  }
+  .site-header .mobile-nav {
+    top: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-header {
+    transition: none;
+  }
+}
