@@ -16,6 +16,62 @@ if (stageElements.length > 1 && siteHeader) {
   let adjusting = false;
   let scrollIdle: number | undefined;
   let adjustmentFallback: number | undefined;
+  let locationSyncPending = false;
+  let userScrollGesture = false;
+
+  // Only scrolling initiated by a person should auto-align at stage seams.
+  // Clicking links and browser-restored anchors must land where requested.
+  const markScrollGesture = () => {
+    userScrollGesture = true;
+  };
+  window.addEventListener('wheel', markScrollGesture, { passive: true });
+  window.addEventListener('touchmove', markScrollGesture, { passive: true });
+  window.addEventListener('keydown', (event) => {
+    if (!['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) {
+      return;
+    }
+    const target = event.target;
+    if (
+      target instanceof HTMLElement &&
+      target.closest('input, textarea, select, [contenteditable]')
+    ) {
+      return;
+    }
+    markScrollGesture();
+  });
+
+  // Keep URLs shareable even when the visitor uses the wheel/trackpad instead
+  // of clicking an anchor. Replace the current entry rather than creating a
+  // new browser-history entry at every section boundary.
+  const syncLocation = () => {
+    if (!siteHeader || document.visibilityState !== 'visible') return;
+    const readingLine = siteHeader.getBoundingClientRect().bottom + 48;
+    let activeStage = stageElements[0];
+    for (const stage of stageElements) {
+      if (stage.getBoundingClientRect().top <= readingLine) activeStage = stage;
+      else break;
+    }
+    const nextHash = activeStage.id === 'top' ? '' : `#${activeStage.id}`;
+    if (window.location.hash === nextHash) return;
+    try {
+      window.history.replaceState(
+        window.history.state,
+        '',
+        `${window.location.pathname}${window.location.search}${nextHash}`,
+      );
+    } catch {
+      // Native scrolling must remain functional even if history is restricted.
+    }
+  };
+
+  const scheduleLocationSync = () => {
+    if (locationSyncPending) return;
+    locationSyncPending = true;
+    window.requestAnimationFrame(() => {
+      locationSyncPending = false;
+      syncLocation();
+    });
+  };
 
   const alignTransition = () => {
     if (adjusting || !siteHeader || document.visibilityState !== 'visible') return;
@@ -59,6 +115,7 @@ if (stageElements.length > 1 && siteHeader) {
         () => {
           adjusting = false;
           previousPosition = window.scrollY;
+          syncLocation();
         },
         reducedMotion.matches ? 60 : 750,
       );
@@ -71,14 +128,21 @@ if (stageElements.length > 1 && siteHeader) {
     if (adjusting) {
       adjusting = false;
       previousPosition = window.scrollY;
+      syncLocation();
       return;
     }
-    alignTransition();
+    const shouldAlign = userScrollGesture;
+    userScrollGesture = false;
+    if (shouldAlign) alignTransition();
+    if (!adjusting) syncLocation();
   };
 
   window.addEventListener(
     'scroll',
     () => {
+      // Update the URL promptly for both scroll directions, including native
+      // anchor jumps where the browser can finish before scrollend is observed.
+      scheduleLocationSync();
       if (adjusting) return;
       const current = window.scrollY;
       if (Math.abs(current - previousPosition) > 1) {

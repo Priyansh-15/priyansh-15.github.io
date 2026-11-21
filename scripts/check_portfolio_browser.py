@@ -24,7 +24,7 @@ def verify(page, width: int, height: int) -> None:
     page.evaluate("document.fonts.ready")
     page.wait_for_timeout(250)
 
-    assert page.locator("[data-scroll-stage]").count() == 6
+    assert page.locator("[data-scroll-stage]").count() == 8
     assert page.locator(".stage-cue--previous").count() == 5
     assert page.locator(".stage-cue--next").count() == 5
 
@@ -42,11 +42,13 @@ def verify(page, width: int, height: int) -> None:
         header = bounds(page, ".site-header")
         work = bounds(page, "#work")
         featured = bounds(page, ".story-featured")
+        fleet = bounds(page, "#fleet-interactions")
+        case_study_button = bounds(page, ".story-featured .case-study-link")
+        diagram = bounds(page, ".story-featured .story-visual")
         print(
             f"{width}x{height}: work-top={work['top']:.0f}, "
-            f"featured-bottom={featured['bottom']:.0f}, "
-            f"header-bottom={header['bottom']:.0f}, "
-            f"remaining={height - featured['bottom']:.0f}",
+            f"billing-content-bottom={max(case_study_button['bottom'], diagram['bottom']):.0f}, "
+            f"fleet-top={fleet['top']:.0f}, header-bottom={header['bottom']:.0f}",
             flush=True,
         )
         assert abs(header["top"]) <= 3, "Sticky header not attached to viewport top"
@@ -55,12 +57,54 @@ def verify(page, width: int, height: int) -> None:
         assert -2 <= landing_gap <= 32, (
             f"Work section not aligned after arrow navigation: {work}, {header}"
         )
-        # The user's reference viewport is 1512x832; maintain first project
-        # visibility where the comfortable editorial layout can accommodate it.
-        if width == 1512 and height == 832:
-            assert featured["bottom"] <= height + 8, (
-                f"Featured billing overview exceeds reference viewport: {featured['bottom']}"
-            )
+        # Every featured topic owns a deliberate first view; a later project
+        # must not peek into the current one on desktop. Content is never clipped.
+        assert fleet["top"] >= height - 4, (
+            f"Fleet appears in the billing screen at {width}x{height}: {fleet}"
+        )
+        assert case_study_button["bottom"] <= height - 4, (
+            f"Billing CTA is cut off at {width}x{height}: {case_study_button}"
+        )
+        assert diagram["bottom"] <= height - 4, (
+            f"Billing diagram is cut off at {width}x{height}: {diagram}"
+        )
+        assert page.evaluate("location.hash") == "#work", "Work URL does not match visible section"
+
+        page.locator("#fleet-interactions").evaluate(
+            "(el) => el.scrollIntoView({block: 'start', behavior: 'instant'})"
+        )
+        page.wait_for_timeout(450)
+        fleet = bounds(page, "#fleet-interactions")
+        ai = bounds(page, "#ai-code-intelligence")
+        assert -2 <= fleet["top"] - bounds(page, ".site-header")["bottom"] <= 32
+        assert ai["top"] >= height - 4, (
+            f"AI preview appears in Fleet screen at {width}x{height}: {ai}"
+        )
+        assert page.evaluate("location.hash") == "#fleet-interactions", (
+            "Fleet project URL is not synchronized"
+        )
+
+        page.locator("#ai-code-intelligence").evaluate(
+            "(el) => el.scrollIntoView({block: 'start', behavior: 'instant'})"
+        )
+        page.wait_for_timeout(450)
+        assert page.evaluate("location.hash") == "#ai-code-intelligence", (
+            "Code Intelligence URL is not synchronized"
+        )
+
+        # Reverse scrolling must also return the correct project fragment.
+        page.locator("#fleet-interactions").evaluate(
+            "(el) => el.scrollIntoView({block: 'start', behavior: 'instant'})"
+        )
+        page.wait_for_timeout(450)
+        print(
+            "reverse navigation:",
+            page.evaluate("({hash: location.hash, y: scrollY, header: document.querySelector('.site-header').getBoundingClientRect().bottom, fleet: document.querySelector('#fleet-interactions').getBoundingClientRect().top, ai: document.querySelector('#ai-code-intelligence').getBoundingClientRect().top})"),
+            flush=True,
+        )
+        assert page.evaluate("location.hash") == "#fleet-interactions", (
+            "Upward scroll did not restore Fleet URL"
+        )
 
         # A programmatic wheel-like delta near the natural section end should
         # settle at a stage edge rather than leaving both stages half visible.
@@ -68,8 +112,10 @@ def verify(page, width: int, height: int) -> None:
             page,
             "(() => { const e = document.querySelector('#experience'); "
             "window.scrollTo({top: e.getBoundingClientRect().top + "
-            "window.scrollY - window.innerHeight + 130, behavior: 'instant'}); })()",
+            "window.scrollY - window.innerHeight + 160, behavior: 'instant'}); })()",
         )
+        page.mouse.wheel(0, 110)
+        page.wait_for_timeout(1100)
         exp = bounds(page, "#experience")
         header = bounds(page, ".site-header")
         clean = (
@@ -77,6 +123,9 @@ def verify(page, width: int, height: int) -> None:
             or abs(exp["top"] - height) < 24
         )
         assert clean, f"Boundary did not settle cleanly at {width}x{height}: {exp}"
+        assert page.evaluate("location.hash") == "#experience", (
+            "Experience fragment did not follow the scrolling position"
+        )
     else:
         menu = page.locator("[data-menu-toggle]")
         assert menu.is_visible(), "Mobile menu toggle not visible"
@@ -88,7 +137,30 @@ def verify(page, width: int, height: int) -> None:
         scroll_to(page, "window.scrollTo({top: 950, behavior:'instant'})")
         assert abs(bounds(page, ".site-header")["top"]) <= 3
         assert page.locator(".site-header.is-condensed").count() == 1
-        print(f"{width}x{height}: mobile navigation and sticky header passed", flush=True)
+        # Mobile topics may extend across screens, but their URLs still follow
+        # the visitor and their full content must remain readable.
+        page.locator("#ai-code-intelligence").evaluate(
+            "(el) => el.scrollIntoView({block: 'start', behavior: 'instant'})"
+        )
+        page.wait_for_timeout(450)
+        assert page.evaluate("location.hash") == "#ai-code-intelligence"
+        print(f"{width}x{height}: mobile navigation, topic anchors and sticky header passed", flush=True)
+
+
+
+    # Preserve campaign parameters and avoid growing browser history as a
+    # visitor scrolls between two sections after arriving on a deep link.
+    if width == 1512:
+        page.goto(BASE + "?utm_source=chatgpt.com#contact", wait_until="load")
+        page.wait_for_timeout(400)
+        history_before = page.evaluate("history.length")
+        page.locator("#work").evaluate(
+            "(el) => el.scrollIntoView({block: 'start', behavior: 'instant'})"
+        )
+        page.wait_for_timeout(450)
+        assert page.evaluate("location.search") == "?utm_source=chatgpt.com"
+        assert page.evaluate("location.hash") == "#work"
+        assert page.evaluate("history.length") == history_before
 
 
 def main() -> None:

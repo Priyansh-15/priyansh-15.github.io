@@ -1,7 +1,4 @@
 /* Homepage reading rhythm: no text is removed or clipped to fit a viewport. */
-.portfolio-home [data-scroll-stage] {
-  scroll-margin-top: var(--compact-header-height, 64px);
-}
 .portfolio-home .landing-stage {
   display: flex;
   flex-direction: column;
@@ -287,5 +284,38 @@
   }
   .portfolio-home .story-insight-label {
     font-size: 10px;
+  }
+}
+
+/* Featured topics are separate reading frames, but never fixed-height slides.
+   A taller project can grow naturally without clipping or forced scroll locks. */
+@media (min-width: 801px) {
+  .portfolio-home .work-opening {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100svh - var(--compact-header-height, 64px));
+  }
+  .portfolio-home .work-opening > .story-list {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+  }
+  .portfolio-home .work-opening .story-featured {
+    flex: 1 0 auto;
+  }
+  .portfolio-home .story-list--continuation {
+    border-top: 0;
+  }
+  .portfolio-home .story-list--continuation > .story {
+    min-height: calc(100svh - var(--compact-header-height, 64px));
+  }
+}
+@media (max-width: 800px) {
+  .portfolio-home .work-opening,
+  .portfolio-home .story-list--continuation > .story {
+    min-height: 0;
+  }
+  .portfolio-home .story-list--continuation {
+    border-top: 0;
   }
 }
