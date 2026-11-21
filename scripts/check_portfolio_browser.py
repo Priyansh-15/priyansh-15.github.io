@@ -112,8 +112,10 @@ def verify(page, width: int, height: int) -> None:
             page,
             "(() => { const e = document.querySelector('#experience'); "
             "window.scrollTo({top: e.getBoundingClientRect().top + "
-            "window.scrollY - window.innerHeight + 130, behavior: 'instant'}); })()",
+            "window.scrollY - window.innerHeight + 160, behavior: 'instant'}); })()",
         )
+        page.mouse.wheel(0, 110)
+        page.wait_for_timeout(1100)
         exp = bounds(page, "#experience")
         header = bounds(page, ".site-header")
         clean = (
