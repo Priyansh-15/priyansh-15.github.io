@@ -290,7 +290,6 @@
   }
 }
 
-
 /* Featured topics are separate reading frames, but never fixed-height slides.
    A taller project can grow naturally without clipping or forced scroll locks. */
 @media (min-width: 801px) {
