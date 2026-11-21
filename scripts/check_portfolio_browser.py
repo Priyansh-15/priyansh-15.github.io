@@ -97,6 +97,11 @@ def verify(page, width: int, height: int) -> None:
             "(el) => el.scrollIntoView({block: 'start', behavior: 'instant'})"
         )
         page.wait_for_timeout(450)
+        print(
+            "reverse navigation:",
+            page.evaluate("({hash: location.hash, y: scrollY, header: document.querySelector('.site-header').getBoundingClientRect().bottom, fleet: document.querySelector('#fleet-interactions').getBoundingClientRect().top, ai: document.querySelector('#ai-code-intelligence').getBoundingClientRect().top})"),
+            flush=True,
+        )
         assert page.evaluate("location.hash") == "#fleet-interactions", (
             "Upward scroll did not restore Fleet URL"
         )
