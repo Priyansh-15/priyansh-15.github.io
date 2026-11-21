@@ -1,7 +1,4 @@
 /* Homepage reading rhythm: no text is removed or clipped to fit a viewport. */
-.portfolio-home [data-scroll-stage] {
-  scroll-margin-top: var(--compact-header-height, 64px);
-}
 .portfolio-home .landing-stage {
   display: flex;
   flex-direction: column;
