@@ -31,7 +31,10 @@ if (stageElements.length > 1 && siteHeader) {
       return;
     }
     const target = event.target;
-    if (target instanceof HTMLElement && target.closest('input, textarea, select, [contenteditable]')) {
+    if (
+      target instanceof HTMLElement &&
+      target.closest('input, textarea, select, [contenteditable]')
+    ) {
       return;
     }
     markScrollGesture();
