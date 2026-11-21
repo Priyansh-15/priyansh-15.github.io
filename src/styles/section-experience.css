@@ -211,7 +211,6 @@
   }
 }
 
-
 /* Selected Work editorial hierarchy. Keep original diagrams and technical content. */
 .portfolio-home .story-narrative {
   display: grid;
@@ -233,7 +232,9 @@
   display: inline;
   margin-right: 8px;
   color: var(--signature);
-  font: 500 10px/1.5 'DM Mono', monospace;
+  font:
+    500 10px/1.5 'DM Mono',
+    monospace;
   letter-spacing: 0.05em;
   white-space: nowrap;
 }
