@@ -108,16 +108,19 @@ jobs:
                       self.count += 1
           parser = StageCounter()
           parser.feed(home)
-          assert parser.count == 6, f'Expected 6 reading stages, got {parser.count}'
+          assert parser.count == 8, f'Expected 8 reading stages, got {parser.count}'
           assert home.count('stage-cue--previous') >= 5, 'Previous cues missing'
           assert home.count('stage-cue--next') >= 5, 'Next cues missing'
           assert 'stage-cue--hero' in home, 'Hero cue needs centered presentation'
+          for marker in ('id="fleet-interactions"', 'id="ai-code-intelligence"',
+                         'class="work-opening"', 'story-list--continuation'):
+              assert marker in home, f'Missing featured project frame: {marker}'
           for target in ('#top', '#work', '#experience', '#about', '#thinking', '#contact'):
               assert f'href="{target}"' in home, f'Missing section navigation: {target}'
           for content in ('Designing the core engine for distributed billing',
                           'Redesigning the framework for Fleet interactions',
                           'Helping AI keep up with a real codebase'):
               assert content in home, 'Lost approved engineering content: ' + content
-          print('Verified 6 stages, 10 optional cues, and retained engineering content.')
+          print('Verified 8 stages (including 3 featured topics), 10 cues, and engineering content.')
           print('Verified 6 primary pages, 5 redirects, projects, achievements, and 8 coding profiles.')
           PY
