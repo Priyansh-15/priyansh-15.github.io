@@ -17,6 +17,30 @@ if (stageElements.length > 1 && siteHeader) {
   let scrollIdle: number | undefined;
   let adjustmentFallback: number | undefined;
 
+  // Keep URLs shareable even when the visitor uses the wheel/trackpad instead
+  // of clicking an anchor. Replace the current entry rather than creating a
+  // new browser-history entry at every section boundary.
+  const syncLocation = () => {
+    if (!siteHeader || document.visibilityState !== 'visible') return;
+    const readingLine = siteHeader.getBoundingClientRect().bottom + 48;
+    let activeStage = stageElements[0];
+    for (const stage of stageElements) {
+      if (stage.getBoundingClientRect().top <= readingLine) activeStage = stage;
+      else break;
+    }
+    const nextHash = activeStage.id === 'top' ? '' : `#${activeStage.id}`;
+    if (window.location.hash === nextHash) return;
+    try {
+      window.history.replaceState(
+        window.history.state,
+        '',
+        `${window.location.pathname}${window.location.search}${nextHash}`,
+      );
+    } catch {
+      // Native scrolling must remain functional even if history is restricted.
+    }
+  };
+
   const alignTransition = () => {
     if (adjusting || !siteHeader || document.visibilityState !== 'visible') return;
     if (siteHeader.querySelector('[data-menu-toggle][aria-expanded="true"]')) return;
@@ -59,6 +83,7 @@ if (stageElements.length > 1 && siteHeader) {
         () => {
           adjusting = false;
           previousPosition = window.scrollY;
+          syncLocation();
         },
         reducedMotion.matches ? 60 : 750,
       );
@@ -71,9 +96,11 @@ if (stageElements.length > 1 && siteHeader) {
     if (adjusting) {
       adjusting = false;
       previousPosition = window.scrollY;
+      syncLocation();
       return;
     }
     alignTransition();
+    if (!adjusting) syncLocation();
   };
 
   window.addEventListener(
