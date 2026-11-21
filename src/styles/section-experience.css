@@ -210,3 +210,81 @@
     transition: none;
   }
 }
+
+
+/* Selected Work editorial hierarchy. Keep original diagrams and technical content. */
+.portfolio-home .story-narrative {
+  display: grid;
+  gap: 13px;
+}
+.portfolio-home .story-insight {
+  min-width: 0;
+  margin: 0;
+  padding-left: 13px;
+  border-left: 2px solid var(--line);
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.73;
+}
+.portfolio-home .story-insight--approach {
+  border-left-color: var(--signature);
+}
+.portfolio-home .story-insight-label {
+  display: inline;
+  margin-right: 8px;
+  color: var(--signature);
+  font: 500 10px/1.5 'DM Mono', monospace;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.portfolio-home .story .story-tags {
+  margin-top: 18px;
+}
+.portfolio-home .story .case-study-link {
+  margin-top: 19px;
+}
+.portfolio-home .story-note--initiative {
+  margin: 18px 0 0;
+  max-width: 540px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--faint);
+}
+.portfolio-home .work-disclaimer {
+  max-width: 850px;
+  line-height: 1.85;
+}
+@media (min-width: 801px) {
+  .portfolio-home .story-featured .story-narrative {
+    gap: 11px;
+  }
+  .portfolio-home .story-featured .story-insight {
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .portfolio-home .story-featured h3 {
+    margin-bottom: 13px;
+  }
+  .portfolio-home .story-featured .story-tags {
+    margin-top: 13px;
+  }
+  .portfolio-home .story-featured .case-study-link {
+    margin-top: 15px;
+  }
+}
+@media (max-width: 800px) {
+  .portfolio-home .story-insight {
+    font-size: 14px;
+    line-height: 1.75;
+  }
+}
+@media (max-width: 540px) {
+  .portfolio-home .story-insight {
+    padding-left: 11px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .portfolio-home .story-insight-label {
+    font-size: 10px;
+  }
+}
