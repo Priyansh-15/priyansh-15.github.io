@@ -133,7 +133,7 @@ import '../styles/section-experience.css';
         <div>
           <p class="section-kicker">01 / SELECTED WORK</p>
           <h2 id="work-title">
-            A few problems I've <span class="serif-accent">spent time on.</span>
+            A few problems I've <span class="serif-accent">worked on.</span>
           </h2>
         </div>
         <p>
@@ -150,16 +150,20 @@ import '../styles/section-experience.css';
               <span>PROFESSIONAL WORK</span>
             </div>
             <h3>Designing the core engine for distributed billing.</h3>
-            <p>
-              Usage-based billing had to apply configured prices and discount tiers per device or
-              across a tenant's usage. Splitting that work across workers meant preserving the
-              pricing rules and knowing when the report was complete.
-            </p>
-            <p>
-              I independently architected and implemented the core bill-run engine, from mapping
-              through reporting. I used Cassandra-backed coordination to preserve stage progress
-              across worker interruptions and make recovery part of the execution design.
-            </p>
+            <div class="story-narrative" aria-label="Billing problem and engineering approach">
+              <p class="story-insight story-insight--challenge">
+                <span class="story-insight-label">THE CHALLENGE</span>
+                Usage-based billing had to apply configured prices and discount tiers per device or
+                across a tenant's usage. Splitting that work across workers meant preserving the
+                pricing rules and knowing when the report was complete.
+              </p>
+              <p class="story-insight story-insight--approach">
+                <span class="story-insight-label">MY APPROACH</span>I independently architected and
+                implemented the core bill-run engine, from mapping through reporting. I used
+                Cassandra-backed coordination to preserve stage progress across worker interruptions
+                and make recovery part of the execution design.
+              </p>
+            </div>
             <div class="story-tags">
               <span>Java</span>
               <span>Concurrency</span>
@@ -169,10 +173,6 @@ import '../styles/section-experience.css';
             <a class="case-study-link" href="/work/distributed-billing/">
               Read the engineering case study <span aria-hidden="true">↗</span>
             </a>
-            <div class="story-note">
-              <span class="dot"></span> Professional experience with conceptual illustrations;
-              disclosure review remains outstanding.
-            </div>
           </div>
           <div
             class="story-visual pipeline-visual"
@@ -218,12 +218,19 @@ import '../styles/section-experience.css';
               <span>PROFESSIONAL WORK</span>
             </div>
             <h3>Redesigning the framework for Fleet interactions.</h3>
-            <p>
-              Fleet decisions and calls were spread across existing Order Scheduler paths. In
-              October 2026, I designed and implemented a centralized Fleet interaction framework,
-              separating side-effect-free planning from execution. I introduced it in stages, with
-              established scheduler and provider-facing behavior as a compatibility constraint.
-            </p>
+            <div class="story-narrative" aria-label="Fleet problem and engineering approach">
+              <p class="story-insight story-insight--challenge">
+                <span class="story-insight-label">THE CHALLENGE</span>
+                Fleet decisions and calls were spread across existing Order Scheduler paths.
+              </p>
+              <p class="story-insight story-insight--approach">
+                <span class="story-insight-label">MY APPROACH</span>
+                In October 2026, I designed and implemented a centralized Fleet interaction
+                framework, separating side-effect-free planning from execution. I introduced it in
+                stages, with established scheduler and provider-facing behavior as a compatibility
+                constraint.
+              </p>
+            </div>
             <div class="story-tags">
               <span>Architecture</span>
               <span>Orchestration</span>
@@ -232,10 +239,6 @@ import '../styles/section-experience.css';
             <a class="case-study-link" href="/work/order-scheduler/">
               Read the engineering case study <span aria-hidden="true">↗</span>
             </a>
-            <div class="story-note">
-              <span class="dot"></span> Professional experience with a conceptual diagram; employer
-              disclosure review remains outstanding.
-            </div>
           </div>
           <div
             class="story-visual split-visual"
@@ -272,12 +275,22 @@ import '../styles/section-experience.css';
               <span>TEAM-ADOPTED TOOLING</span>
             </div>
             <h3>Helping AI keep up with a real codebase.</h3>
-            <p>
-              While working with large backend codebases at Thales, I kept seeing AI tools lose
-              important architecture and context between sessions. I took the initiative to build a
-              persistent engineering knowledge system using AST-aware indexing, structured context,
-              Qdrant/Neo4j retrieval, and MCP integrations. My entire team later adopted it.
-            </p>
+            <div
+              class="story-narrative"
+              aria-label="Code intelligence problem and engineering approach"
+            >
+              <p class="story-insight story-insight--challenge">
+                <span class="story-insight-label">THE CHALLENGE</span>
+                While working with large backend codebases at Thales, I kept seeing AI tools lose
+                important architecture and context between sessions.
+              </p>
+              <p class="story-insight story-insight--approach">
+                <span class="story-insight-label">MY APPROACH</span>I took the initiative to build a
+                persistent engineering knowledge system using AST-aware indexing, structured
+                context, Qdrant/Neo4j retrieval, and MCP integrations. My entire team later adopted
+                it.
+              </p>
+            </div>
             <div class="story-tags">
               <span>Code intelligence</span>
               <span>Persistent context</span>
@@ -286,10 +299,10 @@ import '../styles/section-experience.css';
             <a class="case-study-link" href="/projects/#code-intelligence">
               Explore this initiative <span aria-hidden="true">↗</span>
             </a>
-            <div class="story-note">
-              <span class="dot"></span> Self-initiated during professional engineering work; shared
-              conceptually without private implementation details.
-            </div>
+            <p class="story-note story-note--initiative">
+              Self-initiated during professional engineering work; shared conceptually without
+              private implementation details.
+            </p>
           </div>
           <div
             class="story-visual notes-visual"
@@ -319,7 +332,8 @@ import '../styles/section-experience.css';
       <p class="work-disclaimer">
         A note on these projects: some of my most substantial work has been on private systems. I
         share the engineering ideas and lessons, not proprietary code, configuration, or customer
-        details.
+        details. The billing and Fleet diagrams are conceptual illustrations, not internal
+        architecture documents; employer disclosure review remains outstanding.
       </p>
       <div class="work-directory-bridge">
         <div>
