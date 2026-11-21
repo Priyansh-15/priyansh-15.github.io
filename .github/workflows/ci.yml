@@ -40,11 +40,7 @@ jobs:
         run: npm ci
 
       - name: Check source formatting
-        run: |
-          echo "__FORMAT_START__ src/scripts/section-navigation.ts"
-          ./node_modules/.bin/prettier src/scripts/section-navigation.ts
-          echo "__FORMAT_END__ src/scripts/section-navigation.ts"
-          npm run format:check
+        run: npm run format:check
 
       - name: Check Astro diagnostics and build static site
         run: npm run build
