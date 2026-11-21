@@ -17,6 +17,25 @@ if (stageElements.length > 1 && siteHeader) {
   let scrollIdle: number | undefined;
   let adjustmentFallback: number | undefined;
   let locationSyncPending = false;
+  let userScrollGesture = false;
+
+  // Only scrolling initiated by a person should auto-align at stage seams.
+  // Clicking links and browser-restored anchors must land where requested.
+  const markScrollGesture = () => {
+    userScrollGesture = true;
+  };
+  window.addEventListener('wheel', markScrollGesture, { passive: true });
+  window.addEventListener('touchmove', markScrollGesture, { passive: true });
+  window.addEventListener('keydown', (event) => {
+    if (!['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) {
+      return;
+    }
+    const target = event.target;
+    if (target instanceof HTMLElement && target.closest('input, textarea, select, [contenteditable]')) {
+      return;
+    }
+    markScrollGesture();
+  });
 
   // Keep URLs shareable even when the visitor uses the wheel/trackpad instead
   // of clicking an anchor. Replace the current entry rather than creating a
@@ -109,7 +128,9 @@ if (stageElements.length > 1 && siteHeader) {
       syncLocation();
       return;
     }
-    alignTransition();
+    const shouldAlign = userScrollGesture;
+    userScrollGesture = false;
+    if (shouldAlign) alignTransition();
     if (!adjusting) syncLocation();
   };
 
