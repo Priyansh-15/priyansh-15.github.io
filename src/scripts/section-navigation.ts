@@ -16,6 +16,7 @@ if (stageElements.length > 1 && siteHeader) {
   let adjusting = false;
   let scrollIdle: number | undefined;
   let adjustmentFallback: number | undefined;
+  let locationSyncPending = false;
 
   // Keep URLs shareable even when the visitor uses the wheel/trackpad instead
   // of clicking an anchor. Replace the current entry rather than creating a
@@ -39,6 +40,15 @@ if (stageElements.length > 1 && siteHeader) {
     } catch {
       // Native scrolling must remain functional even if history is restricted.
     }
+  };
+
+  const scheduleLocationSync = () => {
+    if (locationSyncPending) return;
+    locationSyncPending = true;
+    window.requestAnimationFrame(() => {
+      locationSyncPending = false;
+      syncLocation();
+    });
   };
 
   const alignTransition = () => {
@@ -106,6 +116,9 @@ if (stageElements.length > 1 && siteHeader) {
   window.addEventListener(
     'scroll',
     () => {
+      // Update the URL promptly for both scroll directions, including native
+      // anchor jumps where the browser can finish before scrollend is observed.
+      scheduleLocationSync();
       if (adjusting) return;
       const current = window.scrollY;
       if (Math.abs(current - previousPosition) > 1) {
