@@ -24,9 +24,14 @@ def verify(page, width: int, height: int) -> None:
     page.evaluate("document.fonts.ready")
     page.wait_for_timeout(250)
 
-    assert page.locator("[data-scroll-stage]").count() == 8
-    assert page.locator(".stage-cue--previous").count() == 5
-    assert page.locator(".stage-cue--next").count() == 5
+    assert page.locator("[data-scroll-stage]").count() == 9
+    assert page.locator(".stage-cue--previous").count() == 6
+    assert page.locator(".stage-cue--next").count() == 6
+
+    assert page.locator("#explore").count() == 1
+    assert page.locator(".explore-card").count() == 3
+    for destination in ("/projects/", "/achievements/", "/coding-profiles/"):
+        assert page.locator(f'.explore-card[href="{destination}"]').count() == 1
 
     overflow = page.evaluate(
         "document.documentElement.scrollWidth - document.documentElement.clientWidth"
@@ -125,6 +130,18 @@ def verify(page, width: int, height: int) -> None:
         assert clean, f"Boundary did not settle cleanly at {width}x{height}: {exp}"
         assert page.evaluate("location.hash") == "#experience", (
             "Experience fragment did not follow the scrolling position"
+        )
+        page.locator("#explore").evaluate(
+            "(el) => el.scrollIntoView({block: 'start', behavior: 'instant'})"
+        )
+        page.wait_for_timeout(450)
+        assert page.evaluate("location.hash") == "#explore", (
+            "Explore More section URL is not synchronized"
+        )
+        explore_top = bounds(page, "#explore")["top"]
+        header_bottom = bounds(page, ".site-header")["bottom"]
+        assert -2 <= explore_top - header_bottom <= 32, (
+            f"Explore More did not land below sticky header: {explore_top}, {header_bottom}"
         )
     else:
         menu = page.locator("[data-menu-toggle]")
