@@ -320,7 +320,6 @@
   }
 }
 
-
 /* One discoverable route to the rest of the portfolio, without duplicating it. */
 .portfolio-home .explore-section {
   display: flex;
@@ -346,7 +345,9 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  transition: border-color 0.18s ease, transform 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s ease;
 }
 .portfolio-home .explore-card:hover {
   border-color: var(--signature);
@@ -358,7 +359,9 @@
 }
 .portfolio-home .explore-card-kicker {
   color: var(--signature);
-  font: 500 11px/1.6 'DM Mono', monospace;
+  font:
+    500 11px/1.6 'DM Mono',
+    monospace;
   letter-spacing: 0.065em;
   margin-bottom: clamp(23px, 4vh, 38px);
 }
