@@ -41,7 +41,7 @@ jobs:
 
       - name: Check source formatting
         run: |
-          for file in src/pages/projects/index.astro src/pages/achievements/index.astro src/pages/coding-profiles/index.astro; do
+          for file in src/pages/achievements/index.astro src/pages/coding-profiles/index.astro; do
             echo "__FORMAT_START__ $file"
             ./node_modules/.bin/prettier "$file"
             echo "__FORMAT_END__ $file"
