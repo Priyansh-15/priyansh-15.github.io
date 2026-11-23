@@ -115,17 +115,16 @@ const decisions = [
       <ArticleNavigation items={articleNavigation} />
       <article class="case-prose">
         <div class="case-disclosure">
-          <strong>Scope and attribution.</strong> My ownership covered the core bill-run engine;
-          other engineers contributed supporting ingestion, bucketing, and API functionality. The
-          diagrams, failure examples, and validation scenarios below are educational abstractions,{' '}
-          <em>not</em> documentation of Thales' production architecture or claims that every
-          described test was performed. No internal code, operational configuration, or confidential
-          measurements are reproduced.
+          <strong>What I built and what this page shows.</strong> I designed and implemented the
+          core bill-run engine; other engineers worked on ingestion, bucketing, and API functionality.
+          The diagrams and failure scenarios explain the engineering decisions at a conceptual level.
+          They aren't a copy of Thales' production architecture or a list of tests I'm claiming to
+          have run. I've left out internal code, configuration, and confidential measurements.
         </div>
 
         <section id="overview" class="case-section">
           <p class="case-label">01 / THE PROBLEM</p>
-          <h2>Pricing rules shaped the execution problem.</h2>
+          <h2>The pricing rules made this more than a processing pipeline.</h2>
           <p>
             The requirement was to calculate usage-based charges from billable events, configured
             unit prices, and configurable slicing and discount tiers. Horizontal slicing evaluated
@@ -401,7 +400,7 @@ const decisions = [
 
         <section id="validation" class="case-section">
           <p class="case-label">06 / VALIDATION</p>
-          <h2>The measurement is only useful if you can explain it.</h2>
+          <h2>What I'd check before trusting the results.</h2>
           <p>
             My project work included the core engine implementation and laboratory performance
             evaluation. The criteria below explain what would substantiate a result; they are not a
@@ -449,9 +448,9 @@ const decisions = [
           <div class="case-callout">
             <span>BENCHMARK DISCLOSURE</span>
             <p>
-              Public figures are intentionally withheld here until confirmed against test evidence
-              and approved for publication. This avoids turning an internal lab result into an
-              unsupported production-scale claim.
+              I have lab measurements, but I'm keeping the numbers off this public page until I can
+              verify the underlying records and confirm they're okay to share. These aren't
+              production-scale benchmark claims.
             </p>
           </div>
         </section>
