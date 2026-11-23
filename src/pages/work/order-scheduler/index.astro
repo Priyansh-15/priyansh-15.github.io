@@ -108,18 +108,17 @@ const matrix = [
       <ArticleNavigation items={articleNavigation} />
       <article class="case-prose">
         <div class="case-disclosure">
-          <strong>About this write-up.</strong> My responsibility was the framework's technical
-          architecture and implementation; the upstream business and configuration specification was
-          developed collaboratively. The scheduler already existed. Earlier legacy refactoring, Rule
-          Flow and conditional order chaining, and later Fleet configuration simplification are
-          separate initiatives. Diagrams, the illustrative contract, and hypothetical failure
-          scenarios explain the reasoning without reproducing private production implementation
-          details or claiming every example was implemented or tested. Disclosure review remains
-          outstanding.
+          <strong>What I worked on.</strong> I designed and implemented the Fleet interaction
+          framework within an existing Order Scheduler. The business and configuration requirements
+          were developed with the team. Earlier legacy refactoring, Rule Flow and order chaining,
+          and the later Fleet configuration simplification were separate initiatives. The diagrams,
+          sample contract, and failure scenarios below explain the design; they aren't production
+          code or proof that every case was implemented or tested. Employer disclosure review is
+          still outstanding.
         </div>
         <section id="problem" class="case-section">
           <p class="case-label">01 / WHERE COUPLING STARTS</p>
-          <h2>A scheduler can quietly become the whole system.</h2>
+          <h2>Fleet calls were spread across the scheduler.</h2>
           <p>
             Fleet interactions were distributed across several legacy execution paths, with
             configuration decisions intertwined with the code performing the calls. Understanding a
@@ -274,7 +273,7 @@ const matrix = [
         </section>
         <section id="failures" class="case-section">
           <p class="case-label">04 / FAILURE PATHS</p>
-          <h2>The interesting part happens when the happy path stops.</h2>
+          <h2>What could go wrong at this boundary?</h2>
           <p>
             These proposed checks examine the Fleet boundary under changing state and uncertain
             outcomes. Retry responsibility must identify who classifies errors, who schedules
@@ -320,7 +319,7 @@ const matrix = [
         </section>
         <section id="testing" class="case-section">
           <p class="case-label">05 / VALIDATION</p>
-          <h2>Test the behavior, not just the method.</h2>
+          <h2>How I'd check that behavior stayed the same.</h2>
           <p>
             Replacing internal Fleet paths had to respect behavior that the existing scheduler and
             its integrations depended on. Compilation or a passing unit test cannot establish that
