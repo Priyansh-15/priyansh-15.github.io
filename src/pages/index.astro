@@ -449,10 +449,63 @@ import '../styles/section-experience.css';
         </a>
       </div>
       <nav class="stage-cue stage-cue--next" aria-label="Next section">
-        <a href="#about">
+        <a href="#explore">
           <span class="stage-cue-arrow" aria-hidden="true">
             ↓
           </span>
+          <span>Next: Explore More</span>
+        </a>
+      </nav>
+    </section>
+
+    <section
+      class="explore-section shell section-spacing"
+      id="explore"
+      tabindex="-1"
+      data-scroll-stage
+      aria-labelledby="explore-title"
+    >
+      <nav class="stage-cue stage-cue--previous" aria-label="Previous section">
+        <a href="#experience">
+          <span class="stage-cue-arrow" aria-hidden="true">↑</span>
+          <span>Previous: Experience</span>
+        </a>
+      </nav>
+      <div class="section-intro-row explore-heading">
+        <div>
+          <p class="section-kicker">03 / EXPLORE MORE</p>
+          <h2 id="explore-title">
+            There's more <span class="serif-accent">to see.</span>
+          </h2>
+        </div>
+        <p>
+          I've also kept my other projects, competition results, and coding profiles here if you'd
+          like to look further.
+        </p>
+      </div>
+      <div class="explore-grid">
+        <a class="explore-card" href="/projects/">
+          <span class="explore-card-kicker">01 / PROJECTS</span>
+          <h3>Other things I've built.</h3>
+          <p>Independent tools and earlier projects, alongside my engineering work.</p>
+          <span class="explore-card-action">Browse projects <span aria-hidden="true">↗</span></span>
+        </a>
+        <a class="explore-card" href="/achievements/">
+          <span class="explore-card-kicker">02 / ACHIEVEMENTS</span>
+          <h3>Coding contest results.</h3>
+          <p>Competition rankings, exam results, and the original supporting records.</p>
+          <span class="explore-card-action">See results <span aria-hidden="true">↗</span></span>
+        </a>
+        <a class="explore-card" href="/coding-profiles/">
+          <span class="explore-card-kicker">03 / CODING PROFILES</span>
+          <h3>Where I practiced.</h3>
+          <p>My profiles across algorithms, interview practice, and coding contest platforms.</p>
+          <span class="explore-card-action">Open profiles <span aria-hidden="true">↗</span></span>
+        </a>
+      </div>
+      <nav class="stage-cue stage-cue--next" aria-label="Next section">
+        <a href="#about">
+          <span class="stage-cue-arrow" aria-hidden="true">↓</span>
           <span>Next: About</span>
         </a>
       </nav>
@@ -467,17 +520,17 @@ import '../styles/section-experience.css';
     >
       <div class="shell">
         <nav class="stage-cue stage-cue--previous" aria-label="Previous section">
-          <a href="#experience">
+          <a href="#explore">
             <span class="stage-cue-arrow" aria-hidden="true">
               ↑
             </span>
-            <span>Previous: Experience</span>
+            <span>Previous: Explore More</span>
           </a>
         </nav>
       </div>
       <div class="shell about-grid">
         <div>
-          <p class="section-kicker">03 / A LITTLE ABOUT ME</p>
+          <p class="section-kicker">04 / A LITTLE ABOUT ME</p>
           <h2 id="about-title">
             A little <span class="serif-accent">about me.</span>
           </h2>
@@ -520,7 +573,7 @@ import '../styles/section-experience.css';
             <span class="stage-cue-arrow" aria-hidden="true">
               ↓
             </span>
-            <span>Next: Engineering Notes</span>
+            <span>Next: Approach</span>
           </a>
         </nav>
       </div>
@@ -543,7 +596,7 @@ import '../styles/section-experience.css';
       </nav>
       <div class="section-intro-row thinking-heading">
         <div>
-          <p class="section-kicker">04 / THINGS I'VE LEARNED</p>
+          <p class="section-kicker">05 / HOW I WORK</p>
           <h2 id="thinking-title">
             The details <span class="serif-accent">are the work.</span>
           </h2>
@@ -599,13 +652,13 @@ import '../styles/section-experience.css';
             <span class="stage-cue-arrow" aria-hidden="true">
               ↑
             </span>
-            <span>Previous: Engineering Notes</span>
+            <span>Previous: Approach</span>
           </a>
         </nav>
       </div>
       <div class="shell closing-layout">
         <div>
-          <p class="section-kicker">05 / SAY HELLO</p>
+          <p class="section-kicker">06 / SAY HELLO</p>
           <h2 id="contact-title">
             Have an interesting <span class="serif-accent">problem?</span>
           </h2>
