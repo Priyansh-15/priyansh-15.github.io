@@ -40,7 +40,11 @@ jobs:
         run: npm ci
 
       - name: Check source formatting
-        run: npm run format:check
+        run: |
+          echo "__FORMAT_START__ src/pages/index.astro"
+          ./node_modules/.bin/prettier src/pages/index.astro
+          echo "__FORMAT_END__ src/pages/index.astro"
+          npm run format:check
 
       - name: Check Astro diagnostics and build static site
         run: npm run build
