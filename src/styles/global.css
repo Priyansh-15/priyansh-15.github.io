@@ -2446,7 +2446,6 @@ html {
   }
 }
 
-
 /* Intermediate-width laptops have less real room than desktop navigation
    suggests. Reflow the content before the two-column cards become cramped.
    Keep the existing navigation breakpoint and all content fully readable. */
