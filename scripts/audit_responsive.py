@@ -33,6 +33,9 @@ SNAPSHOTS = {
     ("home", 1920, 1080, "explore"),
     ("home", 1366, 768, "work"),
     ("home", 390, 844, "top"),
+    ("home", 820, 720, "top"),
+    ("home", 820, 720, "work"),
+    ("projects", 1024, 600, "top"),
     ("home", 1024, 600, "top"),
     ("projects", 1440, 900, "top"),
     ("achievements", 390, 844, "top"),
@@ -97,6 +100,23 @@ def audit(page, name, width, height):
        "docHeight":info["scrollHeight"],
        "header":rect(page, ".site-header"),
     }
+    header_layout=page.evaluate("""() => {
+        const get=(selector) => {
+          const el=document.querySelector(selector);
+          if(!el || getComputedStyle(el).display==='none')return null;
+          const r=el.getBoundingClientRect();
+          return {left:r.left,right:r.right};
+        };
+        return {brand:get('.brand'),nav:get('.desktop-nav'),actions:get('.header-actions')};
+    }""")
+    if header_layout["nav"]:
+        nav=header_layout["nav"]
+        brand=header_layout["brand"]
+        actions=header_layout["actions"]
+        if brand and nav["left"] < brand["right"] - 2:
+            violations.append(f"{name} {width}x{height}: header brand overlaps nav")
+        if actions and nav["right"] > actions["left"] + 2:
+            violations.append(f"{name} {width}x{height}: header nav overlaps actions")
     if name == "home":
         if width <= 800:
             # The mobile hero can be taller than a screen: it should reflow,
@@ -129,6 +149,19 @@ def audit(page, name, width, height):
           "gapIntroToStory":story["y"]-intro["bottom"] if story and intro else None,
           "gapIntroToDetail":detail["y"]-intro["bottom"] if detail and intro else None,
         }
+        if (width >= 1100 and height >= 768 and
+            detail["y"] - intro["bottom"] > 112):
+            violations.append(
+                f"{name} {width}x{height}: oversized gap "
+                f"{detail['y']-intro['bottom']}px under section intro"
+            )
+        if width >= 1100 and height >= 768 and (
+            cta["bottom"] > height - 4 or visual["bottom"] > height - 4
+            or fleet["y"] < height - 4
+        ):
+            violations.append(
+                f"{name} {width}x{height}: featured project not fully framed"
+            )
         if SNAPSHOT_ENABLED and (name,width,height,"work") in SNAPSHOTS:
             snapshot(page,f"home-work-{width}x{height}")
         if width in (1920, 1366, 1024, 390):
@@ -163,6 +196,16 @@ def audit(page, name, width, height):
         result["hero"]=rect(page,hero)
         result["heading"]=rect(page,title)
         result["firstContent"]=rect(page,first)
+        heading_rect=result["heading"]
+        if heading_rect and (heading_rect["x"] < -3 or heading_rect["right"] > width + 3):
+            violations.append(f"{name} {width}x{height}: hero heading extends beyond viewport")
+        if name in ("projects","achievements","coding") and (
+            (width,height) in ((1024,600),(1280,720))
+            and result["hero"]["bottom"] > height + 10
+        ):
+            violations.append(
+                f"{name} {width}x{height}: oversized short-window intro exceeds viewport"
+            )
         if SNAPSHOT_ENABLED and (name,width,height,"top") in SNAPSHOTS:
             snapshot(page,f"{name}-top-{width}x{height}")
     if info["overflow"]>2:
