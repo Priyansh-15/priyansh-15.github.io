@@ -40,13 +40,7 @@ jobs:
         run: npm ci
 
       - name: Check source formatting
-        run: |
-          for file in src/styles/global.css src/styles/projects.css src/styles/achievements.css src/styles/coding-profiles.css; do
-            echo "__FORMAT_START__ $file"
-            ./node_modules/.bin/prettier "$file"
-            echo "__FORMAT_END__ $file"
-          done
-          npm run format:check
+        run: npm run format:check
 
       - name: Check Astro diagnostics and build static site
         run: npm run build
