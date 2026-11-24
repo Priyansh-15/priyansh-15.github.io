@@ -15,7 +15,8 @@ ROOT = "http://127.0.0.1:8765"
 VIEWPORTS = [
     (1920, 1080), (1600, 900), (1536, 864), (1440, 900),
     (1366, 768), (1280, 720), (1024, 600), (1024, 768),
-    (768, 1024), (430, 932), (390, 844), (360, 740), (320, 568),
+    (1100, 700), (900, 720), (820, 720), (801, 720),
+    (800, 720), (768, 1024), (430, 932), (390, 844), (360, 740), (320, 568),
 ]
 ROUTES = [
     ("/", "home"),
@@ -29,6 +30,7 @@ ROUTES = [
 # compacted mockup. Browser snapshots are optional and are not committed.
 SNAPSHOTS = {
     ("home", 1920, 1080, "work"),
+    ("home", 1920, 1080, "explore"),
     ("home", 1366, 768, "work"),
     ("home", 390, 844, "top"),
     ("home", 1024, 600, "top"),
@@ -129,6 +131,26 @@ def audit(page, name, width, height):
         }
         if SNAPSHOT_ENABLED and (name,width,height,"work") in SNAPSHOTS:
             snapshot(page,f"home-work-{width}x{height}")
+        if width in (1920, 1366, 1024, 390):
+            stages = {}
+            for selector in ("#fleet-interactions", "#ai-code-intelligence",
+                             "#experience", "#explore", "#about", "#thinking", "#contact"):
+                page.locator(selector).evaluate(
+                    "(el) => el.scrollIntoView({block: 'start', behavior: 'instant'})"
+                )
+                page.wait_for_timeout(30)
+                stage = rect(page, selector)
+                stages[selector] = {
+                    "top": stage["y"] if stage else None,
+                    "height": stage["h"] if stage else None,
+                }
+            result["stages"] = stages
+        if SNAPSHOT_ENABLED and (name,width,height,"explore") in SNAPSHOTS:
+            page.locator("#explore").evaluate(
+                "(el) => el.scrollIntoView({block: 'start', behavior: 'instant'})"
+            )
+            page.wait_for_timeout(80)
+            snapshot(page,f"home-explore-{width}x{height}")
     else:
         sels={
           "projects":(".projects-hero",".projects-hero h1",".projects-section"),
@@ -153,6 +175,7 @@ def main():
         browser=playwright.chromium.launch(channel="chrome",headless=True,args=["--no-sandbox"])
         for w,h in VIEWPORTS:
             ctx=browser.new_context(viewport={"width":w,"height":h},reduced_motion="reduce")
+            ctx.add_init_script("localStorage.setItem('portfolio-theme', 'dark')")
             page=ctx.new_page()
             for _,name in ROUTES:
                 try:
