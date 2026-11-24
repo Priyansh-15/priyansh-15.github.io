@@ -304,10 +304,8 @@
   }
 }
 
-/* Responsive composition: align the opening story to its introduction.
-   Flex grows the frame *below* the content instead of centering a short
-   project in the middle of a tall screen. Text and diagrams retain their
-   natural sizes and can extend beyond one viewport when needed. */
+/* Keep the opening story inside a bounded reading frame. Surplus viewport
+   height belongs to the outer stage, not to the gap below its introduction. */
 @media (min-width: 1101px) {
   .portfolio-home .work-opening .story-featured {
     align-items: center;
@@ -317,10 +315,11 @@
     margin-top: 0;
   }
   .portfolio-home .work-opening > .story-list {
-    flex-grow: 1;
+    flex-grow: 0;
   }
   .portfolio-home .work-opening .story-featured {
-    flex-grow: 1;
+    flex-grow: 0;
+    min-height: 27rem;
   }
 }
 /* One discoverable route to the rest of the portfolio, without duplicating it. */

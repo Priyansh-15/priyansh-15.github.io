@@ -20,6 +20,7 @@ VIEWPORTS = [
     (1024, 1366), (768, 1024), (600, 800), (720, 900),
     (480, 960), (440, 956), (390, 844), (360, 800),
     (320, 568), (844, 390), (599, 800), (319, 568),
+    (820, 720), (801, 720), (800, 720), (932, 430),
 ]
 ROUTES = [
     ("/", "home"),
@@ -87,18 +88,18 @@ def audit(page, name, width, height):
     page.wait_for_timeout(65)
     info = page.evaluate("""() => {
         const d=document.documentElement;
+        const body=document.body.getBoundingClientRect();
         const els=[...document.querySelectorAll('main *')];
         const overflowing=els
           .filter(el=>{
             const r=el.getBoundingClientRect();
             const s=getComputedStyle(el);
-            return (r.left < -4 || r.right > innerWidth + 4) &&
+            return (r.left < body.left - 4 || r.right > body.right + 4) &&
               r.width > 0 && r.height > 0 &&
               !['hidden','clip','auto','scroll'].includes(s.overflowX);
           })
           .slice(0,5)
           .map(el=>({tag:el.tagName,cls:(el.className?.baseVal || el.className || '').toString().slice(0,55)}));
-        const body=document.body.getBoundingClientRect();
         const mode=getComputedStyle(d).getPropertyValue('--canvas-mode').trim();
         return {mode,canvasWidth:body.width,canvasLeft:body.left,
           docWidth:d.scrollWidth,clientWidth:d.clientWidth,
