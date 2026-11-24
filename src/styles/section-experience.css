@@ -452,3 +452,21 @@
     transform: none;
   }
 }
+
+
+@media (min-width: 801px) and (max-width: 1000px) {
+  .portfolio-home .work-opening .story-featured,
+  .portfolio-home .story-list--continuation > .story {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(24px, 4svh, 38px);
+  }
+  .portfolio-home .work-opening .story-featured .story-visual {
+    margin-top: 0;
+  }
+  .portfolio-home .explore-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .portfolio-home .explore-card {
+    min-height: 0;
+  }
+}
