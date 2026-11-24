@@ -374,11 +374,8 @@
   flex-direction: column;
 }
 .projects-feature-step {
-  padding: clamp(
-    1.5625rem,
-    calc(4 * var(--canvas-i)), 3.375rem) clamp(1.5rem, calc(3.6 * var(--canvas-i)),
-    2.9375rem
-  );
+  padding-block: clamp(1.5625rem, calc(4 * var(--canvas-i)), 3.375rem);
+  padding-inline: clamp(1.5rem, calc(3.6 * var(--canvas-i)), 2.9375rem);
   flex: 1;
 }
 .projects-feature-step + .projects-feature-step {

@@ -159,7 +159,8 @@
   grid-template-columns: 3.125rem minmax(0, 1.18fr) minmax(0, 0.75fr) 2rem;
   align-items: center;
   gap: clamp(1rem, calc(2.5 * var(--canvas-i)), 2.5rem);
-  padding: clamp(1.5625rem, calc(3 * var(--canvas-i)), 2.375rem) 0.875rem clamp(1.5625rem, calc(3 * var(--canvas-i)), 2.375rem) 0;
+  padding-block: clamp(1.5625rem, calc(3 * var(--canvas-i)), 2.375rem);
+  padding-inline: 0 0.875rem;
   min-width: 0;
   transition:
     background-color 0.2s ease,
