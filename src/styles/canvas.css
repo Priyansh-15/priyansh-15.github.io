@@ -1,0 +1,53 @@
+/* Shared composition contract. Values are design lengths, not device pixels.
+   The document remains scrollable; no transform or zoom is applied to the page. */
+:root {
+  --canvas-mode: tablet;
+  --canvas-reference-width: 48rem;
+  --canvas-reference-height: 64rem;
+  --canvas-min-width: 600px;
+  --canvas-max-width: 1024px;
+  --canvas-i: 0.48rem;
+  --canvas-b: 0.64rem;
+  --canvas-stage-height: max(100svh, var(--canvas-reference-height));
+  --canvas-width: clamp(
+    var(--canvas-min-width),
+    var(--canvas-reference-width),
+    var(--canvas-max-width)
+  );
+  --canvas-surround: #07080a;
+  font-size: clamp(100%, 2.083333vw, 133.333333%);
+}
+
+:root[data-theme='light'] {
+  --canvas-surround: #e5e3df;
+}
+
+@media (min-width: 1101px) {
+  :root {
+    --canvas-mode: desktop;
+    --canvas-reference-width: 100rem;
+    --canvas-reference-height: 56.25rem;
+    --canvas-min-width: 1280px;
+    --canvas-max-width: 1920px;
+    --canvas-i: 1rem;
+    --canvas-b: 0.5625rem;
+    font-size: clamp(80%, min(1vw, 1.777778svh), 120%);
+  }
+}
+
+@media (max-width: 599px), (max-width: 1000px) and (max-height: 500px) {
+  :root {
+    --canvas-mode: mobile;
+    --canvas-reference-width: 24.375rem;
+    --canvas-reference-height: 48.75rem;
+    --canvas-min-width: 320px;
+    --canvas-max-width: 480px;
+    --canvas-i: 0.24375rem;
+    --canvas-b: 0.4875rem;
+    font-size: clamp(100%, 4.102564vw, 123.076923%);
+  }
+}
+
+html {
+  background: var(--canvas-surround);
+}

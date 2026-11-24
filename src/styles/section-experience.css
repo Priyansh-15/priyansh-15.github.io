@@ -2,12 +2,12 @@
 .portfolio-home .landing-stage {
   display: flex;
   flex-direction: column;
-  min-height: calc(100svh - 84px);
+  min-height: calc(var(--canvas-stage-height) - 5.25rem);
 }
 .portfolio-home .landing-stage > .intro {
   flex: 1 0 auto;
-  padding-top: clamp(34px, 5vh, 60px);
-  padding-bottom: clamp(22px, 3.4vh, 38px);
+  padding-top: clamp(2.125rem, calc(5 * var(--canvas-b)), 3.75rem);
+  padding-bottom: clamp(1.375rem, calc(3.4 * var(--canvas-b)), 2.375rem);
 }
 .portfolio-home .landing-stage .marquee-rule {
   flex-shrink: 0;
@@ -19,11 +19,11 @@
 .portfolio-home .stage-cue a {
   display: inline-flex;
   align-items: center;
-  gap: 11px;
-  padding: 7px 0;
+  gap: 0.6875rem;
+  padding: 0.4375rem 0;
   color: var(--muted);
   font:
-    11px/1.5 'DM Mono',
+    0.6875rem/1.5 'DM Mono',
     monospace;
   letter-spacing: 0.045em;
   transition: color 0.2s ease;
@@ -36,13 +36,13 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 29px;
-  height: 29px;
+  width: 1.8125rem;
+  height: 1.8125rem;
   border: 1px solid var(--line);
   border-radius: 50%;
   color: var(--signature);
   font:
-    15px/1 'DM Mono',
+    0.9375rem/1 'DM Mono',
     monospace;
   transition: border-color 0.2s ease;
 }
@@ -51,154 +51,138 @@
 }
 .portfolio-home .stage-cue--hero {
   justify-content: center;
-  padding: 0 16px 11px;
+  padding: 0 0 0.6875rem;
 }
 .portfolio-home .stage-cue--previous {
   justify-content: flex-end;
-  margin-bottom: clamp(16px, 2.2vh, 25px);
+  margin-bottom: clamp(1rem, calc(2.2 * var(--canvas-b)), 1.5625rem);
 }
 .portfolio-home .stage-cue--next {
   justify-content: flex-end;
-  margin-top: 35px;
+  margin-top: 2.1875rem;
 }
 .portfolio-home .work-section,
 .portfolio-home .experience-section,
 .portfolio-home .thinking-section {
-  padding-top: clamp(26px, 4vh, 46px);
+  padding-top: clamp(1.625rem, calc(4 * var(--canvas-b)), 2.875rem);
 }
 .portfolio-home .about-section,
 .portfolio-home .closing-section {
-  padding-top: clamp(26px, 4vh, 46px);
+  padding-top: clamp(1.625rem, calc(4 * var(--canvas-b)), 2.875rem);
 }
 .portfolio-home .about-section > .shell > .stage-cue,
 .portfolio-home .closing-section > .shell > .stage-cue {
-  margin-bottom: clamp(20px, 3vh, 34px);
+  margin-bottom: clamp(1.25rem, calc(3 * var(--canvas-b)), 2.125rem);
 }
 .portfolio-home .about-section > .shell:last-child .stage-cue {
-  margin-top: clamp(24px, 4vh, 48px);
+  margin-top: clamp(1.5rem, calc(4 * var(--canvas-b)), 3rem);
   margin-bottom: 0;
 }
 
 /* First-view composition: section heading + the complete featured billing overview,
    where desktop height permits. The copy and case-study disclosure stay intact. */
-@media (min-width: 801px) {
+@media (min-width: 1101px) {
   .portfolio-home .work-section {
-    padding-top: clamp(20px, 3vh, 32px);
+    padding-top: clamp(1.25rem, calc(3 * var(--canvas-b)), 2rem);
   }
   .portfolio-home .work-section .stage-cue--previous {
-    margin-bottom: clamp(9px, 1.4vh, 16px);
+    margin-bottom: clamp(0.5625rem, calc(1.4 * var(--canvas-b)), 1rem);
   }
   .portfolio-home .work-section .section-intro-row {
-    margin-bottom: clamp(16px, 2.2vh, 25px);
-    column-gap: clamp(28px, 4vw, 54px);
+    margin-bottom: clamp(1rem, calc(2.2 * var(--canvas-b)), 1.5625rem);
+    column-gap: clamp(1.75rem, calc(4 * var(--canvas-i)), 3.375rem);
   }
   .portfolio-home .work-section .section-kicker {
-    margin-bottom: 12px;
+    margin-bottom: 0.75rem;
   }
   .portfolio-home .work-section .section-intro-row h2 {
-    font-size: clamp(37px, 3.85vw, 55px);
+    font-size: clamp(2.3125rem, calc(3.85 * var(--canvas-i)), 3.4375rem);
     line-height: 1.1;
   }
   .portfolio-home .work-section .section-intro-row > p {
-    font-size: 14px;
+    font-size: 0.875rem;
     line-height: 1.62;
   }
   .portfolio-home .story-featured {
-    gap: clamp(25px, 3vw, 43px);
-    padding-block: clamp(17px, 2.8vh, 30px);
+    gap: clamp(1.5625rem, calc(3 * var(--canvas-i)), 2.6875rem);
+    padding-block: clamp(1.0625rem, calc(2.8 * var(--canvas-b)), 1.875rem);
   }
   .portfolio-home .story-featured .story-topline {
-    margin-bottom: clamp(11px, 1.7vh, 17px);
+    margin-bottom: clamp(0.6875rem, calc(1.7 * var(--canvas-b)), 1.0625rem);
   }
   .portfolio-home .story-featured h3 {
-    font-size: clamp(27px, 2.55vw, 37px);
+    font-size: clamp(1.6875rem, calc(2.55 * var(--canvas-i)), 2.3125rem);
     line-height: 1.2;
-    margin-bottom: clamp(11px, 1.7vh, 18px);
+    margin-bottom: clamp(0.6875rem, calc(1.7 * var(--canvas-b)), 1.125rem);
   }
   .portfolio-home .story-featured .story-detail > p {
-    font-size: 14px;
+    font-size: 0.875rem;
     line-height: 1.67;
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
   }
   .portfolio-home .story-featured .story-tags {
-    margin-top: clamp(11px, 1.4vh, 17px);
-    gap: 7px;
+    margin-top: clamp(0.6875rem, calc(1.4 * var(--canvas-b)), 1.0625rem);
+    gap: 0.4375rem;
   }
   .portfolio-home .story-featured .story-tags span {
-    padding: 6px 9px;
-    font-size: 11px;
+    padding: 0.375rem 0.5625rem;
+    font-size: 0.6875rem;
   }
   .portfolio-home .story-featured .story-note {
-    margin-top: 14px;
-    font-size: 11px;
+    margin-top: 0.875rem;
+    font-size: 0.6875rem;
   }
   .portfolio-home .story-featured .story-visual {
-    min-height: clamp(260px, 34vh, 340px);
+    min-height: clamp(16.25rem, calc(34 * var(--canvas-b)), 21.25rem);
   }
   .portfolio-home .story-featured .visual-label,
   .portfolio-home .story-featured .visual-bottom {
-    padding: 13px 16px;
+    padding: 0.8125rem 1rem;
   }
   .portfolio-home .story-featured .pipeline-layout {
-    padding: 20px 11px;
+    padding: 1.25rem 0.6875rem;
   }
   .portfolio-home .story-featured .pipeline-stage {
-    padding: 13px 8px;
+    padding: 0.8125rem 0.5rem;
   }
 }
 
-/* The initial hero can fill a normal desktop screen, but never crop on small or
-   short viewports. Sections are deliberately not given max-height/overflow:hidden. */
-@media (min-width: 801px) and (min-height: 760px) {
+@media (max-width: 1100px) {
   .portfolio-home .landing-stage {
-    min-height: calc(100svh - 84px);
-  }
-}
-@media (min-width: 801px) and (max-height: 759px) {
-  .portfolio-home .landing-stage {
-    min-height: 0;
-  }
-  .portfolio-home .landing-stage > .intro {
-    padding-top: 27px;
-    padding-bottom: 20px;
-  }
-}
-@media (max-width: 800px) {
-  .portfolio-home .landing-stage {
-    min-height: calc(100svh - 70px);
+    min-height: calc(var(--canvas-stage-height) - 4.375rem);
   }
   .portfolio-home .landing-stage > .intro {
     flex: 0 0 auto;
   }
   .portfolio-home .stage-cue--previous {
     justify-content: flex-start;
-    margin-bottom: 22px;
+    margin-bottom: 1.375rem;
   }
   .portfolio-home .stage-cue--next {
     justify-content: flex-start;
   }
   .portfolio-home .stage-cue--hero {
-    padding-top: 5px;
-    padding-bottom: 17px;
+    padding-top: 0.3125rem;
+    padding-bottom: 1.0625rem;
   }
   .portfolio-home .work-section,
   .portfolio-home .experience-section,
   .portfolio-home .thinking-section {
-    padding-bottom: 76px;
+    padding-bottom: 4.75rem;
   }
 }
-@media (max-width: 540px) {
+@media (max-width: 599px), (max-width: 1000px) and (max-height: 500px) {
   .portfolio-home .landing-stage > .intro {
-    padding-top: 42px;
-    padding-bottom: 44px;
+    padding-top: 2.625rem;
+    padding-bottom: 2.75rem;
   }
   .portfolio-home .work-section,
   .portfolio-home .experience-section,
   .portfolio-home .thinking-section {
-    padding-top: 30px;
+    padding-top: 1.875rem;
   }
   .portfolio-home .stage-cue a {
-    font-size: 11px;
+    font-size: 0.6875rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -211,15 +195,15 @@
 /* Selected Work editorial hierarchy. Keep original diagrams and technical content. */
 .portfolio-home .story-narrative {
   display: grid;
-  gap: 13px;
+  gap: 0.8125rem;
 }
 .portfolio-home .story-insight {
   min-width: 0;
   margin: 0;
-  padding-left: 13px;
+  padding-left: 0.8125rem;
   border-left: 2px solid var(--line);
   color: var(--muted);
-  font-size: 15px;
+  font-size: 0.9375rem;
   line-height: 1.73;
 }
 .portfolio-home .story-insight--approach {
@@ -227,73 +211,73 @@
 }
 .portfolio-home .story-insight-label {
   display: inline;
-  margin-right: 8px;
+  margin-right: 0.5rem;
   color: var(--signature);
   font:
-    500 10px/1.5 'DM Mono',
+    500 0.625rem/1.5 'DM Mono',
     monospace;
   letter-spacing: 0.05em;
   white-space: nowrap;
 }
 .portfolio-home .story .story-tags {
-  margin-top: 18px;
+  margin-top: 1.125rem;
 }
 .portfolio-home .story .case-study-link {
-  margin-top: 19px;
+  margin-top: 1.1875rem;
 }
 .portfolio-home .story-note--initiative {
-  margin: 18px 0 0;
-  max-width: 540px;
-  font-size: 11px;
+  margin: 1.125rem 0 0;
+  max-width: 33.75rem;
+  font-size: 0.6875rem;
   line-height: 1.7;
   color: var(--faint);
 }
 .portfolio-home .work-disclaimer {
-  max-width: 850px;
+  max-width: 53.125rem;
   line-height: 1.85;
 }
-@media (min-width: 801px) {
+@media (min-width: 1101px) {
   .portfolio-home .story-featured .story-narrative {
-    gap: 11px;
+    gap: 0.6875rem;
   }
   .portfolio-home .story-featured .story-insight {
-    font-size: 14px;
+    font-size: 0.875rem;
     line-height: 1.65;
   }
   .portfolio-home .story-featured h3 {
-    margin-bottom: 13px;
+    margin-bottom: 0.8125rem;
   }
   .portfolio-home .story-featured .story-tags {
-    margin-top: 13px;
+    margin-top: 0.8125rem;
   }
   .portfolio-home .story-featured .case-study-link {
-    margin-top: 15px;
+    margin-top: 0.9375rem;
   }
 }
-@media (max-width: 800px) {
+@media (max-width: 1100px) {
   .portfolio-home .story-insight {
-    font-size: 14px;
+    font-size: 0.875rem;
     line-height: 1.75;
   }
 }
-@media (max-width: 540px) {
+@media (max-width: 599px), (max-width: 1000px) and (max-height: 500px) {
   .portfolio-home .story-insight {
-    padding-left: 11px;
-    font-size: 14px;
+    padding-left: 0.6875rem;
+    font-size: 0.875rem;
     line-height: 1.7;
   }
   .portfolio-home .story-insight-label {
-    font-size: 10px;
+    font-size: 0.625rem;
   }
 }
 
 /* Featured topics are separate reading frames, but never fixed-height slides.
    A taller project can grow naturally without clipping or forced scroll locks. */
-@media (min-width: 801px) {
+@media (min-width: 1101px) {
   .portfolio-home .work-opening {
     display: flex;
     flex-direction: column;
-    min-height: calc(100svh - var(--compact-header-height, 64px));
+    min-height: calc(var(--canvas-stage-height) - var(--compact-header-height, 4rem));
   }
   .portfolio-home .work-opening > .story-list {
     display: flex;
@@ -307,10 +291,10 @@
     border-top: 0;
   }
   .portfolio-home .story-list--continuation > .story {
-    min-height: calc(100svh - var(--compact-header-height, 64px));
+    min-height: calc(var(--canvas-stage-height) - var(--compact-header-height, 4rem));
   }
 }
-@media (max-width: 800px) {
+@media (max-width: 1100px) {
   .portfolio-home .work-opening,
   .portfolio-home .story-list--continuation > .story {
     min-height: 0;
@@ -324,13 +308,13 @@
    Flex grows the frame *below* the content instead of centering a short
    project in the middle of a tall screen. Text and diagrams retain their
    natural sizes and can extend beyond one viewport when needed. */
-@media (min-width: 801px) {
+@media (min-width: 1101px) {
   .portfolio-home .work-opening .story-featured {
-    align-items: start;
+    align-items: center;
   }
   .portfolio-home .work-opening .story-featured .story-visual {
-    align-self: start;
-    margin-top: clamp(18px, 2.6svh, 34px);
+    align-self: center;
+    margin-top: 0;
   }
   .portfolio-home .work-opening > .story-list {
     flex-grow: 1;
@@ -339,41 +323,33 @@
     flex-grow: 1;
   }
 }
-/* On short landscape / scaled laptop windows, allow the complete content to
-   scroll naturally without reducing type size to squeeze it into one frame. */
-@media (min-width: 801px) and (max-height: 740px) {
-  .portfolio-home .work-opening .story-featured .story-visual {
-    margin-top: clamp(12px, 2svh, 20px);
-  }
-}
-
 /* One discoverable route to the rest of the portfolio, without duplicating it. */
 .portfolio-home .explore-section {
   display: flex;
   flex-direction: column;
-  min-height: calc(100svh - var(--compact-header-height, 64px));
-  padding-top: clamp(26px, 4vh, 46px);
-  padding-bottom: clamp(44px, 6vh, 80px);
+  min-height: calc(var(--canvas-stage-height) - var(--compact-header-height, 4rem));
+  padding-top: clamp(1.625rem, calc(4 * var(--canvas-b)), 2.875rem);
+  padding-bottom: clamp(2.75rem, calc(6 * var(--canvas-b)), 5rem);
 }
 .portfolio-home .explore-heading {
-  margin-bottom: clamp(30px, 5vh, 52px);
+  margin-bottom: clamp(1.875rem, calc(5 * var(--canvas-b)), 3.25rem);
 }
 .portfolio-home .explore-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(14px, 2vw, 24px);
+  gap: clamp(0.875rem, calc(2 * var(--canvas-i)), 1.5rem);
   flex: 0 0 auto;
 }
 .portfolio-home .explore-section > .stage-cue--next {
   margin-top: auto;
-  padding-top: clamp(24px, 4svh, 44px);
+  padding-top: clamp(1.5rem, calc(4 * var(--canvas-b)), 2.75rem);
 }
 .portfolio-home .explore-card {
-  min-height: clamp(250px, 31svh, 340px);
+  min-height: clamp(15.625rem, calc(31 * var(--canvas-b)), 21.25rem);
   min-width: 0;
   border: 1px solid var(--line);
   background: var(--surface);
-  padding: clamp(23px, 3vw, 38px);
+  padding: clamp(1.4375rem, calc(3 * var(--canvas-i)), 2.375rem);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -387,48 +363,48 @@
 }
 .portfolio-home .explore-card:focus-visible {
   outline: 2px solid var(--signature);
-  outline-offset: 4px;
+  outline-offset: 0.25rem;
 }
 .portfolio-home .explore-card-kicker {
   color: var(--signature);
   font:
-    500 11px/1.6 'DM Mono',
+    500 0.6875rem/1.6 'DM Mono',
     monospace;
   letter-spacing: 0.065em;
-  margin-bottom: clamp(23px, 4vh, 38px);
+  margin-bottom: clamp(1.4375rem, calc(4 * var(--canvas-b)), 2.375rem);
 }
 .portfolio-home .explore-card h3 {
-  font-size: clamp(22px, 2.1vw, 30px);
+  font-size: clamp(1.375rem, calc(2.1 * var(--canvas-i)), 1.875rem);
   letter-spacing: -0.04em;
   line-height: 1.25;
-  margin: 0 0 14px;
+  margin: 0 0 0.875rem;
 }
 .portfolio-home .explore-card p {
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1.7;
   color: var(--muted);
-  margin-bottom: 28px;
+  margin-bottom: 1.75rem;
 }
 .portfolio-home .explore-card-action {
   margin-top: auto;
-  padding-top: 14px;
+  padding-top: 0.875rem;
   border-top: 1px solid var(--line);
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  font-size: 13px;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   color: var(--fg);
 }
 .portfolio-home .explore-card-action > span {
   color: var(--signature);
 }
-@media (max-width: 800px) {
+@media (max-width: 1100px) {
   .portfolio-home .explore-section {
     min-height: 0;
-    padding-bottom: 75px;
+    padding-bottom: 4.6875rem;
   }
   .portfolio-home .explore-grid {
     grid-template-columns: 1fr;
@@ -437,11 +413,11 @@
     min-height: 0;
   }
   .portfolio-home .explore-section > .stage-cue--next {
-    margin-top: 28px;
+    margin-top: 1.75rem;
     padding-top: 0;
   }
   .portfolio-home .explore-card-kicker {
-    margin-bottom: 16px;
+    margin-bottom: 1rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -453,50 +429,39 @@
   }
 }
 
-@media (min-width: 801px) and (max-width: 1000px) {
-  .portfolio-home .work-opening .story-featured,
-  .portfolio-home .story-list--continuation > .story {
-    grid-template-columns: minmax(0, 1fr);
-    gap: clamp(24px, 4svh, 38px);
-  }
-  .portfolio-home .work-opening .story-featured .story-visual {
-    margin-top: 0;
-  }
-  .portfolio-home .explore-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .portfolio-home .explore-card {
-    min-height: 0;
-  }
-}
-
 /* Short informational sections still need a complete viewing frame.
    Natural content height always wins when text, zoom or device size require it. */
 .portfolio-home .about-section,
 .portfolio-home .thinking-section,
 .portfolio-home .closing-section {
-  min-height: calc(100svh - var(--compact-header-height, 64px));
+  min-height: calc(var(--canvas-stage-height) - var(--compact-header-height, 4rem));
   display: flex;
   flex-direction: column;
 }
 .portfolio-home .about-section > .shell:last-child {
   margin-top: auto;
-  padding-top: clamp(25px, 4svh, 48px);
+  padding-top: clamp(1.5625rem, calc(4 * var(--canvas-b)), 3rem);
 }
 .portfolio-home .thinking-section > .stage-cue--next {
   margin-top: auto;
-  padding-top: clamp(25px, 4svh, 48px);
+  padding-top: clamp(1.5625rem, calc(4 * var(--canvas-b)), 3rem);
 }
 .portfolio-home .closing-section > .closing-layout {
   flex: 1 0 auto;
   align-items: center;
 }
-@media (max-width: 800px) {
+@media (max-width: 1100px) {
   .portfolio-home .closing-section > .closing-layout {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: stretch;
     gap: 0;
+  }
+}
+
+@media (min-width: 1101px) {
+  .portfolio-home .stage-cue--hero {
+    justify-content: flex-end;
   }
 }
