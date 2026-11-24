@@ -13,10 +13,11 @@ from playwright.sync_api import sync_playwright
 
 ROOT = "http://127.0.0.1:8765"
 VIEWPORTS = [
-    (1920, 1080), (1600, 900), (1536, 864), (1440, 900),
+    (2560, 1440), (1920, 1080), (1600, 900), (1536, 864), (1440, 900),
     (1366, 768), (1280, 720), (1024, 600), (1024, 768),
     (1100, 700), (900, 720), (820, 720), (801, 720),
-    (800, 720), (768, 1024), (430, 932), (390, 844), (360, 740), (320, 568),
+    (800, 720), (768, 1024), (932, 430), (844, 390),
+    (430, 932), (390, 844), (360, 740), (320, 568),
 ]
 ROUTES = [
     ("/", "home"),
@@ -210,6 +211,19 @@ def audit(page, name, width, height):
             snapshot(page,f"{name}-top-{width}x{height}")
     if info["overflow"]>2:
         violations.append(f"{name} {width}x{height}: horizontal overflow +{info['overflow']}px {info['overflowing']}")
+    if (width, height) in (
+        (1920,1080),(1024,600),(820,720),(390,844),(320,568)
+    ):
+        # The same geometry and overflow rules must survive theme changes.
+        page.evaluate("document.documentElement.dataset.theme = 'light'")
+        light_overflow = page.evaluate(
+            "document.documentElement.scrollWidth - document.documentElement.clientWidth"
+        )
+        if light_overflow > 2:
+            violations.append(
+                f"{name} {width}x{height}: light-theme horizontal overflow +{light_overflow}px"
+            )
+        page.evaluate("document.documentElement.dataset.theme = 'dark'")
     print("MEASURE "+json.dumps(result,sort_keys=True,separators=(",",":")),flush=True)
 
 
