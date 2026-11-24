@@ -1,0 +1,42 @@
+name: Responsive composition audit
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'src/styles/**'
+      - 'src/pages/**'
+      - 'src/layouts/**'
+      - 'src/components/**'
+      - 'scripts/audit_responsive.py'
+      - '.github/workflows/responsive-composition.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  viewport-matrix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.13.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - name: Install browser audit runtime
+        run: |
+          python3 -m pip install --quiet --break-system-packages playwright==1.58.0
+          google-chrome --version
+      - name: Audit all pages at desktop, laptop, tablet and mobile sizes
+        env:
+          AUDIT_STRICT: '0'
+          AUDIT_SNAPSHOTS: '1'
+        run: |
+          python3 -m http.server 8765 --directory dist >/tmp/portfolio-audit-server.log 2>&1 &
+          python3 scripts/audit_responsive.py
