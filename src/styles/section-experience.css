@@ -320,6 +320,33 @@
   }
 }
 
+/* Responsive composition: align the opening story to its introduction.
+   Flex grows the frame *below* the content instead of centering a short
+   project in the middle of a tall screen. Text and diagrams retain their
+   natural sizes and can extend beyond one viewport when needed. */
+@media (min-width: 801px) {
+  .portfolio-home .work-opening .story-featured {
+    align-items: start;
+  }
+  .portfolio-home .work-opening .story-featured .story-visual {
+    align-self: start;
+    margin-top: clamp(18px, 2.6svh, 34px);
+  }
+  .portfolio-home .work-opening > .story-list {
+    flex-grow: 1;
+  }
+  .portfolio-home .work-opening .story-featured {
+    flex-grow: 1;
+  }
+}
+/* On short landscape / scaled laptop windows, allow the complete content to
+   scroll naturally without reducing type size to squeeze it into one frame. */
+@media (min-width: 801px) and (max-height: 740px) {
+  .portfolio-home .work-opening .story-featured .story-visual {
+    margin-top: clamp(12px, 2svh, 20px);
+  }
+}
+
 /* One discoverable route to the rest of the portfolio, without duplicating it. */
 .portfolio-home .explore-section {
   display: flex;
@@ -335,9 +362,14 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(14px, 2vw, 24px);
-  flex: 1 0 auto;
+  flex: 0 0 auto;
+}
+.portfolio-home .explore-section > .stage-cue--next {
+  margin-top: auto;
+  padding-top: clamp(24px, 4svh, 44px);
 }
 .portfolio-home .explore-card {
+  min-height: clamp(250px, 31svh, 340px);
   min-width: 0;
   border: 1px solid var(--line);
   background: var(--surface);
@@ -404,6 +436,10 @@
   .portfolio-home .explore-card {
     min-height: 0;
   }
+  .portfolio-home .explore-section > .stage-cue--next {
+    margin-top: 28px;
+    padding-top: 0;
+  }
   .portfolio-home .explore-card-kicker {
     margin-bottom: 16px;
   }
@@ -414,5 +450,53 @@
   }
   .portfolio-home .explore-card:hover {
     transform: none;
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1000px) {
+  .portfolio-home .work-opening .story-featured,
+  .portfolio-home .story-list--continuation > .story {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(24px, 4svh, 38px);
+  }
+  .portfolio-home .work-opening .story-featured .story-visual {
+    margin-top: 0;
+  }
+  .portfolio-home .explore-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .portfolio-home .explore-card {
+    min-height: 0;
+  }
+}
+
+/* Short informational sections still need a complete viewing frame.
+   Natural content height always wins when text, zoom or device size require it. */
+.portfolio-home .about-section,
+.portfolio-home .thinking-section,
+.portfolio-home .closing-section {
+  min-height: calc(100svh - var(--compact-header-height, 64px));
+  display: flex;
+  flex-direction: column;
+}
+.portfolio-home .about-section > .shell:last-child {
+  margin-top: auto;
+  padding-top: clamp(25px, 4svh, 48px);
+}
+.portfolio-home .thinking-section > .stage-cue--next {
+  margin-top: auto;
+  padding-top: clamp(25px, 4svh, 48px);
+}
+.portfolio-home .closing-section > .closing-layout {
+  flex: 1 0 auto;
+  align-items: center;
+}
+@media (max-width: 800px) {
+  .portfolio-home .closing-section > .closing-layout {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 0;
   }
 }
