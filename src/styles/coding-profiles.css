@@ -360,7 +360,6 @@
   }
 }
 
-
 /* Preserve the same editorial hierarchy on shorter laptop viewports. */
 @media (min-width: 801px) and (max-height: 760px) {
   .coding-hero {
