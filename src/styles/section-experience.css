@@ -362,9 +362,14 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(14px, 2vw, 24px);
-  flex: 1 0 auto;
+  flex: 0 0 auto;
+}
+.portfolio-home .explore-section > .stage-cue--next {
+  margin-top: auto;
+  padding-top: clamp(24px, 4svh, 44px);
 }
 .portfolio-home .explore-card {
+  min-height: clamp(250px, 31svh, 340px);
   min-width: 0;
   border: 1px solid var(--line);
   background: var(--surface);
@@ -430,6 +435,10 @@
   }
   .portfolio-home .explore-card {
     min-height: 0;
+  }
+  .portfolio-home .explore-section > .stage-cue--next {
+    margin-top: 28px;
+    padding-top: 0;
   }
   .portfolio-home .explore-card-kicker {
     margin-bottom: 16px;
