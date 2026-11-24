@@ -531,7 +531,6 @@
   }
 }
 
-
 /* Balance the opening chapter for shorter browser windows. */
 @media (min-width: 801px) and (max-height: 760px) {
   .ach-hero {
