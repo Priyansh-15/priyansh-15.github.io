@@ -2410,3 +2410,39 @@ html {
     transition: none;
   }
 }
+
+
+/* Responsive reading rhythm: compact short laptop windows without reducing
+   content or forcing the visitor to pan a desktop-sized canvas. */
+@media (min-width: 901px) {
+  .case-sidebar {
+    top: calc(var(--compact-header-height, 64px) + 22px);
+  }
+}
+@media (min-width: 801px) and (max-height: 760px) {
+  .case-hero {
+    padding-top: clamp(24px, 4svh, 42px);
+    padding-bottom: clamp(32px, 5.5svh, 56px);
+  }
+  .case-meta {
+    margin-top: clamp(26px, 5svh, 45px);
+    margin-bottom: clamp(17px, 2.5svh, 23px);
+  }
+  .case-hero h1 {
+    font-size: clamp(44px, 5.4vw, 75px);
+    line-height: 1.09;
+    margin-bottom: clamp(16px, 3svh, 26px);
+  }
+  .case-standfirst {
+    font-size: clamp(17px, 1.65vw, 21px);
+    line-height: 1.62;
+    margin-bottom: 0;
+  }
+  .case-byline {
+    margin-top: clamp(25px, 4.5svh, 42px);
+    padding-block: 14px;
+  }
+  .case-layout {
+    padding-bottom: clamp(70px, 9svh, 100px);
+  }
+}
