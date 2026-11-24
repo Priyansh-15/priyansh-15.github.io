@@ -320,6 +320,33 @@
   }
 }
 
+/* Responsive composition: align the opening story to its introduction.
+   Flex grows the frame *below* the content instead of centering a short
+   project in the middle of a tall screen. Text and diagrams retain their
+   natural sizes and can extend beyond one viewport when needed. */
+@media (min-width: 801px) {
+  .portfolio-home .work-opening .story-featured {
+    align-items: start;
+  }
+  .portfolio-home .work-opening .story-featured .story-visual {
+    align-self: start;
+    margin-top: clamp(18px, 2.6svh, 34px);
+  }
+  .portfolio-home .work-opening > .story-list {
+    flex-grow: 1;
+  }
+  .portfolio-home .work-opening .story-featured {
+    flex-grow: 1;
+  }
+}
+/* On short landscape / scaled laptop windows, allow the complete content to
+   scroll naturally without reducing type size to squeeze it into one frame. */
+@media (min-width: 801px) and (max-height: 740px) {
+  .portfolio-home .work-opening .story-featured .story-visual {
+    margin-top: clamp(12px, 2svh, 20px);
+  }
+}
+
 /* One discoverable route to the rest of the portfolio, without duplicating it. */
 .portfolio-home .explore-section {
   display: flex;
