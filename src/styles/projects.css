@@ -659,7 +659,6 @@
   }
 }
 
-
 /* Short laptop viewports need a complete first impression, not oversized
    hero gaps inherited from a wide-monitor layout. */
 @media (min-width: 801px) and (max-height: 760px) {
