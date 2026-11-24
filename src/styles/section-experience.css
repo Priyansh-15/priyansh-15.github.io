@@ -469,3 +469,35 @@
     min-height: 0;
   }
 }
+
+
+/* Short informational sections still need a complete viewing frame.
+   Natural content height always wins when text, zoom or device size require it. */
+.portfolio-home .about-section,
+.portfolio-home .thinking-section,
+.portfolio-home .closing-section {
+  min-height: calc(100svh - var(--compact-header-height, 64px));
+  display: flex;
+  flex-direction: column;
+}
+.portfolio-home .about-section > .shell:last-child {
+  margin-top: auto;
+  padding-top: clamp(25px, 4svh, 48px);
+}
+.portfolio-home .thinking-section > .stage-cue--next {
+  margin-top: auto;
+  padding-top: clamp(25px, 4svh, 48px);
+}
+.portfolio-home .closing-section > .closing-layout {
+  flex: 1 0 auto;
+  align-items: center;
+}
+@media (max-width: 800px) {
+  .portfolio-home .closing-section > .closing-layout {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 0;
+  }
+}
