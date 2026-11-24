@@ -2445,3 +2445,53 @@ html {
     padding-bottom: clamp(70px, 9svh, 100px);
   }
 }
+
+
+/* Intermediate-width laptops have less real room than desktop navigation
+   suggests. Reflow the content before the two-column cards become cramped.
+   Keep the existing navigation breakpoint and all content fully readable. */
+@media (min-width: 801px) and (max-width: 1000px) {
+  .intro,
+  .section-intro-row,
+  .about-grid,
+  .story,
+  .experience-entry {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .intro {
+    gap: clamp(28px, 4svh, 42px);
+    padding-top: clamp(40px, 6svh, 62px);
+    padding-bottom: clamp(50px, 7svh, 74px);
+  }
+  .intro h1 {
+    font-size: clamp(48px, 6vw, 65px);
+    max-width: 760px;
+  }
+  .intro-aside {
+    justify-self: start;
+    max-width: 720px;
+    transform: none;
+  }
+  .section-intro-row,
+  .about-grid {
+    gap: 22px;
+  }
+  .section-intro-row > p {
+    max-width: 720px;
+  }
+  .story {
+    gap: 29px;
+  }
+  .story-visual {
+    max-width: 800px;
+  }
+  .experience-entry {
+    row-gap: 20px;
+  }
+  .closing-layout {
+    display: block;
+  }
+  .closing-actions {
+    margin-top: 28px;
+  }
+}
