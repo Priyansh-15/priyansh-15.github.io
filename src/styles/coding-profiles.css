@@ -273,7 +273,7 @@
     gap: 22px;
   }
 }
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
   .coding-hero-grid,
   .coding-directory-heading,
   .coding-next-grid {
