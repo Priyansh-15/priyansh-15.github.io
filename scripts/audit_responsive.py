@@ -32,6 +32,11 @@ ROUTES = [
 SNAPSHOTS = {
     ("home", 1920, 1080, "work"),
     ("home", 1920, 1080, "explore"),
+    ("home", 1920, 1080, "fleet"),
+    ("home", 1920, 1080, "about"),
+    ("home", 1920, 1080, "thinking"),
+    ("home", 1920, 1080, "contact"),
+    ("home", 390, 844, "contact"),
     ("home", 1366, 768, "work"),
     ("home", 390, 844, "top"),
     ("home", 820, 720, "top"),
@@ -178,7 +183,30 @@ def audit(page, name, width, height):
                     "top": stage["y"] if stage else None,
                     "height": stage["h"] if stage else None,
                 }
+                stage_name = {
+                    "#fleet-interactions": "fleet",
+                    "#ai-code-intelligence": "ai",
+                    "#experience": "experience",
+                    "#explore": "explore",
+                    "#about": "about",
+                    "#thinking": "thinking",
+                    "#contact": "contact",
+                }[selector]
+                if SNAPSHOT_ENABLED and (name,width,height,stage_name) in SNAPSHOTS:
+                    page.wait_for_timeout(70)
+                    snapshot(page, f"home-{stage_name}-{width}x{height}")
             result["stages"] = stages
+            if width >= 1100 and height >= 768:
+                usable = height - 64
+                for marker in ("#about", "#thinking", "#contact"):
+                    if stages[marker]["height"] < usable - 14:
+                        violations.append(
+                            f"{name} {width}x{height}: {marker} shorter than viewing frame"
+                        )
+                if abs(stages["#contact"]["top"] - 64) > 30:
+                    violations.append(
+                        f"{name} {width}x{height}: Contact cannot align below sticky header"
+                    )
         if SNAPSHOT_ENABLED and (name,width,height,"explore") in SNAPSHOTS:
             page.locator("#explore").evaluate(
                 "(el) => el.scrollIntoView({block: 'start', behavior: 'instant'})"
