@@ -9,6 +9,7 @@ on:
       - 'src/layouts/**'
       - 'src/components/**'
       - 'scripts/audit_responsive.py'
+      - 'scripts/capture_visual_review.py'
       - '.github/workflows/responsive-composition.yml'
 
 permissions:
@@ -41,3 +42,14 @@ jobs:
         run: |
           python3 -m http.server 8765 --directory dist >/tmp/portfolio-audit-server.log 2>&1 &
           python3 scripts/audit_responsive.py
+      - name: Capture visual review screenshots
+        if: success()
+        run: python3 scripts/capture_visual_review.py
+      - name: Upload visual review screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: portfolio-visual-review
+          path: visual-review/
+          if-no-files-found: warn
+          retention-days: 14

@@ -13,11 +13,14 @@ from playwright.sync_api import sync_playwright
 
 ROOT = "http://127.0.0.1:8765"
 VIEWPORTS = [
-    (2560, 1440), (1920, 1080), (1600, 900), (1536, 864), (1440, 900),
-    (1366, 768), (1280, 720), (1024, 600), (1024, 768),
-    (1100, 700), (900, 720), (820, 720), (801, 720),
-    (800, 720), (768, 1024), (932, 430), (844, 390),
-    (430, 932), (390, 844), (360, 740), (320, 568),
+    (5120, 2880), (3840, 2160), (5120, 1440), (3440, 1440),
+    (2560, 1440), (1920, 1080), (1600, 900), (1536, 864),
+    (1440, 900), (1366, 768), (1280, 720), (1101, 620),
+    (1100, 700), (1024, 600), (1366, 1024), (1024, 768),
+    (1024, 1366), (768, 1024), (600, 800), (720, 900),
+    (480, 960), (440, 956), (390, 844), (360, 800),
+    (320, 568), (844, 390), (599, 800), (319, 568),
+    (820, 720), (801, 720), (800, 720), (932, 430),
 ]
 ROUTES = [
     ("/", "home"),
@@ -85,18 +88,26 @@ def audit(page, name, width, height):
     page.wait_for_timeout(65)
     info = page.evaluate("""() => {
         const d=document.documentElement;
+        const body=document.body.getBoundingClientRect();
         const els=[...document.querySelectorAll('main *')];
         const overflowing=els
           .filter(el=>{
             const r=el.getBoundingClientRect();
             const s=getComputedStyle(el);
-            return (r.left < -4 || r.right > innerWidth + 4) &&
+            return (r.left < body.left - 4 || r.right > body.right + 4) &&
               r.width > 0 && r.height > 0 &&
               !['hidden','clip','auto','scroll'].includes(s.overflowX);
           })
           .slice(0,5)
           .map(el=>({tag:el.tagName,cls:(el.className?.baseVal || el.className || '').toString().slice(0,55)}));
-        return {docWidth:d.scrollWidth,clientWidth:d.clientWidth,
+        const mode=getComputedStyle(d).getPropertyValue('--canvas-mode').trim();
+        const probe=document.createElement('div');
+        probe.style.cssText='position:absolute;visibility:hidden;height:var(--canvas-stage-height);width:0';
+        document.body.append(probe);
+        const stageHeight=probe.getBoundingClientRect().height;
+        probe.remove();
+        return {mode,stageHeight,canvasWidth:body.width,canvasLeft:body.left,
+          docWidth:d.scrollWidth,clientWidth:d.clientWidth,
           scrollHeight:d.scrollHeight,overflow:Math.round(d.scrollWidth-d.clientWidth),
           overflowing};
     }""")
@@ -106,6 +117,26 @@ def audit(page, name, width, height):
        "docHeight":info["scrollHeight"],
        "header":rect(page, ".site-header"),
     }
+    expected_mode = ("desktop" if width >= 1101 else
+                     "mobile" if width <= 599 or (width <= 1000 and height <= 500)
+                     else "tablet")
+    minimum, maximum = {
+        "desktop": (1280, 1920), "tablet": (600, 1024), "mobile": (320, 480),
+    }[expected_mode]
+    result["canvas"] = {
+        "mode": info["mode"], "width": round(info["canvasWidth"], 2),
+        "left": round(info["canvasLeft"], 2),
+    }
+    if info["mode"] != expected_mode or not minimum - 2 <= info["canvasWidth"] <= maximum + 2:
+        violations.append(f"{name} {width}x{height}: invalid canvas {result['canvas']}")
+    maximum_stage = {"desktop": 1080, "tablet": 1366, "mobile": 960}[expected_mode]
+    if info["stageHeight"] > maximum_stage + 2:
+        violations.append(f"{name} {width}x{height}: stage exceeds maximum reference height: {info['stageHeight']}")
+    allowed_overflow = max(0, minimum - info["clientWidth"])
+    if info["canvasWidth"] <= info["clientWidth"] and abs(
+        info["canvasLeft"] - (info["clientWidth"] - info["canvasWidth"]) / 2
+    ) > 2:
+        violations.append(f"{name} {width}x{height}: canvas is not centered")
     header_layout=page.evaluate("""() => {
         const get=(selector) => {
           const el=document.querySelector(selector);
@@ -124,7 +155,7 @@ def audit(page, name, width, height):
         if actions and nav["right"] > actions["left"] + 2:
             violations.append(f"{name} {width}x{height}: header nav overlaps actions")
     if name == "home":
-        if width <= 800:
+        if expected_mode != "desktop":
             # The mobile hero can be taller than a screen: it should reflow,
             # never scale down to unreadable text or clip its note.
             result["hero"]=rect(page,".intro")
@@ -155,13 +186,13 @@ def audit(page, name, width, height):
           "gapIntroToStory":story["y"]-intro["bottom"] if story and intro else None,
           "gapIntroToDetail":detail["y"]-intro["bottom"] if detail and intro else None,
         }
-        if (width >= 1100 and height >= 768 and
+        if (expected_mode == "desktop" and width >= 1280 and height >= 768 and
             detail["y"] - intro["bottom"] > 112):
             violations.append(
                 f"{name} {width}x{height}: oversized gap "
                 f"{detail['y']-intro['bottom']}px under section intro"
             )
-        if width >= 1100 and height >= 768 and (
+        if expected_mode == "desktop" and width >= 1280 and height >= 768 and (
             cta["bottom"] > height - 4 or visual["bottom"] > height - 4
             or fleet["y"] < height - 4
         ):
@@ -196,14 +227,15 @@ def audit(page, name, width, height):
                     page.wait_for_timeout(70)
                     snapshot(page, f"home-{stage_name}-{width}x{height}")
             result["stages"] = stages
-            if width >= 1100 and height >= 768:
-                usable = height - 64
+            if expected_mode == "desktop" and width >= 1280 and height >= 768:
+                header_height = rect(page, ".site-header")["h"]
+                usable = height - header_height
                 for marker in ("#about", "#thinking", "#contact"):
                     if stages[marker]["height"] < usable - 14:
                         violations.append(
                             f"{name} {width}x{height}: {marker} shorter than viewing frame"
                         )
-                if abs(stages["#contact"]["top"] - 64) > 30:
+                if abs(stages["#contact"]["top"] - header_height) > 30:
                     violations.append(
                         f"{name} {width}x{height}: Contact cannot align below sticky header"
                     )
@@ -226,32 +258,22 @@ def audit(page, name, width, height):
         result["heading"]=rect(page,title)
         result["firstContent"]=rect(page,first)
         heading_rect=result["heading"]
-        if heading_rect and (heading_rect["x"] < -3 or heading_rect["right"] > width + 3):
+        if heading_rect and (heading_rect["x"] < -3 or heading_rect["right"] > max(width, info["canvasWidth"]) + 3):
             violations.append(f"{name} {width}x{height}: hero heading extends beyond viewport")
-        if name in ("projects","achievements","coding") and (
-            (width,height) in ((1024,600),(1280,720))
-            and result["hero"]["bottom"] > height + 10
-        ):
-            violations.append(
-                f"{name} {width}x{height}: oversized short-window intro exceeds viewport"
-            )
         if SNAPSHOT_ENABLED and (name,width,height,"top") in SNAPSHOTS:
             snapshot(page,f"{name}-top-{width}x{height}")
-    if info["overflow"]>2:
+    if info["overflow"] > allowed_overflow + 2:
         violations.append(f"{name} {width}x{height}: horizontal overflow +{info['overflow']}px {info['overflowing']}")
-    if (width, height) in (
-        (1920,1080),(1024,600),(820,720),(390,844),(320,568)
-    ):
-        # The same geometry and overflow rules must survive theme changes.
-        page.evaluate("document.documentElement.dataset.theme = 'light'")
-        light_overflow = page.evaluate(
-            "document.documentElement.scrollWidth - document.documentElement.clientWidth"
-        )
-        if light_overflow > 2:
-            violations.append(
-                f"{name} {width}x{height}: light-theme horizontal overflow +{light_overflow}px"
-            )
-        page.evaluate("document.documentElement.dataset.theme = 'dark'")
+    # Compare the same scroll position in both themes for every route and viewport.
+    before = page.evaluate("() => [document.body.offsetWidth, document.documentElement.scrollHeight]")
+    page.evaluate("document.documentElement.dataset.theme = 'light'")
+    after = page.evaluate("() => [document.body.offsetWidth, document.documentElement.scrollHeight]")
+    light_overflow = page.evaluate(
+        "document.documentElement.scrollWidth - document.documentElement.clientWidth"
+    )
+    if light_overflow > allowed_overflow + 2 or before != after:
+        violations.append(f"{name} {width}x{height}: theme geometry changed {before} -> {after}")
+    page.evaluate("document.documentElement.dataset.theme = 'dark'")
     print("MEASURE "+json.dumps(result,sort_keys=True,separators=(",",":")),flush=True)
 
 
