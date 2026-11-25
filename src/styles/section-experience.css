@@ -2,7 +2,7 @@
 .portfolio-home .landing-stage {
   display: flex;
   flex-direction: column;
-  min-height: calc(var(--canvas-stage-height) - 5.25rem);
+  min-height: calc(var(--canvas-frame-height) - 5.25rem);
 }
 .portfolio-home .landing-stage > .intro {
   flex: 1 0 auto;
@@ -149,7 +149,7 @@
 
 @media (max-width: 1100px) {
   .portfolio-home .landing-stage {
-    min-height: calc(var(--canvas-stage-height) - 4.375rem);
+    min-height: calc(var(--canvas-frame-height) - 4.375rem);
   }
   .portfolio-home .landing-stage > .intro {
     flex: 0 0 auto;
@@ -277,7 +277,7 @@
   .portfolio-home .work-opening {
     display: flex;
     flex-direction: column;
-    min-height: calc(var(--canvas-stage-height) - var(--compact-header-height, 4rem));
+    min-height: calc(var(--canvas-frame-height) - var(--compact-header-height, 4rem));
   }
   .portfolio-home .work-opening > .story-list {
     display: flex;
@@ -291,7 +291,7 @@
     border-top: 0;
   }
   .portfolio-home .story-list--continuation > .story {
-    min-height: calc(var(--canvas-stage-height) - var(--compact-header-height, 4rem));
+    min-height: calc(var(--canvas-frame-height) - var(--compact-header-height, 4rem));
   }
 }
 @media (max-width: 1100px) {
@@ -326,7 +326,7 @@
 .portfolio-home .explore-section {
   display: flex;
   flex-direction: column;
-  min-height: calc(var(--canvas-stage-height) - var(--compact-header-height, 4rem));
+  min-height: calc(var(--canvas-frame-height) - var(--compact-header-height, 4rem));
   padding-top: clamp(1.625rem, calc(4 * var(--canvas-b)), 2.875rem);
   padding-bottom: clamp(2.75rem, calc(6 * var(--canvas-b)), 5rem);
 }
@@ -433,7 +433,7 @@
 .portfolio-home .about-section,
 .portfolio-home .thinking-section,
 .portfolio-home .closing-section {
-  min-height: calc(var(--canvas-stage-height) - var(--compact-header-height, 4rem));
+  min-height: calc(var(--canvas-frame-height) - var(--compact-header-height, 4rem));
   display: flex;
   flex-direction: column;
 }
@@ -462,5 +462,25 @@
 @media (min-width: 1101px) {
   .portfolio-home .stage-cue--hero {
     justify-content: flex-end;
+  }
+}
+
+/* Keep the content composition bounded; use spare viewport height only after it.
+   Native scrolling and the existing full-screen section boundaries are preserved. */
+@media (min-width: 1101px) {
+  .portfolio-home .landing-stage > .intro {
+    flex: 0 0 auto;
+    min-height: calc(var(--canvas-stage-height) - 14rem);
+  }
+  .portfolio-home .landing-stage > .stage-cue--hero {
+    margin-top: auto;
+  }
+  .portfolio-home .closing-section > .closing-layout {
+    flex: 0 0 auto;
+    min-height: calc(var(--canvas-stage-height) - 16rem);
+  }
+  .portfolio-home .story-list--continuation > .story {
+    align-content: start;
+    padding-top: clamp(3.875rem, calc(7 * var(--canvas-b)), 4.5rem);
   }
 }

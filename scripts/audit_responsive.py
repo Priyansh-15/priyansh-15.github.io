@@ -194,7 +194,7 @@ def audit(page, name, width, height):
             )
         if expected_mode == "desktop" and width >= 1280 and height >= 768 and (
             cta["bottom"] > height - 4 or visual["bottom"] > height - 4
-            or fleet["y"] < min(height, info["stageHeight"]) - 4
+            or fleet["y"] < height - 4
         ):
             violations.append(
                 f"{name} {width}x{height}: featured project not fully framed"
@@ -229,7 +229,7 @@ def audit(page, name, width, height):
             result["stages"] = stages
             if expected_mode == "desktop" and width >= 1280 and height >= 768:
                 header_height = rect(page, ".site-header")["h"]
-                usable = min(height, info["stageHeight"]) - header_height
+                usable = height - header_height
                 for marker in ("#about", "#thinking", "#contact"):
                     if stages[marker]["height"] < usable - 14:
                         violations.append(

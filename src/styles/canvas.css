@@ -9,6 +9,7 @@
   --canvas-i: 0.48rem;
   --canvas-b: 0.64rem;
   --canvas-stage-height: var(--canvas-reference-height);
+  --canvas-frame-height: max(100svh, var(--canvas-stage-height));
   --canvas-width: clamp(
     var(--canvas-min-width),
     var(--canvas-reference-width),
