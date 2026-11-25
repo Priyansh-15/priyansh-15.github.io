@@ -101,7 +101,12 @@ def audit(page, name, width, height):
           .slice(0,5)
           .map(el=>({tag:el.tagName,cls:(el.className?.baseVal || el.className || '').toString().slice(0,55)}));
         const mode=getComputedStyle(d).getPropertyValue('--canvas-mode').trim();
-        return {mode,canvasWidth:body.width,canvasLeft:body.left,
+        const probe=document.createElement('div');
+        probe.style.cssText='position:absolute;visibility:hidden;height:var(--canvas-stage-height);width:0';
+        document.body.append(probe);
+        const stageHeight=probe.getBoundingClientRect().height;
+        probe.remove();
+        return {mode,stageHeight,canvasWidth:body.width,canvasLeft:body.left,
           docWidth:d.scrollWidth,clientWidth:d.clientWidth,
           scrollHeight:d.scrollHeight,overflow:Math.round(d.scrollWidth-d.clientWidth),
           overflowing};
@@ -124,6 +129,9 @@ def audit(page, name, width, height):
     }
     if info["mode"] != expected_mode or not minimum - 2 <= info["canvasWidth"] <= maximum + 2:
         violations.append(f"{name} {width}x{height}: invalid canvas {result['canvas']}")
+    maximum_stage = {"desktop": 1080, "tablet": 1366, "mobile": 960}[expected_mode]
+    if info["stageHeight"] > maximum_stage + 2:
+        violations.append(f"{name} {width}x{height}: stage exceeds maximum reference height: {info['stageHeight']}")
     allowed_overflow = max(0, minimum - info["clientWidth"])
     if info["canvasWidth"] <= info["clientWidth"] and abs(
         info["canvasLeft"] - (info["clientWidth"] - info["canvasWidth"]) / 2
@@ -186,7 +194,7 @@ def audit(page, name, width, height):
             )
         if expected_mode == "desktop" and width >= 1280 and height >= 768 and (
             cta["bottom"] > height - 4 or visual["bottom"] > height - 4
-            or fleet["y"] < height - 4
+            or fleet["y"] < min(height, info["stageHeight"]) - 4
         ):
             violations.append(
                 f"{name} {width}x{height}: featured project not fully framed"
@@ -221,7 +229,7 @@ def audit(page, name, width, height):
             result["stages"] = stages
             if expected_mode == "desktop" and width >= 1280 and height >= 768:
                 header_height = rect(page, ".site-header")["h"]
-                usable = height - header_height
+                usable = min(height, info["stageHeight"]) - header_height
                 for marker in ("#about", "#thinking", "#contact"):
                     if stages[marker]["height"] < usable - 14:
                         violations.append(

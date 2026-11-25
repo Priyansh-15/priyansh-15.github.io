@@ -13,7 +13,7 @@ Desktop: viewport width >= 1101 CSS px. Tablet: 600–1100 CSS px except narrow 
 - The shared canvas contract owns the reference geometry and scaling. All five stylesheets use rem design lengths and canvas-relative spacing instead of independently reacting to viewport units.
 - Desktop sizing follows the limiting viewport axis; tablet and mobile retain a readable minimum text scale. Content may grow in the vertical direction and technical diagrams retain narrow-container fallbacks.
 - The maximum width is centered against the theme-aware surround. Below the composition's minimum width, document scrolling is intentional. Browser zoom and user font settings remain enabled.
-- Homepage stages reserve at least a viewport of reading space where applicable; a tall display can add whitespace without stretching the internal composition. Long-form pages remain naturally scrollable.
+- Homepage stages use the scaled reference height, rather than stretching to the full physical viewport. Natural content may exceed that reference height to remain readable. On oversized displays, adjacent sections may be visible instead of stretching the current section. Long-form pages remain naturally scrollable.
 - The same navigation breakpoint is used by CSS and the menu controller.
 - Borders of one or two pixels are deliberately retained.
 
