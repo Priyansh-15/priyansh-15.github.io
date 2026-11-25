@@ -25,8 +25,8 @@ def verify(page, width: int, height: int) -> None:
     page.wait_for_timeout(250)
 
     assert page.locator("[data-scroll-stage]").count() == 9
-    assert page.locator(".stage-cue--previous").count() == 6
-    assert page.locator(".stage-cue--next").count() == 6
+    assert page.locator(".stage-cue--previous").count() == 8
+    assert page.locator(".stage-cue--next").count() == 8
 
     assert page.locator("#explore").count() == 1
     assert page.locator(".explore-card").count() == 3

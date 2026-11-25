@@ -199,6 +199,16 @@ def audit(page, name, width, height):
             violations.append(
                 f"{name} {width}x{height}: featured project not fully framed"
             )
+        if expected_mode == "desktop":
+            ai = page.locator("#ai-code-intelligence")
+            tail = page.locator("#ai-code-intelligence .work-frame-tail")
+            if tail.count() != 1:
+                violations.append(f"{name} {width}x{height}: disclosure detached from AI frame")
+            for selector in ("#fleet-interactions", "#ai-code-intelligence"):
+                if page.locator(selector + " > .stage-cue--previous").count() != 1 or page.locator(
+                    selector + " > .stage-cue--next"
+                ).count() != 1:
+                    violations.append(f"{name} {width}x{height}: missing project navigation {selector}")
         if SNAPSHOT_ENABLED and (name,width,height,"work") in SNAPSHOTS:
             snapshot(page,f"home-work-{width}x{height}")
         if width in (1920, 1366, 1024, 390):
