@@ -510,9 +510,11 @@
     padding-block: var(--stage-inset);
     gap: var(--stage-gap);
   }
+  .portfolio-home .work-opening > .section-intro-row {
+    margin-top: auto;
+  }
   .portfolio-home .work-opening > .story-list {
-    flex: 1 0 auto;
-    justify-content: center;
+    flex: 0 0 auto;
   }
   .portfolio-home .work-opening .story-featured {
     flex: 0 0 auto;
@@ -576,6 +578,9 @@
   .portfolio-home .about-section > .shell:last-child {
     margin: 0 auto;
     padding: 0;
+  }
+  .portfolio-home .work-opening > .stage-cue--next {
+    margin-top: auto;
   }
   .portfolio-home .stage-cue--hero {
     padding-bottom: 0.6875rem;
