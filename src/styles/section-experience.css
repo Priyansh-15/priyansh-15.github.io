@@ -465,22 +465,138 @@
   }
 }
 
-/* Keep the content composition bounded; use spare viewport height only after it.
-   Native scrolling and the existing full-screen section boundaries are preserved. */
+/* Shared stage anatomy: natural content, balanced central region, navigation at seams.
+   A dense stage grows rather than hiding copy or shrinking its typography. */
+.portfolio-home {
+  --stage-inset: 2rem;
+  --stage-gap: 1.5rem;
+  --stage-usable: calc(var(--canvas-frame-height) - var(--compact-header-height));
+}
+.portfolio-home .work-frame-tail {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+.portfolio-home .work-frame-tail .work-disclaimer {
+  margin: 0;
+  max-width: 100%;
+}
+.portfolio-home .work-frame-tail .work-directory-bridge {
+  margin-top: 0.875rem;
+  padding-block: 0.875rem;
+}
+.portfolio-home .story-list--continuation > .story > .stage-cue {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.portfolio-home .work-section {
+  padding-bottom: 0;
+}
 @media (min-width: 1101px) {
   .portfolio-home .landing-stage > .intro {
-    flex: 0 0 auto;
-    min-height: calc(var(--canvas-stage-height) - 14rem);
+    flex: 1 0 auto;
   }
-  .portfolio-home .landing-stage > .stage-cue--hero {
+  .portfolio-home .work-section {
+    padding-top: 0;
+  }
+  .portfolio-home .work-opening,
+  .portfolio-home .experience-section,
+  .portfolio-home .explore-section,
+  .portfolio-home .thinking-section,
+  .portfolio-home .about-section,
+  .portfolio-home .closing-section {
+    display: flex;
+    flex-direction: column;
+    min-height: var(--stage-usable);
+    padding-block: var(--stage-inset);
+    gap: var(--stage-gap);
+  }
+  .portfolio-home .work-opening > .section-intro-row {
     margin-top: auto;
   }
-  .portfolio-home .closing-section > .closing-layout {
+  .portfolio-home .work-opening > .story-list {
     flex: 0 0 auto;
-    min-height: calc(var(--canvas-stage-height) - 16rem);
+  }
+  .portfolio-home .work-opening .story-featured {
+    flex: 0 0 auto;
+    min-height: 0;
+    align-items: center;
+    border-bottom: 0;
   }
   .portfolio-home .story-list--continuation > .story {
-    align-content: start;
-    padding-top: clamp(3.875rem, calc(7 * var(--canvas-b)), 4.5rem);
+    min-height: var(--stage-usable);
+    grid-template-rows: auto 1fr auto;
+    align-items: center;
+    align-content: stretch;
+    padding-block: var(--stage-inset);
+    row-gap: var(--stage-gap);
+  }
+  .portfolio-home #ai-code-intelligence {
+    grid-template-rows: auto 1fr auto auto;
+  }
+  .portfolio-home .story-list--continuation .story-detail,
+  .portfolio-home .story-list--continuation .story-visual {
+    align-self: center;
+  }
+  .portfolio-home .story-list--continuation .story-topline {
+    margin-bottom: 1rem;
+  }
+  .portfolio-home .story-list--continuation h3 {
+    margin-bottom: 1rem;
+  }
+  .portfolio-home .story-list--continuation .story-visual {
+    min-height: 19rem;
+  }
+  .portfolio-home .experience-section .section-intro-row,
+  .portfolio-home .explore-section .section-intro-row,
+  .portfolio-home .thinking-section .section-intro-row,
+  .portfolio-home .work-opening .section-intro-row {
+    margin-bottom: 0;
+  }
+  .portfolio-home .experience-section .experience-entry {
+    padding-block: 1.25rem;
+  }
+  .portfolio-home .experience-section .work-directory-bridge {
+    margin-top: 0;
+    padding-block: 0.75rem;
+  }
+  .portfolio-home .experience-section .experience-list,
+  .portfolio-home .explore-grid,
+  .portfolio-home .thinking-section .lesson-list {
+    margin-block: auto;
+  }
+  .portfolio-home .about-grid,
+  .portfolio-home .closing-section > .closing-layout {
+    flex: 1 0 auto;
+    align-items: center;
+  }
+  .portfolio-home .stage-cue--previous,
+  .portfolio-home .stage-cue--next,
+  .portfolio-home .about-section > .shell > .stage-cue {
+    margin: 0;
+    padding: 0;
+  }
+  .portfolio-home .about-section > .shell:last-child {
+    margin: 0 auto;
+    padding: 0;
+  }
+  .portfolio-home .work-opening > .stage-cue--next {
+    margin-top: auto;
+  }
+  .portfolio-home .stage-cue--hero {
+    padding-bottom: 0.6875rem;
+  }
+}
+@media (max-width: 1100px) {
+  .portfolio-home .about-section,
+  .portfolio-home .thinking-section,
+  .portfolio-home .closing-section,
+  .portfolio-home .landing-stage {
+    min-height: 0;
+  }
+  .portfolio-home .story-list--continuation > .story {
+    row-gap: 1.5rem;
+  }
+  .portfolio-home .work-opening > .stage-cue--next {
+    margin-block: 1.25rem;
   }
 }
